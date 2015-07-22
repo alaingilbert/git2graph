@@ -35,6 +35,7 @@ type OutputNode struct {
 	ParentsPaths      map[string][]Point `json:"-"`
 	FinalParentsPaths []Path             `json:"parents_paths"`
 	Idx               int                `json:"idx"`
+	Children          []string           `json:"-"`
 }
 
 func serializeOutput(out []*OutputNode) ([]byte, error) {
@@ -78,12 +79,27 @@ func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 	return index
 }
 
+func initChildren(nodes []*OutputNode, index map[string]*OutputNode) {
+	for _, node := range nodes {
+		for _, parentId := range node.Parents {
+			index[parentId].Children = append(index[parentId].Children, node.Id)
+		}
+	}
+}
+
 func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	nextColumn := 0
 	for _, node := range nodes {
 		if node.Column == -1 {
 			node.Column = nextColumn
 			nextColumn++
+		}
+
+		for _, childId := range node.Children {
+			child := index[childId]
+			if child.Column > node.Column {
+				nextColumn--
+			}
 		}
 
 		for parentIdx, parentId := range node.Parents {
@@ -123,6 +139,7 @@ func buildTree(inputNodes []InputNode) ([]*OutputNode, error) {
 	var nodes []*OutputNode = initNodes(inputNodes)
 	var index map[string]*OutputNode = initIndex(nodes)
 
+	initChildren(nodes, index)
 	setColumns(nodes, index)
 	setPaths(nodes, index)
 
