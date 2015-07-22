@@ -32,7 +32,7 @@ type OutputNode struct {
 	Id                string            `json:"id"`
 	Parents           []string          `json:"parents"`
 	Column            int               `json:"column"`
-	ParentsPaths      map[string][]Path `json:"-"`
+	ParentsPaths      map[string][]Point `json:"-"`
 	FinalParentsPaths []Path            `json:"parents_paths"`
 	Idx               int               `json:"idx"`
 }
