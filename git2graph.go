@@ -57,7 +57,15 @@ func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
 func initNodes(inputNodes []InputNode) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
-		out = append(out, &OutputNode{node.Id, node.Parents, -1, make(map[string][]Point), make([]Path, 0), idx})
+		newNode := OutputNode{}
+		newNode.Id = node.Id
+		newNode.Parents = node.Parents
+		newNode.Column = -1
+		newNode.ParentsPaths = make(map[string][]Point)
+		newNode.FinalParentsPaths = make([]Path, 0)
+		newNode.Idx = idx
+		newNode.Children = make([]string, 0)
+		out = append(out, &newNode)
 	}
 	return out
 }
