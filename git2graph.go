@@ -15,8 +15,9 @@ type InputNode struct {
 
 // Type:
 // 0: |
-// 1: /
-// 2: \
+// 1: ┘
+// 2: ┐
+// 3: ┌
 type Point struct {
 	X    int `json:"x"`
 	Y    int `json:"y"`
