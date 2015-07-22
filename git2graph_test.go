@@ -86,3 +86,35 @@ func Test2(t *testing.T) {
 	validateColumns(t, expectedColumns, out)
 	validatePaths(t, expectedPaths, out)
 }
+
+// 1
+// |\
+// | 2
+// |/
+// 3
+func Test3(t *testing.T) {
+	// Initial input
+	inputNodes := make([]InputNode, 0)
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{}})
+
+	out, _ := buildTree(inputNodes)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 0}
+
+	expectedPaths := []map[string][]Path{
+		map[string][]Path{
+			"3": []Path{Path{0, 0, 0}, Path{0, 2, 0}},
+			"2": []Path{Path{0, 0, 0}, Path{1, 0, 2}, Path{1, 1, 0}},
+		},
+		map[string][]Path{
+			"3": []Path{Path{1, 1, 0}, Path{1, 2, 1}, Path{0, 2, 0}},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+}
