@@ -29,12 +29,12 @@ type Path struct {
 }
 
 type OutputNode struct {
-	Id                string            `json:"id"`
-	Parents           []string          `json:"parents"`
-	Column            int               `json:"column"`
+	Id                string             `json:"id"`
+	Parents           []string           `json:"parents"`
+	Column            int                `json:"column"`
 	ParentsPaths      map[string][]Point `json:"-"`
-	FinalParentsPaths []Path            `json:"parents_paths"`
-	Idx               int               `json:"idx"`
+	FinalParentsPaths []Path             `json:"parents_paths"`
+	Idx               int                `json:"idx"`
 }
 
 func serializeOutput(out []*OutputNode) ([]byte, error) {
