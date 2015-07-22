@@ -13,7 +13,7 @@ func validateColumns(t *testing.T, expectedColumns []int, data []*OutputNode) {
 	}
 }
 
-func validatePaths(t *testing.T, expectedPaths []map[string][]Path, data []*OutputNode) {
+func validatePaths(t *testing.T, expectedPaths []map[string][]Point, data []*OutputNode) {
 	for nodeIdx, node := range data {
 		for _, parentId := range node.Parents {
 			for pathIdx, pathNode := range node.ParentsPaths[parentId] {
@@ -43,12 +43,12 @@ func Test1(t *testing.T) {
 	// Expected output
 	expectedColumns := []int{0, 0, 0}
 
-	expectedPaths := []map[string][]Path{
-		map[string][]Path{
-			"2": []Path{Path{0, 0, 0}, Path{0, 1, 0}},
+	expectedPaths := []map[string][]Point{
+		map[string][]Point{
+			"2": []Point{Point{0, 0, 0}, Point{0, 1, 0}},
 		},
-		map[string][]Path{
-			"3": []Path{Path{0, 1, 0}, Path{0, 2, 0}},
+		map[string][]Point{
+			"3": []Point{Point{0, 1, 0}, Point{0, 2, 0}},
 		},
 	}
 
@@ -73,12 +73,12 @@ func Test2(t *testing.T) {
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
 
-	expectedPaths := []map[string][]Path{
-		map[string][]Path{
-			"3": []Path{Path{0, 0, 0}, Path{0, 2, 0}},
+	expectedPaths := []map[string][]Point{
+		map[string][]Point{
+			"3": []Point{Point{0, 0, 0}, Point{0, 2, 0}},
 		},
-		map[string][]Path{
-			"3": []Path{Path{1, 1, 0}, Path{1, 2, 1}, Path{0, 2, 0}},
+		map[string][]Point{
+			"3": []Point{Point{1, 1, 0}, Point{1, 2, 1}, Point{0, 2, 0}},
 		},
 	}
 
@@ -104,10 +104,20 @@ func Test3(t *testing.T) {
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
 
-	expectedPaths := []map[string][]Path{
-		map[string][]Path{
-			"3": []Path{Path{0, 0, 0}, Path{0, 2, 0}},
-			"2": []Path{Path{0, 0, 0}, Path{1, 0, 2}, Path{1, 1, 0}},
+	expectedPaths := []map[string][]Point{
+		map[string][]Point{
+			"3": []Point{Point{0, 0, 0}, Point{0, 2, 0}},
+			"2": []Point{Point{0, 0, 0}, Point{1, 0, 2}, Point{1, 1, 0}},
+		},
+		map[string][]Point{
+			"3": []Point{Point{1, 1, 0}, Point{1, 2, 1}, Point{0, 2, 0}},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+}
 		},
 		map[string][]Path{
 			"3": []Path{Path{1, 1, 0}, Path{1, 2, 1}, Path{0, 2, 0}},
