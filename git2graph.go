@@ -106,7 +106,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		for parentIdx, parentId := range node.Parents {
 			parent := index[parentId]
 			if parent.Column == -1 {
-				if parentIdx == 0 {
+				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
 					parent.Column = node.Column
 				} else {
 					parent.Column = nextColumn
@@ -127,7 +127,11 @@ func setPaths(nodes []*OutputNode, index map[string]*OutputNode) {
 			parent := index[parentId]
 			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, node.Idx, 0})
 			if node.Column > parent.Column {
-				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 1})
+				if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
+					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 3})
+				} else {
+					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 1})
+				}
 			} else if node.Column < parent.Column {
 				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 2})
 			}
