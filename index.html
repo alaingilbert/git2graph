@@ -24,7 +24,12 @@
         <label>Json:</label>
         <select class="form-control" id="examples">
           <option>Choose an example</option>
-          <option value="simple">Simple</option>
+          <option value="test1">Test 1</option>
+          <option value="test2">Test 2</option>
+          <option value="test3">Test 3</option>
+          <option value="test4">Test 4</option>
+          <option value="test5">Test 5</option>
+          <option value="test6">Test 6</option>
         </select>
       </div>
       <div id="json-group" id="json-group" class="form-group">
@@ -41,27 +46,22 @@
       </div>
     </div>
     <script>
-      var simple = '[\n' +
-                   '  {"id": "1", "parents": ["3"],\n' +
-                   '   "column": 0,\n' +
-                   '   "parents_paths": [{"id": "3", "path": [{"x": 0, "y": 0}, {"x": 0, "y": 2}]}]\n' +
-                   '   },\n' +
-                   '  {"id": "2", "parents": ["3"],\n' +
-                   '   "column": 1,\n' +
-                   '   "parents_paths": [{"id": "3", "path": [{"x": 1, "y": 1}, {"x": 1, "y": 2, "type": 1}, {"x": 0, "y": 2}]}]\n' +
-                   '   },\n' +
-                   '  {"id": "3", "parents": [],\n' +
-                   '   "column": 0,\n' +
-                   '   "parents_paths": []\n' +
-                   '   }\n' +
-                   ']\n';
+      var examples = {};
+      examples.test1 = '[{"id":"1","parents":["2"],"column":0,"parents_paths":[{"id":"2","path":[{"x":0,"y":0,"type":0},{"x":0,"y":1,"type":0}]}],"idx":0},{"id":"2","parents":["3"],"column":0,"parents_paths":[{"id":"3","path":[{"x":0,"y":1,"type":0},{"x":0,"y":2,"type":0}]}],"idx":1},{"id":"3","parents":[],"column":0,"parents_paths":[],"idx":2}]';
+      examples.test2 = '[{"id":"1","parents":["3"],"column":0,"parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}]}],"idx":0},{"id":"2","parents":["3"],"column":1,"parents_paths":[{"id":"3","path":[{"x":1,"y":1,"type":0},{"x":1,"y":2,"type":1},{"x":0,"y":2,"type":0}]}],"idx":1},{"id":"3","parents":[],"column":0,"parents_paths":[],"idx":2}]';
+      examples.test3 = '[{"id":"1","parents":["3","2"],"column":0,"parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}]},{"id":"2","path":[{"x":0,"y":0,"type":0},{"x":1,"y":0,"type":2},{"x":1,"y":1,"type":0}]}],"idx":0},{"id":"2","parents":["3"],"column":1,"parents_paths":[{"id":"3","path":[{"x":1,"y":1,"type":0},{"x":1,"y":2,"type":1},{"x":0,"y":2,"type":0}]}],"idx":1},{"id":"3","parents":[],"column":0,"parents_paths":[],"idx":2}]';
+      examples.test4 = '[{"id":"1","parents":["3","2"],"column":0,"parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}]},{"id":"2","path":[{"x":0,"y":0,"type":0},{"x":1,"y":0,"type":2},{"x":1,"y":1,"type":0}]}],"idx":0},{"id":"2","parents":["5"],"column":1,"parents_paths":[{"id":"5","path":[{"x":1,"y":1,"type":0},{"x":1,"y":4,"type":1},{"x":0,"y":4,"type":0}]}],"idx":1},{"id":"3","parents":["5","4"],"column":0,"parents_paths":[{"id":"5","path":[{"x":0,"y":2,"type":0},{"x":0,"y":4,"type":0}]},{"id":"4","path":[{"x":0,"y":2,"type":0},{"x":2,"y":2,"type":2},{"x":2,"y":3,"type":0}]}],"idx":2},{"id":"4","parents":["5"],"column":2,"parents_paths":[{"id":"5","path":[{"x":2,"y":3,"type":0},{"x":2,"y":4,"type":1},{"x":0,"y":4,"type":0}]}],"idx":3},{"id":"5","parents":[],"column":0,"parents_paths":[],"idx":4}]';
+      examples.test5 = '[{"id":"1","parents":["4"],"column":0,"parents_paths":[{"id":"4","path":[{"x":0,"y":0,"type":0},{"x":0,"y":3,"type":0}]}],"idx":0},{"id":"2","parents":["4"],"column":1,"parents_paths":[{"id":"4","path":[{"x":1,"y":1,"type":0},{"x":1,"y":3,"type":1},{"x":0,"y":3,"type":0}]}],"idx":1},{"id":"3","parents":["4"],"column":2,"parents_paths":[{"id":"4","path":[{"x":2,"y":2,"type":0},{"x":2,"y":3,"type":1},{"x":0,"y":3,"type":0}]}],"idx":2},{"id":"4","parents":["6"],"column":0,"parents_paths":[{"id":"6","path":[{"x":0,"y":3,"type":0},{"x":0,"y":5,"type":0}]}],"idx":3},{"id":"5","parents":["6"],"column":1,"parents_paths":[{"id":"6","path":[{"x":1,"y":4,"type":0},{"x":1,"y":5,"type":1},{"x":0,"y":5,"type":0}]}],"idx":4},{"id":"6","parents":[],"column":0,"parents_paths":[],"idx":5}]';
+      examples.test6 = '[{"id":"1","parents":["3","2"],"column":0,"parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}]},{"id":"2","path":[{"x":0,"y":0,"type":0},{"x":1,"y":0,"type":2},{"x":1,"y":1,"type":0}]}],"idx":0},{"id":"2","parents":["3","4"],"column":1,"parents_paths":[{"id":"3","path":[{"x":1,"y":1,"type":0},{"x":0,"y":1,"type":3},{"x":0,"y":2,"type":0}]},{"id":"4","path":[{"x":1,"y":1,"type":0},{"x":1,"y":3,"type":0}]}],"idx":1},{"id":"3","parents":["5"],"column":0,"parents_paths":[{"id":"5","path":[{"x":0,"y":2,"type":0},{"x":0,"y":4,"type":0}]}],"idx":2},{"id":"4","parents":["5"],"column":1,"parents_paths":[{"id":"5","path":[{"x":1,"y":3,"type":0},{"x":1,"y":4,"type":1},{"x":0,"y":4,"type":0}]}],"idx":3},{"id":"5","parents":[],"column":0,"parents_paths":[],"idx":4}]';
 
       $('#examples').change(function() {
         var val = $('#examples').val();
-        switch (val) {
-          case 'simple': $('#json').val(simple); break;
-          default: $('#json').val(''); break;
+        var text = '';
+        if (examples[val]) {
+          text = JSON.stringify(JSON.parse(examples[val]), null, 2);
         }
+        $('#json').val(text);
+        render();
       });
 
       var render = function() {
