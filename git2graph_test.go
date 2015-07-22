@@ -17,7 +17,10 @@ func validatePaths(t *testing.T, expectedPaths []map[string][]Point, data []*Out
 	for nodeIdx, node := range data {
 		for _, parentId := range node.Parents {
 			for pathIdx, pathNode := range node.ParentsPaths[parentId] {
-				if pathNode != expectedPaths[nodeIdx][parentId][pathIdx] {
+				if pathIdx >= len(expectedPaths[nodeIdx][parentId]) {
+					t.Fail()
+					t.Logf("Id: %s, Expected nb paths: %d, Actual nb paths: %d", node.Id, len(expectedPaths[nodeIdx][parentId]), len(node.ParentsPaths[parentId]))
+				} else if pathNode != expectedPaths[nodeIdx][parentId][pathIdx] {
 					t.Fail()
 					t.Logf("Id: %s, Expected path: %d, Actual path: %d", node.Id, expectedPaths[nodeIdx][parentId][pathIdx], pathNode)
 				}
