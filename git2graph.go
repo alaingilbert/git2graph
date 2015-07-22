@@ -17,18 +17,34 @@ type InputNode struct {
 // 0: |
 // 1: /
 // 2: \
-type Path struct {
+type Point struct {
 	X    int `json:"x"`
 	Y    int `json:"y"`
 	Type int `json:"type"`
+}
+
+type Path struct {
+	Id   string  `json:"id"`
+	Path []Point `json:"path"`
 }
 
 type OutputNode struct {
 	Id           string            `json:"id"`
 	Parents      []string          `json:"parents"`
 	Column       int               `json:"column"`
-	ParentsPaths map[string][]Path `json:"parents_paths"`
+	ParentsPaths map[string][]Path `json:"-"`
+	FinalParentsPaths []Path             `json:"parents_paths"`
 	Idx          int               `json:"idx"`
+}
+
+func serializeOutput(out []*OutputNode) ([]byte, error) {
+	for _, node := range out {
+		for parentId, path:= range node.ParentsPaths {
+			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentId, path})
+		}
+	}
+	treeBytes, err := json.Marshal(&out)
+	return treeBytes, err
 }
 
 func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
@@ -41,7 +57,7 @@ func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
 func initNodes(inputNodes []InputNode) ([]*OutputNode) {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
-		out = append(out, &OutputNode{node.Id, node.Parents, -1, make(map[string][]Path), idx})
+		out = append(out, &OutputNode{node.Id, node.Parents, -1, make(map[string][]Point), make([]Path, 0), idx})
 	}
 	return out
 }
@@ -84,11 +100,13 @@ func setPaths(nodes []*OutputNode, index map[string]*OutputNode) {
 	for _, node := range nodes {
 		for _, parentId := range node.Parents {
 			parent := index[parentId]
-			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Path{node.Column, node.Idx, 0})
+			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, node.Idx, 0})
 			if node.Column > parent.Column {
-				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Path{node.Column, parent.Idx, 1})
+				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 1})
+			} else if node.Column < parent.Column {
+				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 2})
 			}
-			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Path{parent.Column, parent.Idx, 0})
+			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, parent.Idx, 0})
 		}
 	}
 }
@@ -114,7 +132,7 @@ func BuildTreeJson(inputJson string) (tree string, err error) {
 		return
 	}
 
-	treeBytes, err := json.Marshal(&out)
+	treeBytes, err := serializeOutput(out)
 	if err != nil {
 		return
 	}
