@@ -1,11 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
-	"os"
+	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
-	"encoding/json"
+	"io/ioutil"
+	"os"
 )
 
 type InputNode struct {
@@ -29,17 +29,17 @@ type Path struct {
 }
 
 type OutputNode struct {
-	Id           string            `json:"id"`
-	Parents      []string          `json:"parents"`
-	Column       int               `json:"column"`
-	ParentsPaths map[string][]Path `json:"-"`
-	FinalParentsPaths []Path             `json:"parents_paths"`
-	Idx          int               `json:"idx"`
+	Id                string            `json:"id"`
+	Parents           []string          `json:"parents"`
+	Column            int               `json:"column"`
+	ParentsPaths      map[string][]Path `json:"-"`
+	FinalParentsPaths []Path            `json:"parents_paths"`
+	Idx               int               `json:"idx"`
 }
 
 func serializeOutput(out []*OutputNode) ([]byte, error) {
 	for _, node := range out {
-		for parentId, path:= range node.ParentsPaths {
+		for parentId, path := range node.ParentsPaths {
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentId, path})
 		}
 	}
@@ -54,7 +54,7 @@ func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
 	return
 }
 
-func initNodes(inputNodes []InputNode) ([]*OutputNode) {
+func initNodes(inputNodes []InputNode) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
 		out = append(out, &OutputNode{node.Id, node.Parents, -1, make(map[string][]Point), make([]Path, 0), idx})
@@ -88,7 +88,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					nextColumn++
 				}
 			} else {
-				if parentIdx == 0 && node.Column <  parent.Column {
+				if parentIdx == 0 && node.Column < parent.Column {
 					parent.Column = node.Column
 				}
 			}
@@ -174,13 +174,13 @@ func main() {
 	app.Version = "0.0.0"
 	app.Name = "git2graph"
 	app.Usage = "Take a git tree, make a graph structure"
-	app.Flags = []cli.Flag {
-		cli.StringFlag {
-			Name: "f, file",
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "f, file",
 			Usage: "File",
 		},
-		cli.StringFlag {
-			Name: "j, json",
+		cli.StringFlag{
+			Name:  "j, json",
 			Usage: "Json input",
 		},
 	}
