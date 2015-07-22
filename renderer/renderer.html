@@ -99,8 +99,13 @@
             _.each(path.path, function(node) {
               var point = {x: 5 + node.x * xGap, y: 5 + node.y * yGap};
               switch (node.type) {
-                case 1: point.y -= gap; break;
-                case 2: point.y += gap; break;
+                case 1:
+                  point.y -= gap;
+                  break;
+                case 2:
+                case 3:
+                  point.y += gap;
+                  break;
               }
               d.push(point);
             });
