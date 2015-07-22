@@ -142,10 +142,12 @@ func BuildTreeJson(inputJson string) (tree string, err error) {
 
 func bootstrap(c *cli.Context) {
 	var inputJson string
-	if c.String("json") != "" {
-		inputJson = c.String("json")
-	} else if c.String("file") != "" {
-		bytes, err := ioutil.ReadFile(c.String("file"))
+	jsonFlag := c.String("json")
+	fileFlag := c.String("file")
+	if jsonFlag != "" {
+		inputJson = jsonFlag
+	} else if fileFlag != "" {
+		bytes, err := ioutil.ReadFile(fileFlag)
 		if err != nil {
 			fmt.Println(err)
 			return
