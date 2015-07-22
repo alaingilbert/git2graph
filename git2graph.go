@@ -126,8 +126,8 @@ func bootstrap(c *cli.Context) {
 	var inputJson string
 	if c.String("json") != "" {
 		inputJson = c.String("json")
-	} else if c.String("input") != "" {
-		bytes, err := ioutil.ReadFile(c.String("input"))
+	} else if c.String("file") != "" {
+		bytes, err := ioutil.ReadFile(c.String("file"))
 		if err != nil {
 			fmt.Println(err)
 			return
