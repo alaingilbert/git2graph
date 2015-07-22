@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Git2Graph Renderer</title>
+    <link rel="stylesheet" href="vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
+    <script src="vendors/d3.min.js"></script>
+    <script src="vendors/underscore.min.js"></script>
+    <script src="vendors/jquery.min.js"></script>
+    <script src="vendors/bootstrap/js/bootstrap.min.js"></script>
+    <style>
+      #json {
+        height: 200px;
+      }
+      #tree {
+        border: 1px solid gray;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tree renderer</h1>
+      <div class="form-group">
+        <label>Json:</label>
+        <select class="form-control" id="examples">
+          <option>Choose an example</option>
+          <option value="simple">Simple</option>
+        </select>
+      </div>
+      <div id="json-group" id="json-group" class="form-group">
+        <textarea id="json" class="form-control"></textarea>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-success" onclick="render()">Render</button>
+      </div>
+      <div id="tree-group" class="form-group">
+        <label>Result:</label>
+        <div>
+          <svg id="tree" class="form-control"></svg>
+        </div>
+      </div>
+    </div>
+    <script>
+      var simple = '[\n' +
+                   '  {"id": "1", "parents": ["3"],\n' +
+                   '   "column": 0,\n' +
+                   '   "parents_paths": [{"id": "3", "path": [{"x": 0, "y": 0}, {"x": 0, "y": 2}]}]\n' +
+                   '   },\n' +
+                   '  {"id": "2", "parents": ["3"],\n' +
+                   '   "column": 1,\n' +
+                   '   "parents_paths": [{"id": "3", "path": [{"x": 1, "y": 1}, {"x": 1, "y": 2, "type": 1}, {"x": 0, "y": 2}]}]\n' +
+                   '   },\n' +
+                   '  {"id": "3", "parents": [],\n' +
+                   '   "column": 0,\n' +
+                   '   "parents_paths": []\n' +
+                   '   }\n' +
+                   ']\n';
+
+      $('#examples').change(function() {
+        var val = $('#examples').val();
+        switch (val) {
+          case 'simple': $('#json').val(simple); break;
+          default: $('#json').val(''); break;
+        }
+      });
+
+      var render = function() {
+        var jsonText = $('#json').val();
+        try {
+          var tree = JSON.parse(jsonText);
+          $("#json-group").removeClass("has-error");
+        } catch(err) {
+          $("#json-group").addClass("has-error");
+        }
+        var xGap = 15;
+        var yGap = 20;
+        var gap = 2 / 5 * yGap;
+
+        var svg = d3.select($('#tree')[0]);
+        svg.selectAll('*').remove();
+        var sg = svg.append('g')
+
+        var lineFunction = d3.svg.line()
+          .x(function(d) { return d.x; })
+          .y(function(d) { return d.y; })
+          .interpolate("linear");
+
+        var commitGroup = sg.selectAll('commitGroup')
+          .data(tree)
+          .enter()
+          .append('g');
+
+        commitGroup.selectAll('lines')
+          .data(function(d) { return d.parents_paths; })
+          .enter()
+          .append('path')
+          .attr('d', function(path) {
+            var d = [];
+            _.each(path.path, function(node) {
+              var point = {x: 5 + node.x * xGap, y: 5 + node.y * yGap};
+              switch (node.type) {
+                case 1: point.y -= gap; break;
+                case 2: point.y += gap; break;
+              }
+              d.push(point);
+            });
+            return lineFunction(d);
+          })
+          .attr('stroke-width', 2)
+          .attr('fill', 'none')
+          .attr('stroke', '#1f77b4');
+
+        sg.selectAll('commit')
+          .data(tree)
+          .enter()
+          .append('circle')
+            .attr('r', 4)
+            .attr('fill', '#1f77b4')
+            .attr('stroke', 'black')
+            .attr('cx', function(commit) { return 5 + commit.column * xGap; })
+            .attr('cy', function(commit, idx) { return 5 + idx * yGap; });
+      };
+    </script>
+  </body>
+</html>
