@@ -349,7 +349,7 @@ func Test9(t *testing.T) {
 		},
 		map[string][]Point{
 			"4": []Point{Point{0, 2, 0}, Point{0, 3, 0}},
-			"5": []Point{Point{0, 2, 0}, Point{2, 2, 2}, Point{2, 3, 1}, Point{1, 4, 0}},
+			"5": []Point{Point{0, 2, 0}, Point{2, 2, 2}, Point{2, 3, 1}, Point{1, 3, 0} , Point{1, 4, 0}},
 		},
 		map[string][]Point{
 			"6": []Point{Point{0, 3, 0}, Point{0, 5, 0}},
