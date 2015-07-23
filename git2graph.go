@@ -101,13 +101,13 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if node.Column < child.Column {
 				nextColumn--
 
-			if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
-				// Insert before the last element '-__-
-				pos := len(child.ParentsPaths[node.Id]) - 1
-				child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
-				copy(child.ParentsPaths[node.Id][pos+1:], child.ParentsPaths[node.Id][pos:])
-				child.ParentsPaths[node.Id][pos] = Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
-			}
+				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
+					// Insert before the last element '-__-
+					pos := len(child.ParentsPaths[node.Id]) - 1
+					child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
+					copy(child.ParentsPaths[node.Id][pos+1:], child.ParentsPaths[node.Id][pos:])
+					child.ParentsPaths[node.Id][pos] = Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
+				}
 			}
 		}
 
