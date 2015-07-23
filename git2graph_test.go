@@ -16,13 +16,13 @@ func validateColumns(t *testing.T, expectedColumns []int, data []*OutputNode) {
 func validatePaths(t *testing.T, expectedPaths []map[string][]Point, data []*OutputNode) {
 	for nodeIdx, node := range data {
 		for _, parentId := range node.Parents {
-			if len(node.ParentsPaths[parentId]) != len(expectedPaths[nodeIdx][parentId]) {
+			if len(node.ParentsPaths[parentId].Path) != len(expectedPaths[nodeIdx][parentId]) {
 				t.Fail()
-				t.Logf("Id: %s, Expected nb paths: %d, Actual nb paths: %d", node.Id, len(expectedPaths[nodeIdx][parentId]), len(node.ParentsPaths[parentId]))
+				t.Logf("Id: %s, Expected nb paths: %d, Actual nb paths: %d", node.Id, len(expectedPaths[nodeIdx][parentId]), len(node.ParentsPaths[parentId].Path))
 				t.Logf("Id: %s, Expected: %v, Actual: %v", node.Id, expectedPaths[nodeIdx][parentId], node.ParentsPaths[parentId])
 				return
 			}
-			for pathIdx, pathNode := range node.ParentsPaths[parentId] {
+			for pathIdx, pathNode := range node.ParentsPaths[parentId].Path {
 				if pathNode != expectedPaths[nodeIdx][parentId][pathIdx] {
 					t.Fail()
 					t.Logf("Id: %s, Expected path: %d, Actual path: %d", node.Id, expectedPaths[nodeIdx][parentId][pathIdx], pathNode)

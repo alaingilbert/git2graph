@@ -113,14 +113,18 @@
           })
           .attr('stroke-width', 2)
           .attr('fill', 'none')
-          .attr('stroke', '#1f77b4');
+          .attr('stroke', function(path) {
+            return path.color || '#5aa1be';
+          });
 
         sg.selectAll('commit')
           .data(tree)
           .enter()
           .append('circle')
             .attr('r', 4)
-            .attr('fill', '#1f77b4')
+            .attr('fill', function(commit) {
+              return commit.color || '#5aa1be';
+            })
             .attr('stroke', 'black')
             .attr('cx', function(commit) { return 5 + commit.column * xGap; })
             .attr('cy', function(commit, idx) { return 5 + idx * yGap; });
