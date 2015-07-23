@@ -39,6 +39,20 @@ type OutputNode struct {
 	Children          []string           `json:"-"`
 }
 
+func (node *OutputNode) Append(parentId string, point Point) {
+	node.ParentsPaths[parentId] = append(node.ParentsPaths[parentId], point)
+}
+
+func (node *OutputNode) Remove(parentId string, idx int) {
+	node.ParentsPaths[parentId] = append(node.ParentsPaths[parentId][:idx], node.ParentsPaths[parentId][idx+1:]...)
+}
+
+func (node *OutputNode) Insert(parentId string, idx int, point Point) {
+	node.ParentsPaths[parentId] = append(node.ParentsPaths[parentId], Point{})
+	copy(node.ParentsPaths[parentId][idx+1:], node.ParentsPaths[parentId][idx:])
+	node.ParentsPaths[parentId][idx] = point
+}
+
 func serializeOutput(out []*OutputNode) ([]byte, error) {
 	for _, node := range out {
 		for parentId, path := range node.ParentsPaths {
@@ -102,11 +116,10 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
-					// Insert before the last element '-__-
+					// Insert before the last element
 					pos := len(child.ParentsPaths[node.Id]) - 1
-					child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
-					copy(child.ParentsPaths[node.Id][pos+1:], child.ParentsPaths[node.Id][pos:])
-					child.ParentsPaths[node.Id][pos] = Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
+					point := Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
+					child.Insert(node.Id, pos, point)
 
 					for followingNodeIdx, followingNode := range nodes {
 						if followingNodeIdx > node.Idx {
@@ -116,17 +129,12 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 									followingNodeChild := index[followingNodeChildId]
 
 									idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id]) - 1
-									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id][:idxRemove], followingNodeChild.ParentsPaths[followingNode.Id][idxRemove+1:]...) // DELETE '-__-
+									followingNodeChild.Remove(followingNode.Id, idxRemove)
 
-									// Insert before the last element '-__-
 									pos := len(followingNodeChild.ParentsPaths[followingNode.Id]) - 1
-									//followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{})
-									//copy(followingNodeChild.ParentsPaths[followingNode.Id][pos+1:], followingNodeChild.ParentsPaths[followingNode.Id][pos:])
-									//followingNodeChild.ParentsPaths[followingNode.Id][pos] = Point{followingNodeChild.ParentsPaths[followingNode.Id][pos-1].X, node.Idx, 1}
-
-									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNodeChild.ParentsPaths[followingNode.Id][pos].X, node.Idx, 1})
-									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNode.Column-1, node.Idx, 0})
-									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNode.Column-1, followingNode.Idx, 0})
+									followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id][pos].X, node.Idx, 1})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column-1, node.Idx, 0})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column-1, followingNode.Idx, 0})
 								}
 
 								followingNode.Column--
@@ -147,7 +155,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					parent.Column = node.Column
 				} else {
 					parent.Column = nextColumn
-					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 2})
+					node.Append(parent.Id, Point{parent.Column, node.Idx, 2})
 					nextColumn++
 				}
 			} else {
@@ -157,20 +165,20 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						idxRemove := len(child.ParentsPaths[parent.Id]) - 1
 						if idxRemove > 0 {
 							if child.ParentsPaths[parent.Id][idxRemove].Type != 2 {
-								child.ParentsPaths[parent.Id] = append(child.ParentsPaths[parent.Id][:idxRemove], child.ParentsPaths[parent.Id][idxRemove+1:]...) // DELETE '-__-
+								child.Remove(parent.Id, idxRemove)
 							}
-							child.ParentsPaths[parent.Id] = append(child.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 0})
+							child.Append(parent.Id, Point{node.Column, parent.Idx, 0})
 						}
 					}
 					parent.Column = node.Column
 				} else if node.Column > parent.Column {
 					if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
-						node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 3})
+						node.Append(parent.Id, Point{parent.Column, node.Idx, 3})
 					}
 				}
 			}
 
-			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, parent.Idx, 0})
+			node.Append(parent.Id, Point{parent.Column, parent.Idx, 0})
 
 		}
 	}
