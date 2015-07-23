@@ -324,7 +324,7 @@ func Test7(t *testing.T) {
 // | 5
 // |/
 // 6
-func Test9(t *testing.T) {
+func Test8(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
 	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
@@ -381,7 +381,7 @@ func Test9(t *testing.T) {
 // | |/
 // |/
 // 8
-func Test10(t *testing.T) {
+func Test9(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
 	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
