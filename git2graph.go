@@ -100,42 +100,52 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			child := index[childId]
 			if child.Column > node.Column {
 				nextColumn--
+
+			if !(child.Column > node.Column && child.Parents[0] == node.Id && len(child.Parents) > 1) {
+				// Insert before the last element '-__-
+				pos := len(child.ParentsPaths[node.Id]) - 1
+				child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
+				copy(child.ParentsPaths[node.Id][pos+1:], child.ParentsPaths[node.Id][pos:])
+				child.ParentsPaths[node.Id][pos] = Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
+			}
 			}
 		}
 
 		for parentIdx, parentId := range node.Parents {
 			parent := index[parentId]
+
+			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, node.Idx, 0})
+
 			if parent.Column == -1 {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
 					parent.Column = node.Column
 				} else {
 					parent.Column = nextColumn
+					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 2})
 					nextColumn++
 				}
 			} else {
-				if parentIdx == 0 && node.Column < parent.Column {
+				if node.Column < parent.Column && parentIdx == 0 {
+					for _, childId := range parent.Children {
+						child := index[childId]
+						idxRemove := len(child.ParentsPaths[parent.Id]) - 1
+						if idxRemove > 0 {
+							if child.ParentsPaths[parent.Id][idxRemove].Type != 2 {
+								child.ParentsPaths[parent.Id] = append(child.ParentsPaths[parent.Id][:idxRemove], child.ParentsPaths[parent.Id][idxRemove+1:]...) // DELETE '-__-
+							}
+							child.ParentsPaths[parent.Id] = append(child.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 0})
+						}
+					}
 					parent.Column = node.Column
+				} else if node.Column > parent.Column {
+					if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
+						node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 3})
+					}
 				}
 			}
-		}
-	}
-}
 
-func setPaths(nodes []*OutputNode, index map[string]*OutputNode) {
-	for _, node := range nodes {
-		for _, parentId := range node.Parents {
-			parent := index[parentId]
-			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, node.Idx, 0})
-			if node.Column > parent.Column {
-				if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
-					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 3})
-				} else {
-					node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{node.Column, parent.Idx, 1})
-				}
-			} else if node.Column < parent.Column {
-				node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, node.Idx, 2})
-			}
 			node.ParentsPaths[parent.Id] = append(node.ParentsPaths[parent.Id], Point{parent.Column, parent.Idx, 0})
+
 		}
 	}
 }
@@ -146,7 +156,6 @@ func buildTree(inputNodes []InputNode) ([]*OutputNode, error) {
 
 	initChildren(nodes, index)
 	setColumns(nodes, index)
-	setPaths(nodes, index)
 
 	return nodes, nil
 }
