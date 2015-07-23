@@ -363,3 +363,69 @@ func Test9(t *testing.T) {
 	validateColumns(t, expectedColumns, out)
 	validatePaths(t, expectedPaths, out)
 }
+
+// 1
+// |\
+// | 2
+// 3 |
+// |\|
+// | |\
+// 4 | |
+// |\| |
+// | |\|
+// | | |\
+// |/ / /
+// 5 | |
+// | | 6
+// | 7 |
+// | |/
+// |/
+// 8
+func Test10(t *testing.T) {
+	// Initial input
+	inputNodes := make([]InputNode, 0)
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"4", "7"}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5", "6"}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"8"}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"8"}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{}})
+
+	out, _ := buildTree(inputNodes)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 0, 0, 0, 2, 1, 0}
+
+	expectedPaths := []map[string][]Point{
+		map[string][]Point{
+			"3": []Point{Point{0, 0, 0}, Point{0, 2, 0}},
+			"2": []Point{Point{0, 0, 0}, Point{1, 0, 2}, Point{1, 1, 0}},
+		},
+		map[string][]Point{
+			"5": []Point{Point{1, 1, 0}, Point{1, 4, 1}, Point{0, 4, 0}},
+		},
+		map[string][]Point{
+			"4": []Point{Point{0, 2, 0}, Point{0, 3, 0}},
+			"7": []Point{Point{0, 2, 0}, Point{2, 2, 2}, Point{2, 4, 1}, Point{1, 4, 0}, Point{1, 6, 0}},
+		},
+		map[string][]Point{
+			"5": []Point{Point{0, 3, 0}, Point{0, 4, 0}},
+			"6": []Point{Point{0, 3, 0}, Point{3, 3, 2}, Point{3, 4, 1}, Point{2, 4, 0}, Point{2, 5, 0}},
+		},
+		map[string][]Point{
+			"8": []Point{Point{0, 4, 0}, Point{0, 7, 0}},
+		},
+		map[string][]Point{
+			"8": []Point{Point{2, 5, 0}, Point{2, 7, 1}, Point{0, 7, 0}},
+		},
+		map[string][]Point{
+			"8": []Point{Point{1, 6, 0}, Point{1, 7, 1}, Point{0, 7, 0}},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+}
