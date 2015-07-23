@@ -98,10 +98,10 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 		for _, childId := range node.Children {
 			child := index[childId]
-			if child.Column > node.Column {
+			if node.Column < child.Column {
 				nextColumn--
 
-			if !(child.Column > node.Column && child.Parents[0] == node.Id && len(child.Parents) > 1) {
+			if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
 				// Insert before the last element '-__-
 				pos := len(child.ParentsPaths[node.Id]) - 1
 				child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
