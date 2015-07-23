@@ -107,6 +107,32 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					child.ParentsPaths[node.Id] = append(child.ParentsPaths[node.Id], Point{})
 					copy(child.ParentsPaths[node.Id][pos+1:], child.ParentsPaths[node.Id][pos:])
 					child.ParentsPaths[node.Id][pos] = Point{child.ParentsPaths[node.Id][pos-1].X, node.Idx, 1}
+
+					for followingNodeIdx, followingNode := range nodes {
+						if followingNodeIdx > node.Idx {
+							if followingNode.Column > child.Column {
+
+								for _, followingNodeChildId := range followingNode.Children {
+									followingNodeChild := index[followingNodeChildId]
+
+									idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id]) - 1
+									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id][:idxRemove], followingNodeChild.ParentsPaths[followingNode.Id][idxRemove+1:]...) // DELETE '-__-
+
+									// Insert before the last element '-__-
+									pos := len(followingNodeChild.ParentsPaths[followingNode.Id]) - 1
+									//followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{})
+									//copy(followingNodeChild.ParentsPaths[followingNode.Id][pos+1:], followingNodeChild.ParentsPaths[followingNode.Id][pos:])
+									//followingNodeChild.ParentsPaths[followingNode.Id][pos] = Point{followingNodeChild.ParentsPaths[followingNode.Id][pos-1].X, node.Idx, 1}
+
+									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNodeChild.ParentsPaths[followingNode.Id][pos].X, node.Idx, 1})
+									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNode.Column-1, node.Idx, 0})
+									followingNodeChild.ParentsPaths[followingNode.Id] = append(followingNodeChild.ParentsPaths[followingNode.Id], Point{followingNode.Column-1, followingNode.Idx, 0})
+								}
+
+								followingNode.Column--
+							}
+						}
+					}
 				}
 			}
 		}
