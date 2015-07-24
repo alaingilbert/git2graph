@@ -41,6 +41,7 @@ type OutputNode struct {
 	Idx               int             `json:"idx"`
 	Children          []string        `json:"-"`
 	Color             string          `json:"color"`
+	FirstInRow        bool            `json:"-"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -135,6 +136,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				colors = append(colors[:1], append([]string{child.Color}, colors[1:]...)...)
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
+					if !child.FirstInRow {
+						child.SetPathColor(node.Id, child.Color)
+					}
 					// Insert before the last element
 					pos := len(child.ParentsPaths[node.Id].Path) - 1
 					point := Point{child.ParentsPaths[node.Id].Path[pos-1].X, node.Idx, 1}
@@ -177,6 +181,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					parent.Color, colors = colors[0], colors[1:]
 					node.Append(parent.Id, Point{parent.Column, node.Idx, 2})
 					node.SetPathColor(parent.Id, parent.Color)
+					node.FirstInRow = true
 					nextColumn++
 				}
 			} else {
