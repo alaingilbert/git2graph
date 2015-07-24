@@ -201,6 +201,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					parent.Column = node.Column
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, node.Color)
+				} else if node.Column < parent.Column && parentIdx > 0 {
+					node.Append(parent.Id, Point{parent.Column, node.Idx, 2})
+					node.SetPathColor(parent.Id, parent.Color)
 				} else if node.Column > parent.Column {
 					if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
 						node.Append(parent.Id, Point{parent.Column, node.Idx, 3})
