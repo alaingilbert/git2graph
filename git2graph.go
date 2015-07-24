@@ -211,8 +211,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
-func buildTree(inputNodes []InputNode) ([]*OutputNode, error) {
-	colors = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#c0615b", "#7a63be", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+func buildTree(inputNodes []InputNode, myColors []string) ([]*OutputNode, error) {
+	colors = myColors
 	var nodes []*OutputNode = initNodes(inputNodes)
 	var index map[string]*OutputNode = initIndex(nodes)
 
@@ -222,13 +222,13 @@ func buildTree(inputNodes []InputNode) ([]*OutputNode, error) {
 	return nodes, nil
 }
 
-func BuildTreeJson(inputJson string) (tree string, err error) {
+func BuildTreeJson(inputJson string, myColors []string) (tree string, err error) {
 	nodes, err := getInputNodesFromJson(inputJson)
 	if err != nil {
 		return
 	}
 
-	out, err := buildTree(nodes)
+	out, err := buildTree(nodes, myColors)
 	if err != nil {
 		return
 	}
@@ -259,7 +259,9 @@ func bootstrap(c *cli.Context) {
 		return
 	}
 
-	out, err := BuildTreeJson(inputJson)
+	myColors := []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#c0615b", "#7a63be", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+
+	out, err := BuildTreeJson(inputJson, myColors)
 	if err != nil {
 		fmt.Println(err)
 		return
