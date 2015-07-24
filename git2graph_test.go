@@ -349,7 +349,7 @@ func Test8(t *testing.T) {
 		},
 		map[string]Path{
 			"4": Path{"4", []Point{Point{0, 2, 0}, Point{0, 3, 0}}, ""},
-			"5": Path{"5", []Point{Point{0, 2, 0}, Point{2, 2, 2}, Point{2, 3, 1}, Point{1, 3, 0} , Point{1, 4, 0}}, ""},
+			"5": Path{"5", []Point{Point{0, 2, 0}, Point{2, 2, 2}, Point{2, 3, 1}, Point{1, 3, 0}, Point{1, 4, 0}}, ""},
 		},
 		map[string]Path{
 			"6": Path{"6", []Point{Point{0, 3, 0}, Point{0, 5, 0}}, ""},

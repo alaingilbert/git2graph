@@ -27,20 +27,20 @@ type Point struct {
 }
 
 type Path struct {
-	Id   string  `json:"id"`
-	Path []Point `json:"path"`
-	Color string `json:"color"`
+	Id    string  `json:"id"`
+	Path  []Point `json:"path"`
+	Color string  `json:"color"`
 }
 
 type OutputNode struct {
-	Id                string             `json:"id"`
-	Parents           []string           `json:"parents"`
-	Column            int                `json:"column"`
-	ParentsPaths      map[string]Path    `json:"-"`
-	FinalParentsPaths []Path             `json:"parents_paths"`
-	Idx               int                `json:"idx"`
-	Children          []string           `json:"-"`
-	Color             string             `json:"color"`
+	Id                string          `json:"id"`
+	Parents           []string        `json:"parents"`
+	Column            int             `json:"column"`
+	ParentsPaths      map[string]Path `json:"-"`
+	FinalParentsPaths []Path          `json:"parents_paths"`
+	Idx               int             `json:"idx"`
+	Children          []string        `json:"-"`
+	Color             string          `json:"color"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -152,8 +152,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 									pos := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
 									followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[pos].X, node.Idx, 1})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column-1, node.Idx, 0})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column-1, followingNode.Idx, 0})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, 0})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, 0})
 								}
 
 								followingNode.Column--
