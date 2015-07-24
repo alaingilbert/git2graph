@@ -38,7 +38,7 @@ and returns a structure that represent a git graph:
 ]
 ```
 
-This structure can be directly rendered with D3.js, you can find an example of this in `renderer/renderer.html`.
+This structure can be directly rendered with D3.js, [you can try it out here.](http://alaingilbert.github.io/git2graph/)
 
 ## How to use
 
@@ -53,7 +53,7 @@ This structure can be directly rendered with D3.js, you can find an example of t
 ## See it in action
 
 ```
-renderer/renderer.html
+renderer/index.html
 ```
 
 Use D3.js to render the graph represented by the output of Git2Graph.
