@@ -1,5 +1,3 @@
-github:
-	ghp-import -p renderer
 EXAMPLES_FILE=renderer/examples.js
 GITHUB_PAGES_FOLDER=renderer
 GITHUB_PAGES_BRANCH=gh-pages
@@ -11,4 +9,8 @@ deploy:
 		c=`go run git2graph.go -f $$f`; \
 		echo "examples['$$f'] = '$$c';" >> $(EXAMPLES_FILE); \
 	done
+
+github: deploy
+	ghp-import -b $(GITHUB_PAGES_BRANCH) -p $(GITHUB_PAGES_FOLDER)
+
 .PHONY: deploy github
