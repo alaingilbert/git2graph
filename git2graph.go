@@ -132,7 +132,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if node.Column < child.Column {
 				nextColumn--
 				child.SetPathColor(node.Id, child.Color)
-				colors = append([]string{child.Color}, colors...)
+				colors = append(colors[:1], append([]string{child.Color}, colors[1:]...)...)
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
 					// Insert before the last element
@@ -192,6 +192,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						}
 					}
 					parent.Column = node.Column
+					parent.Color = node.Color
 				} else if node.Column > parent.Column {
 					if node.Parents[0] == parent.Id && len(node.Parents) > 1 {
 						node.Append(parent.Id, Point{parent.Column, node.Idx, 3})
