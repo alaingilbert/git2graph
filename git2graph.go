@@ -198,6 +198,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							if child.ParentsPaths[parent.Id].Path[idxRemove].Type != 2 {
 								child.Remove(parent.Id, idxRemove)
 							}
+							pos := len(child.ParentsPaths[parent.Id].Path) - 1
+							child.Append(parent.Id, Point{child.ParentsPaths[parent.Id].Path[pos].X, parent.Idx, 1})
 							child.Append(parent.Id, Point{node.Column, parent.Idx, 0})
 						}
 					}
@@ -217,6 +219,21 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 			node.Append(parent.Id, Point{parent.Column, parent.Idx, 0})
 
+		}
+	}
+
+	// Deduplicate path nodes
+	for _, node := range nodes {
+		for pathIdx, path := range node.ParentsPaths {
+			previousPoint := Point{-1, -1, -1}
+			for pointIdx, point := range path.Path {
+				if point.X == previousPoint.X && point.Y == previousPoint.Y && point.Type == previousPoint.Type {
+					tmp := node.ParentsPaths[pathIdx]
+					tmp.Path = append(tmp.Path[:pointIdx], tmp.Path[pointIdx+1:]...)
+					node.ParentsPaths[pathIdx] = tmp
+				}
+				previousPoint = point
+			}
 		}
 	}
 }
