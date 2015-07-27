@@ -148,6 +148,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					for followingNodeIdx, followingNode := range nodes {
 						if followingNodeIdx > node.Idx {
 							if followingNode.Column > child.Column {
+								if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 
 								for _, followingNodeChildId := range followingNode.Children {
 									followingNodeChild := index[followingNodeChildId]
@@ -162,6 +163,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 								}
 
 								followingNode.Column--
+								}
 							}
 						}
 					}
