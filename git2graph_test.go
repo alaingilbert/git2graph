@@ -613,3 +613,54 @@ func Test12(t *testing.T) {
 	validatePaths(t, expectedPaths, out)
 	validateColors(t, expectedPaths, out)
 }
+
+// 1
+// |\
+// | 2
+// | |
+// | 3
+// 4 |\
+// |\| |
+// | 5 |
+// | |\|
+// | 6 |\
+// 7 | | |
+// | | |/
+// | |/|
+// |/| |
+// 8 | |
+// | | 9
+// | |/
+// |/
+// 10
+func Test13(t *testing.T) {
+	// Initial input
+	inputNodes := make([]InputNode, 0)
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4", "2"}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "9"}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"7", "5"}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6", "8"}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"10"}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{"10"}})
+	inputNodes = append(inputNodes, InputNode{"9", []string{"10"}})
+	inputNodes = append(inputNodes, InputNode{"10", []string{}})
+
+	out, _ := buildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 1, 0, 1, 1, 0, 0, 2, 0}
+
+	expectedPaths := []map[string]Path{
+		map[string]Path{
+			"4": Path{"4", []Point{Point{0, 0, 0}, Point{0, 3, 0}}, "color1"},
+			"2": Path{"2", []Point{Point{0, 0, 0}, Point{1, 0, 2}, Point{1, 1, 0}}, "color2"},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
