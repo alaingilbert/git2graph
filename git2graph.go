@@ -130,7 +130,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 		for _, childId := range node.Children {
 			child := index[childId]
-			if node.Column < child.Column {
+			isType3 := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == 3
+			if node.Column < child.Column && !isType3 {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
