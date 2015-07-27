@@ -573,3 +573,43 @@ func Test11(t *testing.T) {
 	validatePaths(t, expectedPaths, out)
 	validateColors(t, expectedPaths, out)
 }
+
+// 1
+// |-2
+// 3 |
+// |\|
+// | |\
+// | | 4
+// | |/
+// |/|
+// 5 |
+// | 6
+// |/
+// 7
+func Test12(t *testing.T) {
+	// Initial input
+	inputNodes := make([]InputNode, 0)
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "6"}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"7"}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{}})
+
+	out, _ := buildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 0, 2, 0, 1, 0}
+
+	expectedPaths := []map[string]Path{
+		map[string]Path{
+			"3": Path{"3", []Point{Point{0, 0, 0}, Point{0, 2, 0}}, "color1"},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
