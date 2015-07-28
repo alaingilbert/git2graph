@@ -1,5 +1,5 @@
-EXAMPLES_FILE=renderer/examples.js
-GITHUB_PAGES_FOLDER=renderer
+EXAMPLES_FILE=tools/renderer/examples.js
+GITHUB_PAGES_FOLDER=tools/renderer
 GITHUB_PAGES_BRANCH=gh-pages
 
 deploy:
