@@ -2,11 +2,11 @@
 <html>
   <head>
     <title>Git2Graph Renderer</title>
-    <link rel="stylesheet" href="vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
-    <script src="vendors/d3.min.js"></script>
-    <script src="vendors/underscore.min.js"></script>
-    <script src="vendors/jquery.min.js"></script>
-    <script src="vendors/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
+    <script src="../vendors/d3.min.js"></script>
+    <script src="../vendors/underscore.min.js"></script>
+    <script src="../vendors/jquery.min.js"></script>
+    <script src="../vendors/bootstrap/js/bootstrap.min.js"></script>
     <script src="examples.js"></script>
     <style>
       #json {
@@ -66,8 +66,10 @@
         var xGap = 11;
         var yGap = 20;
         var gap = 2 / 5 * yGap;
+        var radius = 4;
 
         var svg = d3.select($('#tree')[0]);
+        svg.style('height', tree.length * yGap + radius);
         svg.selectAll('*').remove();
         var sg = svg.append('g')
 
@@ -112,7 +114,7 @@
           .data(tree)
           .enter()
           .append('circle')
-            .attr('r', 4)
+            .attr('r', radius)
             .attr('fill', function(commit) {
               return commit.color || '#5aa1be';
             })
