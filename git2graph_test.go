@@ -16,7 +16,7 @@ func validateColumns(t *testing.T, expectedColumns []int, data []*OutputNode) {
 func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []*OutputNode) {
 	for nodeIdx, node := range data {
 		for _, parentId := range node.Parents {
-			if len(expectedPaths) - 1 < nodeIdx {
+			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
 			if len(node.ParentsPaths[parentId].Path) != len(expectedPaths[nodeIdx][parentId].Path) {
@@ -39,7 +39,7 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []*Output
 func validateColors(t *testing.T, expectedPaths []map[string]Path, data []*OutputNode) {
 	for nodeIdx, node := range data {
 		for _, parentId := range node.Parents {
-			if len(expectedPaths) - 1 < nodeIdx {
+			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
 			if expectedPaths[nodeIdx][parentId].Color != node.ParentsPaths[parentId].Color {

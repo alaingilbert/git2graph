@@ -169,19 +169,19 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							if followingNode.Column > child.Column {
 								if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 
-								for _, followingNodeChildId := range followingNode.Children {
-									followingNodeChild := index[followingNodeChildId]
-									idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
-									if idxRemove < 0 {
-										continue
+									for _, followingNodeChildId := range followingNode.Children {
+										followingNodeChild := index[followingNodeChildId]
+										idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
+										if idxRemove < 0 {
+											continue
+										}
+										followingNodeChild.Remove(followingNode.Id, idxRemove)
+										followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X, node.Idx, MERGE_BACK})
+										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, PIPE})
+										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, PIPE})
 									}
-									followingNodeChild.Remove(followingNode.Id, idxRemove)
-									followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X, node.Idx, MERGE_BACK})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, PIPE})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, PIPE})
-								}
 
-								followingNode.Column--
+									followingNode.Column--
 								}
 							}
 						}
