@@ -15,11 +15,14 @@ type InputNode struct {
 	Parents []string `json:"parents"`
 }
 
-// Type:
-// 0: |
-// 1: ┘
-// 2: ┐
-// 3: ┌
+// Types
+const (
+	PIPE       = iota // 0: |
+	MERGE_BACK = iota // 1: ┘
+	FORK       = iota // 2: ┐
+	MERGE_TO   = iota // 3: ┌
+)
+
 type Point struct {
 	X    int `json:"x"`
 	Y    int `json:"y"`
@@ -62,6 +65,22 @@ func (node *OutputNode) Insert(parentId string, idx int, point Point) {
 	copy(tmp.Path[idx+1:], tmp.Path[idx:])
 	tmp.Path[idx] = point
 	node.ParentsPaths[parentId] = tmp
+}
+
+func (node *OutputNode) ColumnDefined() bool {
+	return node.Column != -1
+}
+
+func (node *OutputNode) HasBiggerParentDefined(index map[string]*OutputNode) bool {
+	found := false
+	for _, pId := range node.Parents {
+		p := index[pId]
+		if p.Column > node.Column {
+			found = true
+			break
+		}
+	}
+	return found
 }
 
 func (node *OutputNode) SetPathColor(parentId, color string) {
@@ -122,7 +141,7 @@ func initChildren(nodes []*OutputNode, index map[string]*OutputNode) {
 func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	nextColumn := 0
 	for _, node := range nodes {
-		if node.Column == -1 {
+		if !node.ColumnDefined() {
 			node.Column = nextColumn
 			node.Color, colors = colors[0], colors[1:]
 			nextColumn++
@@ -130,7 +149,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 		for _, childId := range node.Children {
 			child := index[childId]
-			isType3 := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == 3
+			isType3 := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == MERGE_TO
 			if node.Column < child.Column && !isType3 {
 				nextColumn--
 
@@ -142,7 +161,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 					// Insert before the last element
 					pos := len(child.ParentsPaths[node.Id].Path) - 1
-					point := Point{child.ParentsPaths[node.Id].Path[pos-1].X, node.Idx, 1}
+					point := Point{child.ParentsPaths[node.Id].Path[pos-1].X, node.Idx, MERGE_BACK}
 					child.Insert(node.Id, pos, point)
 
 					for followingNodeIdx, followingNode := range nodes {
@@ -152,14 +171,14 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 								for _, followingNodeChildId := range followingNode.Children {
 									followingNodeChild := index[followingNodeChildId]
-
 									idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
+									if idxRemove < 0 {
+										continue
+									}
 									followingNodeChild.Remove(followingNode.Id, idxRemove)
-
-									pos := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
-									followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[pos].X, node.Idx, 1})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, 0})
-									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, 0})
+									followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X, node.Idx, MERGE_BACK})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, PIPE})
+									followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, PIPE})
 								}
 
 								followingNode.Column--
@@ -174,9 +193,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		for parentIdx, parentId := range node.Parents {
 			parent := index[parentId]
 
-			node.Append(parent.Id, Point{node.Column, node.Idx, 0})
+			node.Append(parent.Id, Point{node.Column, node.Idx, PIPE})
 
-			if parent.Column == -1 {
+			if !parent.ColumnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
 					parent.Column = node.Column
 					parent.Color = node.Color
@@ -184,52 +203,45 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				} else {
 					parent.Column = nextColumn
 					parent.Color, colors = colors[0], colors[1:]
-					node.Append(parent.Id, Point{parent.Column, node.Idx, 2})
+					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
 					node.FirstInRow = true
 					nextColumn++
 				}
-			} else {
+			} else if parent.ColumnDefined() {
 				if node.Column < parent.Column && parentIdx == 0 {
 					for _, childId := range parent.Children {
 						child := index[childId]
 						idxRemove := len(child.ParentsPaths[parent.Id].Path) - 1
 						if idxRemove > 0 {
-							if child.ParentsPaths[parent.Id].Path[idxRemove].Type != 2 {
+							if child.ParentsPaths[parent.Id].Path[idxRemove].Type != FORK {
 								child.Remove(parent.Id, idxRemove)
 							}
 							pos := len(child.ParentsPaths[parent.Id].Path) - 1
-							child.Append(parent.Id, Point{child.ParentsPaths[parent.Id].Path[pos].X, parent.Idx, 1})
-							child.Append(parent.Id, Point{node.Column, parent.Idx, 0})
+							child.Append(parent.Id, Point{child.ParentsPaths[parent.Id].Path[pos].X, parent.Idx, MERGE_BACK})
+							child.Append(parent.Id, Point{node.Column, parent.Idx, PIPE})
 						}
 					}
 					parent.Column = node.Column
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
-					node.Append(parent.Id, Point{parent.Column, node.Idx, 2})
+					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
-						found := false
-						for _, pId := range node.Parents {
-							p := index[pId]
-							if pId != parent.Id && p.Column > node.Column {
-								found = true
-							}
-						}
-						if found {
-							node.Append(parent.Id, Point{node.Column, parent.Idx, 1})
+						if node.HasBiggerParentDefined(index) {
+							node.Append(parent.Id, Point{node.Column, parent.Idx, MERGE_BACK})
 							node.SetPathColor(parent.Id, node.Color)
 						} else {
-							node.Append(parent.Id, Point{parent.Column, node.Idx, 3})
+							node.Append(parent.Id, Point{parent.Column, node.Idx, MERGE_TO})
 							node.SetPathColor(parent.Id, parent.Color)
 						}
 					}
 				}
 			}
 
-			node.Append(parent.Id, Point{parent.Column, parent.Idx, 0})
+			node.Append(parent.Id, Point{parent.Column, parent.Idx, PIPE})
 
 		}
 	}
