@@ -149,8 +149,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 		for _, childId := range node.Children {
 			child := index[childId]
-			isType3 := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == MERGE_TO
-			if node.Column < child.Column && !isType3 {
+			isNodeMerging := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == MERGE_TO
+			if node.Column < child.Column && !isNodeMerging {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
