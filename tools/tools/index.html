@@ -233,7 +233,7 @@
           out += '		map[string]Path{\n';
           _.each(node.parents, function(parentId) {
             var parentNode = tree[parentId];
-            out += '		"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "nocolor"},\n';
+            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "nocolor"},\n';
           });
           out += '		},\n';
         });
