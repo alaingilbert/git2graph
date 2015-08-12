@@ -45,6 +45,7 @@ type OutputNode struct {
 	Children          []string        `json:"-"`
 	Color             string          `json:"color"`
 	FirstInRow        bool            `json:"-"`
+	Debug             []string        `json:"debug"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -117,6 +118,7 @@ func initNodes(inputNodes []InputNode) []*OutputNode {
 		newNode.FinalParentsPaths = make([]Path, 0)
 		newNode.Idx = idx
 		newNode.Children = make([]string, 0)
+		newNode.Debug = make([]string, 0)
 		out = append(out, &newNode)
 	}
 	return out
@@ -143,6 +145,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	for _, node := range nodes {
 		if !node.ColumnDefined() {
 			node.Column = nextColumn
+			node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
 			node.Color, colors = colors[0], colors[1:]
 			nextColumn++
 		}
@@ -192,6 +195,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							}
 							if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 								followingNode.Column--
+								followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Node moved down, %s -> %s", child.Id, node.Id))
 							}
 						}
 					}
@@ -207,10 +211,12 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if !parent.ColumnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
 					parent.Column = node.Column
+					parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", node.Column))
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, parent.Color)
 				} else {
 					parent.Column = nextColumn
+					parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", nextColumn))
 					parent.Color, colors = colors[0], colors[1:]
 					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
@@ -232,6 +238,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						}
 					}
 					parent.Column = node.Column
+					parent.Debug = append(parent.Debug, fmt.Sprintf("Column reset to %d", node.Column))
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
