@@ -67,6 +67,7 @@
         var yGap = 20;
         var gap = 2 / 5 * yGap;
         var radius = 4;
+        var shaMargin = 60;
 
         var svg = d3.select($('#tree')[0]);
         svg.style('height', tree.length * yGap + radius);
@@ -90,7 +91,7 @@
           .attr('d', function(path) {
             var d = [];
             _.each(path.path, function(node) {
-              var point = {x: 5 + node.x * xGap, y: 5 + node.y * yGap};
+              var point = {x: 5 + node.x * xGap + shaMargin, y: 5 + node.y * yGap};
               switch (node.type) {
                 case 1:
                   point.y -= gap;
@@ -119,8 +120,8 @@
               return commit.color || '#5aa1be';
             })
             .attr('stroke', 'black')
-            .attr('cx', function(commit) { return 5 + commit.column * xGap; })
-            .attr('cy', function(commit, idx) { return 5 + idx * yGap; });
+            .attr('cx', function(commit) { return 5 + commit.column * xGap + shaMargin; })
+            .attr('cy', function(commit, idx) { return 5 + idx * yGap; })
       };
     </script>
   </body>
