@@ -122,6 +122,9 @@
             .attr('stroke', 'black')
             .attr('cx', function(commit) { return 5 + commit.column * xGap + shaMargin; })
             .attr('cy', function(commit, idx) { return 5 + idx * yGap; })
+            .on('mouseover', function(commit) {
+              console.log(commit.debug);
+            });
 
         sg.selectAll('sha')
           .data(tree)
