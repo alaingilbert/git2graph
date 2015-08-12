@@ -64,7 +64,7 @@
       var tree = [];
 
       var btnAddRowClicked = function() {
-        tree.push({id: tree.length, parents: []});
+        tree.push({id: tree.length.toString(), parents: []});
         render();
       };
 
@@ -198,7 +198,7 @@
                   firstCommit = [rowIndex, rowIndex = firstCommit][0]; // swap vars
                 }
                 if (!_.contains(tree[firstCommit].parents, rowIndex)) {
-                  tree[firstCommit].parents.push(rowIndex);
+                  tree[firstCommit].parents.push(rowIndex.toString());
                   render();
                 }
               });
