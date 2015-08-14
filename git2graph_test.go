@@ -876,8 +876,7 @@ func Test17(t *testing.T) {
 		map[string]Path{
 			"6": Path{"6", []Point{Point{0, 5, 0}, Point{0, 6, 0}}, "color1"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
