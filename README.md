@@ -8,7 +8,7 @@ It takes a json:
 [
   {"id": "1", "parents": ["3"]},
   {"id": "2", "parents": ["3"]},
-  {"id": "3", "parents": []},
+  {"id": "3", "parents": []}
 ]
 ```
 
@@ -23,18 +23,24 @@ and returns a structure that represent a git graph:
 
 ```
 [
-  {"id": "1", "parents": ["3"],
-   "column": 0,
-   "parents_paths": [{"id": "3", "path": [{"x": 0, "y": 0}, {"x": 0, "y": 2}]}]
-   },
-  {"id": "2", "parents": ["3"],
-   "column": 1,
-   "parents_paths": [{"id": "3", "path": [{"x": 1, "y": 1}, {"x": 1, "y": 2, "type": 1}, {"x": 0, "y": 2}]}]
-   },
-  {"id": "3", "parents": [],
-   "column": 0,
-   "parents_paths": []
-   }
+  {"id":"1",
+   "parents":["3"],
+   "column":0,
+   "parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}],"color":"#5aa1be"}],
+   "idx":0,
+   "color":"#5aa1be"},
+  {"id":"2",
+   "parents":["3"],
+   "column":1,
+   "parents_paths":[{"id":"3","path":[{"x":1,"y":1,"type":0},{"x":1,"y":2,"type":1},{"x":0,"y":2,"type":0}],"color":"#c065b8"}],
+   "idx":1,
+   "color":"#c065b8"},
+  {"id":"3",
+  "parents":[],
+  "column":0,
+  "parents_paths":[],
+  "idx":2,
+  "color":"#5aa1be"}
 ]
 ```
 
