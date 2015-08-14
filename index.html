@@ -67,6 +67,7 @@
         var yGap = 20;
         var gap = 2 / 5 * yGap;
         var radius = 4;
+        var shaMargin = 60;
 
         var svg = d3.select($('#tree')[0]);
         svg.style('height', tree.length * yGap + radius);
@@ -90,7 +91,7 @@
           .attr('d', function(path) {
             var d = [];
             _.each(path.path, function(node) {
-              var point = {x: 5 + node.x * xGap, y: 5 + node.y * yGap};
+              var point = {x: 5 + node.x * xGap + shaMargin, y: 5 + node.y * yGap};
               switch (node.type) {
                 case 1:
                   point.y -= gap;
@@ -119,8 +120,24 @@
               return commit.color || '#5aa1be';
             })
             .attr('stroke', 'black')
-            .attr('cx', function(commit) { return 5 + commit.column * xGap; })
-            .attr('cy', function(commit, idx) { return 5 + idx * yGap; });
+            .attr('cx', function(commit) { return 5 + commit.column * xGap + shaMargin; })
+            .attr('cy', function(commit, idx) { return 5 + idx * yGap; })
+            .on('mouseover', function(commit) {
+              console.log(commit.debug);
+            });
+
+        sg.selectAll('sha')
+          .data(tree)
+          .enter()
+          .append('text')
+          .attr('font-size', 12)
+          .attr('x', function(commit) { return 0; })
+          .attr('y', function(commit, idx) { return 5 + idx * yGap; })
+          .attr('alignment-baseline', 'middle')
+          .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
+          .text(function(commit) {
+            return commit.id.substr(0, 7);
+          });
       };
     </script>
   </body>
