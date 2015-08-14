@@ -46,6 +46,7 @@ type OutputNode struct {
 	Color             string          `json:"color"`
 	FirstInRow        bool            `json:"-"`
 	Debug             []string        `json:"debug"`
+	NbMoveDown        int             `json:"-"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -119,6 +120,7 @@ func initNodes(inputNodes []InputNode) []*OutputNode {
 		newNode.Idx = idx
 		newNode.Children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
+		newNode.NbMoveDown = 0
 		out = append(out, &newNode)
 	}
 	return out
@@ -150,10 +152,19 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			nextColumn++
 		}
 
+		nbNodesMergingBack := 0
 		for _, childId := range node.Children {
 			child := index[childId]
 			isNodeMerging := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == MERGE_TO
-			if node.Column < child.Column && !isNodeMerging {
+			if (node.Column + node.NbMoveDown) < child.Column && !isNodeMerging {
+				nbNodesMergingBack++
+			}
+		}
+
+		for _, childId := range node.Children {
+			child := index[childId]
+			isNodeMerging := child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].Type == MERGE_TO
+			if (node.Column + node.NbMoveDown) < child.Column && !isNodeMerging {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
@@ -183,14 +194,14 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 											followingNodeChild.Remove(followingNode.Id, idxRemove)
 											followingNodeChild.Append(followingNode.Id, Point{followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X, node.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, node.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1 - (nbNodesMergingBack-1), node.Idx, PIPE})
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, PIPE})
 										} else {
 											tmp := followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X
 											followingNodeChild.Remove(followingNode.Id, idxRemove)
 											followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{tmp - 1, node.Idx, PIPE})
-											followingNodeChild.Append(followingNode.Id, Point{tmp - 1, followingNode.Idx, MERGE_BACK})
+											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack-1), node.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack-1), followingNode.Idx, MERGE_BACK})
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
 									}
@@ -198,6 +209,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							}
 							if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 								followingNode.Column--
+								followingNode.NbMoveDown++
 								followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Node moved down, %s -> %s", child.Id, node.Id))
 							}
 						}
