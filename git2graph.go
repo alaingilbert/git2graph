@@ -9,6 +9,7 @@ import (
 )
 
 var colors []string
+var debugMode bool = false
 
 type InputNode struct {
 	Id      string   `json:"id"`
@@ -45,7 +46,7 @@ type OutputNode struct {
 	Children          []string        `json:"-"`
 	Color             string          `json:"color"`
 	FirstInRow        bool            `json:"-"`
-	Debug             []string        `json:"debug"`
+	Debug             []string        `json:"debug,omitempty"`
 	NbMoveDown        int             `json:"-"`
 }
 
@@ -147,7 +148,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	for _, node := range nodes {
 		if !node.ColumnDefined() {
 			node.Column = nextColumn
-			node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
+			if debugMode {
+				node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
+			}
 			node.Color, colors = colors[0], colors[1:]
 			nextColumn++
 		}
@@ -210,7 +213,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							if followingNode.Column > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 								followingNode.Column--
 								followingNode.NbMoveDown++
-								followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Node moved down, %s -> %s", child.Id, node.Id))
+								if debugMode {
+									followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Node moved down, %s -> %s", child.Id, node.Id))
+								}
 							}
 						}
 					}
@@ -226,12 +231,16 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if !parent.ColumnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
 					parent.Column = node.Column
-					parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", node.Column))
+					if debugMode {
+						parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", node.Column))
+					}
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, parent.Color)
 				} else {
 					parent.Column = nextColumn
-					parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", nextColumn))
+					if debugMode {
+						parent.Debug = append(parent.Debug, fmt.Sprintf("Column set to %d", nextColumn))
+					}
 					parent.Color, colors = colors[0], colors[1:]
 					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
@@ -253,7 +262,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						}
 					}
 					parent.Column = node.Column
-					parent.Debug = append(parent.Debug, fmt.Sprintf("Column reset to %d", node.Column))
+					if debugMode {
+						parent.Debug = append(parent.Debug, fmt.Sprintf("Column reset to %d", node.Column))
+					}
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
@@ -327,6 +338,8 @@ func bootstrap(c *cli.Context) {
 	var inputJson string
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
+	debugMode = c.Bool("debug")
+
 	if jsonFlag != "" {
 		inputJson = jsonFlag
 	} else if fileFlag != "" {
@@ -369,6 +382,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "j, json",
 			Usage: "Json input",
+		},
+		cli.BoolFlag{
+			Name:  "d, debug",
+			Usage: "Debug mode",
 		},
 	}
 	app.Action = bootstrap
