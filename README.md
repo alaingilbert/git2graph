@@ -1,4 +1,4 @@
-![Logo](logo.png)
+![Logo](img/logo.png)
 
 The main goal of this library is to take a linear git history, and create a structure that we can use to draw a graph of the commits/branches.
 
@@ -10,13 +10,6 @@ It takes a json:
   {"id": "2", "parents": ["3"]},
   {"id": "3", "parents": []}
 ]
-```
-
-```
-1
-| 2
-|/
-3
 ```
 
 and returns a structure that represent a git graph:
@@ -45,6 +38,15 @@ and returns a structure that represent a git graph:
 ```
 
 This structure can be directly rendered with D3.js, [you can try it out here.](http://alaingilbert.github.io/git2graph/)
+
+![Logo](img/img1.png)
+
+### Other examples
+
+![Logo](img/img2.png)
+![Logo](img/img5.png)
+![Logo](img/img3.png)
+![Logo](img/img4.png)
 
 ## How to use
 
