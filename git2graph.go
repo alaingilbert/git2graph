@@ -167,11 +167,14 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					point := Point{child.ParentsPaths[node.Id].Path[pos-1].X, node.Idx, MERGE_BACK}
 					child.Insert(node.Id, pos, point)
 
+					// Nodes that are following the current node
 					for followingNodeIdx, followingNode := range nodes {
 						if followingNodeIdx > node.Idx {
+							// Following nodes that have a child before the current node
 							for _, followingNodeChildId := range followingNode.Children {
 								followingNodeChild := index[followingNodeChildId]
 								if followingNodeChild.Idx < node.Idx {
+									// Following node child has a path that is higher than the current path being merged
 									if followingNodeChild.ParentsPaths[followingNode.Id].Path[len(followingNodeChild.ParentsPaths[followingNode.Id].Path)-2].X > child.ParentsPaths[node.Id].Path[len(child.ParentsPaths[node.Id].Path)-2].X {
 										idxRemove := len(followingNodeChild.ParentsPaths[followingNode.Id].Path) - 1
 										if idxRemove < 0 {
