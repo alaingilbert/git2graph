@@ -6,6 +6,8 @@ import (
 	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 var colors []string
@@ -331,34 +333,100 @@ func BuildTreeJson(inputJson string, myColors []string) (tree string, err error)
 	return
 }
 
+func getInputNodesFromFile(filePath string) (nodes []InputNode, err error) {
+	bytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return
+	}
+	inputJson := string(bytes)
+	nodes, err = getInputNodesFromJson(inputJson)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func deleteEmpty (s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
+
+func getInputNodesFromRepo() (nodes []InputNode, err error) {
+	START_OF_COMMIT := "@@@@@@@@@@"
+	outBytes, err := exec.Command("git", "log", "--pretty=tformat:" + START_OF_COMMIT + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%t%n%s", "--date=local", "--branches", "--remotes").Output()
+	if err != nil {
+		return
+	}
+	outString := string(outBytes)
+	lines := strings.Split(outString, "\n")
+	i := 0
+	for i < len(lines) {
+		if i >= len(lines) {
+			break
+		}
+		i++
+		sha := lines[i]
+		//name := lines[i+1]
+		//email := lines[i+2]
+		//date := lines[i+3]
+		//dateIso := lines[i+4]
+		parents := strings.Split(lines[i+5], " ")
+		parents = deleteEmpty(parents)
+		//tree := lines[i+6]
+		//subject := lines[i+7]
+		i += 8
+		nodes = append(nodes, InputNode{sha, parents})
+		if lines[i] != START_OF_COMMIT {
+			break
+		}
+	}
+	return
+}
+
 func bootstrap(c *cli.Context) {
-	var inputJson string
+	var nodes []InputNode
+	var err error
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
 	debugMode = c.Bool("debug")
+	repoFlag := c.Bool("repo")
 
-	if jsonFlag != "" {
-		inputJson = jsonFlag
+	if repoFlag {
+		nodes, err = getInputNodesFromRepo()
+	} else if jsonFlag != "" {
+		nodes, err = getInputNodesFromJson(jsonFlag)
 	} else if fileFlag != "" {
-		bytes, err := ioutil.ReadFile(fileFlag)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		inputJson = string(bytes)
+		nodes, err = getInputNodesFromFile(fileFlag)
 	} else {
 		cli.ShowAppHelp(c)
+		return
+	}
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	myColors := []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
 
-	out, err := BuildTreeJson(inputJson, myColors)
+	out, err := buildTree(nodes, myColors)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(out)
+
+	treeBytes, err := serializeOutput(out)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	tree := string(treeBytes)
+
+	fmt.Println(tree)
 }
 
 func main() {
@@ -383,6 +451,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "d, debug",
 			Usage: "Debug mode",
+		},
+		cli.BoolFlag{
+			Name:  "r, repo",
+			Usage: "Repository",
 		},
 	}
 	app.Action = bootstrap
