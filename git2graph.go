@@ -354,7 +354,7 @@ func bootstrap(c *cli.Context) {
 		return
 	}
 
-	myColors := []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#c0615b", "#7a63be", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+	myColors := []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
 
 	out, err := BuildTreeJson(inputJson, myColors)
 	if err != nil {
