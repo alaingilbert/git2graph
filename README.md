@@ -58,6 +58,10 @@ This structure can be directly rendered with D3.js, [you can try it out here.](h
 
 `git2graph -f path/to/file.json`
 
+### Repository
+
+`git2graph -r` (You must be in the repository directory)
+
 ## See it in action
 
 ```
