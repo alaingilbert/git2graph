@@ -358,7 +358,7 @@ func deleteEmpty (s []string) []string {
 
 func getInputNodesFromRepo() (nodes []InputNode, err error) {
 	START_OF_COMMIT := "@@@@@@@@@@"
-	outBytes, err := exec.Command("git", "log", "--pretty=tformat:" + START_OF_COMMIT + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%t%n%s", "--date=local", "--branches", "--remotes").Output()
+	outBytes, err := exec.Command("git", "log", "--pretty=tformat:" + START_OF_COMMIT + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
 		return
 	}
