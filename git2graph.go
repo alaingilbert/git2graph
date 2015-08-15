@@ -314,25 +314,6 @@ func buildTree(inputNodes []InputNode, myColors []string) ([]*OutputNode, error)
 	return nodes, nil
 }
 
-func BuildTreeJson(inputJson string, myColors []string) (tree string, err error) {
-	nodes, err := getInputNodesFromJson(inputJson)
-	if err != nil {
-		return
-	}
-
-	out, err := buildTree(nodes, myColors)
-	if err != nil {
-		return
-	}
-
-	treeBytes, err := serializeOutput(out)
-	if err != nil {
-		return
-	}
-	tree = string(treeBytes)
-	return
-}
-
 func getInputNodesFromFile(filePath string) (nodes []InputNode, err error) {
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
