@@ -88,6 +88,11 @@ git2graph -j '...'
 go test
 ```
 
+## TODO
+
+- Pagination
+- Colors algorithm
+
 ## How to contribute
 
 - Fork the repo
