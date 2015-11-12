@@ -60,9 +60,9 @@ var customColors []string = []string{"color1", "color2", "color3", "color4", "co
 func Test1(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -91,9 +91,9 @@ func Test1(t *testing.T) {
 func Test2(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -123,9 +123,9 @@ func Test2(t *testing.T) {
 func Test3(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -161,11 +161,11 @@ func Test3(t *testing.T) {
 func Test4(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -207,12 +207,12 @@ func Test4(t *testing.T) {
 func Test5(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -254,11 +254,11 @@ func Test5(t *testing.T) {
 func Test6(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -301,12 +301,12 @@ func Test6(t *testing.T) {
 func Test7(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"4", "5"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"4", "5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -353,12 +353,12 @@ func Test7(t *testing.T) {
 func Test8(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"4", "5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"4", "5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -411,14 +411,14 @@ func Test8(t *testing.T) {
 func Test9(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"4", "7"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5", "6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"8", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"4", "7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5", "6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -478,14 +478,14 @@ func Test9(t *testing.T) {
 func Test10(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"4", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"5", "3"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"8", "6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"7", "6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"8", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5", "3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"8", "6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"7", "6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -536,12 +536,12 @@ func Test10(t *testing.T) {
 func Test11(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5", "6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5", "6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -589,13 +589,13 @@ func Test11(t *testing.T) {
 func Test12(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "6"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"7"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3", "6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -636,16 +636,16 @@ func Test12(t *testing.T) {
 func Test13(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"4", "2"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "9"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"7", "5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6", "8"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"10"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"8", []string{"10"}})
-	inputNodes = append(inputNodes, InputNode{"9", []string{"10"}})
-	inputNodes = append(inputNodes, InputNode{"10", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4", "2"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "9"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"7", "5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6", "8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"10"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{"10"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"9", []string{"10"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"10", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -683,14 +683,14 @@ func Test13(t *testing.T) {
 func Test14(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"5", "4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"6", "4"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"8", "7"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"8", "7"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"8", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"6", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"8", "7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"8", "7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -744,14 +744,14 @@ func Test14(t *testing.T) {
 func Test15(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"6", "4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"8", "7"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"8", "7"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}})
-	inputNodes = append(inputNodes, InputNode{"8", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"3"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"6", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5", "4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"8", "7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"8", "7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{"8"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"8", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -801,13 +801,13 @@ func Test15(t *testing.T) {
 func Test16(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"1", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"7"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}})
-	inputNodes = append(inputNodes, InputNode{"7", []string{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{"7"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"7", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -844,13 +844,13 @@ func Test16(t *testing.T) {
 func Test17(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"0", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"0", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 
@@ -888,13 +888,13 @@ func Test17(t *testing.T) {
 func Test18(t *testing.T) {
 	// Initial input
 	inputNodes := make([]InputNode, 0)
-	inputNodes = append(inputNodes, InputNode{"0", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}})
-	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}})
-	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}})
-	inputNodes = append(inputNodes, InputNode{"6", []string{}})
+	inputNodes = append(inputNodes, InputNode{"0", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"1", []string{"4"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"2", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"3", []string{"5"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"4", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"5", []string{"6"}, map[string]interface{}{}})
+	inputNodes = append(inputNodes, InputNode{"6", []string{}, map[string]interface{}{}})
 
 	out, _ := buildTree(inputNodes, customColors)
 

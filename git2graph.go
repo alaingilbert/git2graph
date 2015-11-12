@@ -16,6 +16,7 @@ var debugMode bool = false
 type InputNode struct {
 	Id      string   `json:"id"`
 	Parents []string `json:"parents"`
+	InitialNode map[string]interface{}
 }
 
 // Types
@@ -50,6 +51,7 @@ type OutputNode struct {
 	FirstInRow        bool            `json:"-"`
 	Debug             []string        `json:"debug,omitempty"`
 	NbMoveDown        int             `json:"-"`
+	InitialNode       map[string]interface{} `json:"initial_node"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -94,19 +96,50 @@ func (node *OutputNode) SetPathColor(parentId, color string) {
 	node.ParentsPaths[parentId] = tmp
 }
 
-func serializeOutput(out []*OutputNode) ([]byte, error) {
+func serializeOutput(out []*OutputNode) {
 	for _, node := range out {
 		for parentId, path := range node.ParentsPaths {
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentId, path.Path, path.Color})
 		}
 	}
-	treeBytes, err := json.Marshal(&out)
-	return treeBytes, err
+	finalStruct := []map[string]interface{}{}
+	for _, node := range out {
+		finalNode := map[string]interface{}{}
+		for key, value := range node.InitialNode {
+			finalNode[key] = value
+		}
+		finalNode["id"] = node.Id
+		finalNode["parents"] = node.Parents
+		finalNode["column"] = node.Column
+		finalNode["parents_paths"] = node.FinalParentsPaths
+		finalNode["idx"] = node.Idx
+		finalNode["color"] = node.Color
+		if debugMode {
+			finalNode["debug"] = node.Debug
+		}
+		finalStruct = append(finalStruct, finalNode)
+	}
+	enc := json.NewEncoder(os.Stdout)
+	enc.Encode(finalStruct)
 }
 
 func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
-	if err = json.Unmarshal([]byte(inputJson), &nodes); err != nil {
+	data := []map[string]interface{}{}
+	dec := json.NewDecoder(strings.NewReader(inputJson))
+	err = dec.Decode(&data)
+	if err != nil {
 		return
+	}
+	for _, node := range data {
+		newNode := InputNode{}
+		newNode.Id = node["id"].(string)
+		tmp := node["parents"].([]interface{})
+		newNode.Parents = make([]string, 0)
+		for _, criss := range tmp {
+			newNode.Parents = append(newNode.Parents, criss.(string))
+		}
+		newNode.InitialNode = node
+		nodes = append(nodes, newNode)
 	}
 	return
 }
@@ -124,6 +157,7 @@ func initNodes(inputNodes []InputNode) []*OutputNode {
 		newNode.Children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
 		newNode.NbMoveDown = 0
+		newNode.InitialNode = node.InitialNode
 		out = append(out, &newNode)
 	}
 	return out
@@ -361,7 +395,7 @@ func getInputNodesFromRepo() (nodes []InputNode, err error) {
 		//tree := lines[i+6]
 		//subject := lines[i+7]
 		i += 8
-		nodes = append(nodes, InputNode{sha, parents})
+		nodes = append(nodes, InputNode{sha, parents, map[string]interface{}{}})
 		if lines[i] != START_OF_COMMIT {
 			break
 		}
@@ -400,14 +434,7 @@ func bootstrap(c *cli.Context) {
 		return
 	}
 
-	treeBytes, err := serializeOutput(out)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	tree := string(treeBytes)
-
-	fmt.Println(tree)
+	serializeOutput(out)
 }
 
 func main() {
