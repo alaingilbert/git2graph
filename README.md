@@ -6,7 +6,7 @@ It takes a json:
 
 ```
 [
-  {"id": "1", "parents": ["3"]},
+  {"id": "1", "parents": ["3"], "non_related_attr": "non_related_value"},
   {"id": "2", "parents": ["3"]},
   {"id": "3", "parents": []}
 ]
@@ -21,7 +21,8 @@ and returns a structure that represent a git graph:
    "column":0,
    "parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}],"color":"#5aa1be"}],
    "idx":0,
-   "color":"#5aa1be"},
+   "color":"#5aa1be",
+   "non_related_attr": "non_related_value"},
   {"id":"2",
    "parents":["3"],
    "column":1,
