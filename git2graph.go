@@ -13,6 +13,8 @@ import (
 var colors []string
 var debugMode bool = false
 
+var defaultColors []string = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+
 // Types
 const (
 	PIPE       = iota // 0: |
@@ -304,7 +306,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
-func Get(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
+func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) {
+	myColors := defaultColors
 	nodes, err := buildTree(inputNodes, myColors)
 	for _, node := range nodes {
 		delete(node, "parentsPaths")
@@ -428,7 +431,7 @@ func bootstrap(c *cli.Context) {
 		return
 	}
 
-	myColors := []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+	myColors := defaultColors
 
 	out, err := buildTree(nodes, myColors)
 	if err != nil {
