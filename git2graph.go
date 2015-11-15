@@ -415,9 +415,14 @@ func bootstrap(c *cli.Context) {
 	fileFlag := c.String("file")
 	debugMode = c.Bool("debug")
 	repoFlag := c.Bool("repo")
+	repoLinearFlag := c.Bool("repo-linear")
 
 	if repoFlag {
 		nodes, err = getInputNodesFromRepo()
+	} else if repoLinearFlag {
+		nodes, err = getInputNodesFromRepo()
+		serializeOutput(nodes)
+		return
 	} else if jsonFlag != "" {
 		nodes, err = getInputNodesFromJson(jsonFlag)
 	} else if fileFlag != "" {
@@ -471,6 +476,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "r, repo",
 			Usage: "Repository",
+		},
+		cli.BoolFlag{
+			Name:  "l, repo-linear",
+			Usage: "Repository linear history",
 		},
 	}
 	app.Action = bootstrap
