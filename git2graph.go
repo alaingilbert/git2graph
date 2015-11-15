@@ -13,12 +13,6 @@ import (
 var colors []string
 var debugMode bool = false
 
-type InputNode struct {
-	Id      string   `json:"id"`
-	Parents []string `json:"parents"`
-	InitialNode map[string]interface{}
-}
-
 // Types
 const (
 	PIPE       = iota // 0: |
@@ -123,33 +117,29 @@ func serializeOutput(out []*OutputNode) {
 	enc.Encode(finalStruct)
 }
 
-func getInputNodesFromJson(inputJson string) (nodes []InputNode, err error) {
-	data := []map[string]interface{}{}
+func getInputNodesFromJson(inputJson string) (nodes []map[string]interface{}, err error) {
 	dec := json.NewDecoder(strings.NewReader(inputJson))
-	err = dec.Decode(&data)
+	err = dec.Decode(&nodes)
 	if err != nil {
 		return
 	}
-	for _, node := range data {
-		newNode := InputNode{}
-		newNode.Id = node["id"].(string)
-		tmp := node["parents"].([]interface{})
-		newNode.Parents = make([]string, 0)
-		for _, criss := range tmp {
-			newNode.Parents = append(newNode.Parents, criss.(string))
+	for _, node := range nodes {
+		parents := make([]string, 0)
+		for _, parent := range node["parents"].([]interface{}) {
+			parents = append(parents, parent.(string))
 		}
-		newNode.InitialNode = node
-		nodes = append(nodes, newNode)
+		node["parents"] = parents
 	}
 	return
 }
 
-func initNodes(inputNodes []InputNode) []*OutputNode {
+func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
 		newNode := OutputNode{}
-		newNode.Id = node.Id
-		newNode.Parents = node.Parents
+		newNode.InitialNode = node
+		newNode.Id = node["id"].(string)
+		newNode.Parents = node["parents"].([]string)
 		newNode.Column = -1
 		newNode.ParentsPaths = make(map[string]Path)
 		newNode.FinalParentsPaths = make([]Path, 0)
@@ -157,7 +147,6 @@ func initNodes(inputNodes []InputNode) []*OutputNode {
 		newNode.Children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
 		newNode.NbMoveDown = 0
-		newNode.InitialNode = node.InitialNode
 		out = append(out, &newNode)
 	}
 	return out
@@ -337,7 +326,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
-func buildTree(inputNodes []InputNode, myColors []string) ([]*OutputNode, error) {
+func buildTree(inputNodes []map[string]interface{}, myColors []string) ([]*OutputNode, error) {
 	colors = myColors
 	var nodes []*OutputNode = initNodes(inputNodes)
 	var index map[string]*OutputNode = initIndex(nodes)
@@ -348,7 +337,7 @@ func buildTree(inputNodes []InputNode, myColors []string) ([]*OutputNode, error)
 	return nodes, nil
 }
 
-func getInputNodesFromFile(filePath string) (nodes []InputNode, err error) {
+func getInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return
@@ -371,7 +360,7 @@ func deleteEmpty (s []string) []string {
 	return r
 }
 
-func getInputNodesFromRepo() (nodes []InputNode, err error) {
+func getInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 	START_OF_COMMIT := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:" + START_OF_COMMIT + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -395,7 +384,10 @@ func getInputNodesFromRepo() (nodes []InputNode, err error) {
 		//tree := lines[i+6]
 		//subject := lines[i+7]
 		i += 8
-		nodes = append(nodes, InputNode{sha, parents, map[string]interface{}{}})
+		node := map[string]interface{}{}
+		node["id"] = sha
+		node["parents"] = parents
+		nodes = append(nodes, node)
 		if lines[i] != START_OF_COMMIT {
 			break
 		}
@@ -404,7 +396,7 @@ func getInputNodesFromRepo() (nodes []InputNode, err error) {
 }
 
 func bootstrap(c *cli.Context) {
-	var nodes []InputNode
+	var nodes []map[string]interface{}
 	var err error
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
