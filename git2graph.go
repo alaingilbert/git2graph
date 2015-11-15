@@ -90,31 +90,9 @@ func (node *OutputNode) SetPathColor(parentId, color string) {
 	node.ParentsPaths[parentId] = tmp
 }
 
-func serializeOutput(out []*OutputNode) {
-	for _, node := range out {
-		for parentId, path := range node.ParentsPaths {
-			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentId, path.Path, path.Color})
-		}
-	}
-	finalStruct := []map[string]interface{}{}
-	for _, node := range out {
-		finalNode := map[string]interface{}{}
-		for key, value := range node.InitialNode {
-			finalNode[key] = value
-		}
-		finalNode["id"] = node.Id
-		finalNode["parents"] = node.Parents
-		finalNode["column"] = node.Column
-		finalNode["parents_paths"] = node.FinalParentsPaths
-		finalNode["idx"] = node.Idx
-		finalNode["color"] = node.Color
-		if debugMode {
-			finalNode["debug"] = node.Debug
-		}
-		finalStruct = append(finalStruct, finalNode)
-	}
+func serializeOutput(out []map[string]interface{}) {
 	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(finalStruct)
+	enc.Encode(out)
 }
 
 func getInputNodesFromJson(inputJson string) (nodes []map[string]interface{}, err error) {
@@ -326,8 +304,18 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
-func Caliss(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
+func Get(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
 	nodes, err := buildTree(inputNodes, myColors)
+	return nodes, err
+}
+
+func buildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
+	colors = myColors
+	var nodes []*OutputNode = initNodes(inputNodes)
+	var index map[string]*OutputNode = initIndex(nodes)
+
+	initChildren(nodes, index)
+	setColumns(nodes, index)
 
 	for _, node := range nodes {
 		for parentId, path := range node.ParentsPaths {
@@ -340,6 +328,7 @@ func Caliss(inputNodes []map[string]interface{}, myColors []string) ([]map[strin
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
+		finalNode["parentsPaths"] = node.ParentsPaths // Kept for tests
 		finalNode["id"] = node.Id
 		finalNode["parents"] = node.Parents
 		finalNode["column"] = node.Column
@@ -352,18 +341,7 @@ func Caliss(inputNodes []map[string]interface{}, myColors []string) ([]map[strin
 		finalStruct = append(finalStruct, finalNode)
 	}
 
-	return finalStruct, err
-}
-
-func buildTree(inputNodes []map[string]interface{}, myColors []string) ([]*OutputNode, error) {
-	colors = myColors
-	var nodes []*OutputNode = initNodes(inputNodes)
-	var index map[string]*OutputNode = initIndex(nodes)
-
-	initChildren(nodes, index)
-	setColumns(nodes, index)
-
-	return nodes, nil
+	return finalStruct, nil
 }
 
 func getInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
