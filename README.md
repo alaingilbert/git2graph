@@ -4,7 +4,7 @@ The main goal of this library is to take a linear git history, and create a stru
 
 It takes a json:
 
-```
+```json
 [
   {"id": "1", "parents": ["3"], "non_related_attr": "non_related_value"},
   {"id": "2", "parents": ["3"]},
@@ -14,7 +14,7 @@ It takes a json:
 
 and returns a structure that represent a git graph:
 
-```
+```json
 [
   {"id":"1",
    "parents":["3"],
@@ -65,7 +65,7 @@ This structure can be directly rendered with D3.js, [you can try it out here.](h
 
 ### In code
 
-```
+```go
 package main
 
 import (
