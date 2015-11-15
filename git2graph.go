@@ -306,6 +306,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 func Get(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
 	nodes, err := buildTree(inputNodes, myColors)
+	for _, node := range nodes {
+		delete(node, "parentsPaths")
+	}
 	return nodes, err
 }
 
@@ -431,6 +434,9 @@ func bootstrap(c *cli.Context) {
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+	for _, node := range out {
+		delete(node, "parentsPaths")
 	}
 
 	serializeOutput(out)
