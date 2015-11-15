@@ -63,6 +63,27 @@ This structure can be directly rendered with D3.js, [you can try it out here.](h
 
 `git2graph -r` (You must be in the repository directory)
 
+### In code
+
+```
+package main
+
+import (
+  "fmt"
+  git2graph "git2graph"
+)
+
+func main() {
+  in := []map[string]interface{}{}
+  in = append(in, map[string]interface{}{"id": "1", "parents": []string{"3"}})
+  in = append(in, map[string]interface{}{"id": "2", "parents": []string{"3"}})
+  in = append(in, map[string]interface{}{"id": "3", "parents": []string{}})
+  
+  out, err := git2graph.Get(in)
+  fmt.Println(out, err)
+}
+```
+
 ## See it in action
 
 ```
