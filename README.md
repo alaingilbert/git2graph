@@ -70,7 +70,7 @@ package main
 
 import (
   "fmt"
-  git2graph "git2graph"
+  "git2graph"
 )
 
 func main() {
