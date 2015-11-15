@@ -326,6 +326,35 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
+func Caliss(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
+	nodes, err := buildTree(inputNodes, myColors)
+
+	for _, node := range nodes {
+		for parentId, path := range node.ParentsPaths {
+			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentId, path.Path, path.Color})
+		}
+	}
+	finalStruct := []map[string]interface{}{}
+	for _, node := range nodes {
+		finalNode := map[string]interface{}{}
+		for key, value := range node.InitialNode {
+			finalNode[key] = value
+		}
+		finalNode["id"] = node.Id
+		finalNode["parents"] = node.Parents
+		finalNode["column"] = node.Column
+		finalNode["parents_paths"] = node.FinalParentsPaths
+		finalNode["idx"] = node.Idx
+		finalNode["color"] = node.Color
+		if debugMode {
+			finalNode["debug"] = node.Debug
+		}
+		finalStruct = append(finalStruct, finalNode)
+	}
+
+	return finalStruct, err
+}
+
 func buildTree(inputNodes []map[string]interface{}, myColors []string) ([]*OutputNode, error) {
 	colors = myColors
 	var nodes []*OutputNode = initNodes(inputNodes)
