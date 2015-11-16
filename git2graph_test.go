@@ -977,19 +977,19 @@ func Test19(t *testing.T) {
 			"11": Path{"11", []Point{Point{4, 6, 0}, Point{4, 8, 1}, Point{3, 8, 0}, Point{3, 10, 1}, Point{2, 10, 0}, Point{2, 11, 1}, Point{1, 11, 0}}, "color5"},
 		},
 		map[string]Path{
-			"8": Path{"8", []Point{Point{3, 7, 0}, Point{0, 8, 0}}, "color4"},
+			"8": Path{"8", []Point{Point{3, 7, 0}, Point{3, 8, 1}, Point{0, 8, 0}}, "color4"},
 		},
 		map[string]Path{
 			"10": Path{"10", []Point{Point{0, 8, 0}, Point{0, 10, 0}}, "color1"},
 		},
 		map[string]Path{
-			"10": Path{"10", []Point{Point{2, 9, 0}, Point{0, 10, 0}}, "color3"},
+			"10": Path{"10", []Point{Point{2, 9, 0}, Point{2, 10, 1}, Point{0, 10, 0}}, "color3"},
 		},
 		map[string]Path{
 			"12": Path{"12", []Point{Point{0, 10, 0}, Point{0, 12, 0}}, "color1"},
 		},
 		map[string]Path{
-			"12": Path{"12", []Point{Point{1, 11, 0}, Point{0, 12, 0}}, "color2"},
+			"12": Path{"12", []Point{Point{1, 11, 0}, Point{1, 12, 1}, Point{0, 12, 0}}, "color2"},
 		},
 		map[string]Path{
 		},
