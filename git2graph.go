@@ -199,6 +199,11 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										if idxRemove < 0 {
 											continue
 										}
+										if len(followingNodeChild.ParentsPaths[followingNode.Id].Path) > idxRemove &&
+										   followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove].Y == followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].Y {
+											followingNodeChild.Remove(followingNode.Id, idxRemove-1)
+											idxRemove -= 1
+										}
 										tmp := followingNodeChild.ParentsPaths[followingNode.Id].Path[idxRemove-1].X
 										followingNodeChild.Remove(followingNode.Id, idxRemove)
 										followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
