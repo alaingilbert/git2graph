@@ -36,17 +36,17 @@ type Path struct {
 }
 
 type OutputNode struct {
-	Id                string          `json:"id"`
-	Parents           []string        `json:"parents"`
-	Column            int             `json:"column"`
-	ParentsPaths      map[string]Path `json:"-"`
-	FinalParentsPaths []Path          `json:"parents_paths"`
-	Idx               int             `json:"idx"`
-	Children          []string        `json:"-"`
-	Color             string          `json:"color"`
-	FirstInRow        bool            `json:"-"`
-	Debug             []string        `json:"debug,omitempty"`
-	NbMoveDown        int             `json:"-"`
+	Id                string                 `json:"id"`
+	Parents           []string               `json:"parents"`
+	Column            int                    `json:"column"`
+	ParentsPaths      map[string]Path        `json:"-"`
+	FinalParentsPaths []Path                 `json:"parents_paths"`
+	Idx               int                    `json:"idx"`
+	Children          []string               `json:"-"`
+	Color             string                 `json:"color"`
+	FirstInRow        bool                   `json:"-"`
+	Debug             []string               `json:"debug,omitempty"`
+	NbMoveDown        int                    `json:"-"`
 	InitialNode       map[string]interface{} `json:"initial_node"`
 }
 
@@ -94,9 +94,9 @@ func (node *OutputNode) SetPathColor(parentId, color string) {
 
 func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
 	if idx < 0 {
-		return node.ParentsPaths[parentId].Path[len(node.ParentsPaths[parentId].Path) + idx];
+		return node.ParentsPaths[parentId].Path[len(node.ParentsPaths[parentId].Path)+idx]
 	} else {
-		return node.ParentsPaths[parentId].Path[idx];
+		return node.ParentsPaths[parentId].Path[idx]
 	}
 }
 
@@ -215,7 +215,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 											continue
 										}
 										if followingNodeChild.PathLength(followingNode.Id) > idxRemove &&
-										   followingNodeChild.GetPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).Y {
+											followingNodeChild.GetPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).Y {
 											followingNodeChild.Remove(followingNode.Id, idxRemove-1)
 											idxRemove -= 1
 										}
@@ -383,7 +383,7 @@ func getInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err
 	return
 }
 
-func deleteEmpty (s []string) []string {
+func deleteEmpty(s []string) []string {
 	var r []string
 	for _, str := range s {
 		if str != "" {
@@ -395,7 +395,7 @@ func deleteEmpty (s []string) []string {
 
 func getInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 	START_OF_COMMIT := "@@@@@@@@@@"
-	outBytes, err := exec.Command("git", "log", "--pretty=tformat:" + START_OF_COMMIT + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
+	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+START_OF_COMMIT+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
 		return
 	}

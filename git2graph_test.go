@@ -920,8 +920,7 @@ func Test18(t *testing.T) {
 		map[string]Path{
 			"6": Path{"6", []Point{Point{1, 5, 0}, Point{1, 6, 1}, Point{0, 6, 0}}, "color3"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
@@ -937,8 +936,8 @@ func Test19(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"9"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"11","6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8","6"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"11", "6"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"11"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"10"}})
@@ -967,7 +966,7 @@ func Test19(t *testing.T) {
 		},
 		map[string]Path{
 			"11": Path{"11", []Point{Point{1, 4, 0}, Point{1, 11, 0}}, "color2"},
-			"6": Path{"6", []Point{Point{1, 4, 0}, Point{4, 4, 2}, Point{4, 6, 0}}, "color5"},
+			"6":  Path{"6", []Point{Point{1, 4, 0}, Point{4, 4, 2}, Point{4, 6, 0}}, "color5"},
 		},
 		map[string]Path{
 			"8": Path{"8", []Point{Point{0, 5, 0}, Point{0, 8, 0}}, "color1"},
@@ -991,8 +990,7 @@ func Test19(t *testing.T) {
 		map[string]Path{
 			"12": Path{"12", []Point{Point{1, 11, 0}, Point{1, 12, 1}, Point{0, 12, 0}}, "color2"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
@@ -1032,8 +1030,7 @@ func Test20(t *testing.T) {
 		map[string]Path{
 			"5": Path{"5", []Point{Point{0, 4, 0}, Point{0, 5, 0}}, "color1"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
