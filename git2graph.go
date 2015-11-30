@@ -234,20 +234,31 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 											followingNodeChild.Remove(followingNode.Id, idxRemove-1)
 											idxRemove -= 1
 										}
+
+										nbNodesMergingBack := 0
+										for _, childId := range node.Children {
+											child := index[childId]
+											isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
+											if (node.Column+node.NbMoveDown) < child.Column && !isNodeMerging &&
+												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) {
+												nbNodesMergingBack++
+											}
+										}
+
 										tmp := followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).X
 										followingNodeChild.Remove(followingNode.Id, idxRemove)
 										followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
 										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 										if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - 1, followingNode.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1) - 1, followingNode.Idx, PIPE})
 										} else {
 											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1), followingNode.Idx, PIPE})
 										}
 									}
 								}
 							}
-							if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
+							if (followingNode.Column+followingNode.NbMoveDown) > child.GetPathPoint(node.Id, -2).X {
 								followingNode.Column--
 								followingNode.NbMoveDown++
 								if debugMode {
