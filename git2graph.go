@@ -100,6 +100,21 @@ func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
 	}
 }
 
+func (node *OutputNode) GetPathHeightAtIdx(parentId string, lookupIdx int) (height int) {
+	height = -1
+	firstPoint := node.GetPathPoint(parentId, 0)
+	lastPoint := node.GetPathPoint(parentId, -1)
+	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
+		return
+	}
+	for _, point := range node.ParentsPaths[parentId].Path {
+		if point.Y <= lookupIdx {
+			height = point.X
+		}
+	}
+	return
+}
+
 func (node *OutputNode) PathLength(parentId string) int {
 	return len(node.ParentsPaths[parentId].Path)
 }

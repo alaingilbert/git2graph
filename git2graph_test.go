@@ -1038,3 +1038,35 @@ func Test20(t *testing.T) {
 	validatePaths(t, expectedPaths, out)
 	validateColors(t, expectedPaths, out)
 }
+
+func TestPathHeight1(t *testing.T) {
+	out := OutputNode{ParentsPaths: map[string]Path{"1": Path{Path: []Point{
+		Point{X: 0, Y: 2, Type: 0},
+		Point{X: 3, Y: 2, Type: 2},
+		Point{X: 3, Y: 9, Type: 1},
+		Point{X: 2, Y: 9, Type: 0},
+		Point{X: 2, Y: 11, Type: 1},
+		Point{X: 1, Y: 11, Type: 0},
+	}}}}
+	if out.GetPathHeightAtIdx("1", 1) != -1 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 2) != 3 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 3) != 3 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 9) != 2 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 10) != 2 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 11) != 1 {
+		t.Fail()
+	}
+	if out.GetPathHeightAtIdx("1", 1000) != -1 {
+		t.Fail()
+	}
+}
