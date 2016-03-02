@@ -47,7 +47,6 @@ type OutputNode struct {
 	FirstInRow        bool                   `json:"-"`
 	SubBranch         bool                   `json:"-"`
 	Debug             []string               `json:"debug,omitempty"`
-	NbMoveDown        int                    `json:"-"`
 	InitialNode       map[string]interface{} `json:"initial_node"`
 }
 
@@ -173,7 +172,6 @@ func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 		newNode.Idx = idx
 		newNode.Children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
-		newNode.NbMoveDown = 0
 		out = append(out, &newNode)
 	}
 	return out
@@ -249,7 +247,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										for _, childId := range node.Children {
 											child := index[childId]
 											isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-											if (node.Column+node.NbMoveDown) < child.Column &&
+											if node.Column < child.GetPathHeightAtIdx1(node.Id, node.Idx) &&
 												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
 												!isNodeMerging &&
 												!child.SubBranch {
@@ -264,7 +262,6 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
-											followingNode.NbMoveDown += nbNodesMergingBack
 										} else {
 											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1), followingNode.Idx, PIPE})
