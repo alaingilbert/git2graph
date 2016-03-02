@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
+	//log "github.com/Sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/exec"
