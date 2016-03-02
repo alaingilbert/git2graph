@@ -208,16 +208,6 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			nextColumn++
 		}
 
-		// May not be useful
-		nbNodesMergingBack := 0
-		for _, childId := range node.Children {
-			child := index[childId]
-			isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-			if (node.Column+node.NbMoveDown) < child.Column && !isNodeMerging {
-				nbNodesMergingBack++
-			}
-		}
-
 		// Each children
 		for _, childId := range node.Children {
 			child := index[childId]
