@@ -102,7 +102,11 @@
           })
           .attr('stroke-width', 1)
           .attr('fill', 'none')
-          .attr('stroke', '#aaa');
+          .attr('stroke', '#aaa')
+          .on('click', function(a, row, c) {
+            tree.splice(row, 1);
+            render();
+          });
 
         lineGroup
           .append('path')
@@ -119,8 +123,10 @@
           .attr('stroke-width', 2)
           .attr('fill', 'none')
           .attr('stroke', '#5aa1be')
-          .on('click', function(a,b,c,d) {
-            console.log(a,b,c,d);
+          .on('click', function(obj, row, c) {
+            tree[obj.id].parents = [];
+            render();
+            console.log(obj, row, c);
           });
 
         if (mode == 'commits') {
