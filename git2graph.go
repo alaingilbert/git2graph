@@ -116,6 +116,25 @@ func (node *OutputNode) GetPathHeightAtIdx(parentId string, lookupIdx int) (heig
 	return
 }
 
+func (node *OutputNode) GetPathHeightAtIdx1(parentId string, lookupIdx int) (height int) {
+	height = -1
+	firstPoint := node.GetPathPoint(parentId, 0)
+	lastPoint := node.GetPathPoint(parentId, -1)
+	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
+		return
+	}
+	first := true
+	for _, point := range node.ParentsPaths[parentId].Path {
+		if point.Y < lookupIdx && first {
+			if point.Y == lookupIdx {
+				first = false
+			}
+			height = point.X
+		}
+	}
+	return
+}
+
 func (node *OutputNode) PathLength(parentId string) int {
 	return len(node.ParentsPaths[parentId].Path)
 }
@@ -203,7 +222,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		for _, childId := range node.Children {
 			child := index[childId]
 			isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-			if (node.Column+node.NbMoveDown) < child.Column && !isNodeMerging {
+			if node.Column < child.GetPathHeightAtIdx1(node.Id, node.Idx) && !isNodeMerging {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
