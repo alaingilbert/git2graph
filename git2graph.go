@@ -262,12 +262,12 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
 										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 										if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1) - 1, followingNode.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
 											followingNode.NbMoveDown += nbNodesMergingBack
 										} else {
 											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1), followingNode.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1), followingNode.Idx, PIPE})
 										}
 									}
 								}

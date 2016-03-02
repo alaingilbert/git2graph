@@ -1045,7 +1045,7 @@ func Test21(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6","5"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6", "5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
@@ -1054,7 +1054,7 @@ func Test21(t *testing.T) {
 	out, _ := buildTree(inputNodes, customColors)
 
 	// Expected output
-	expectedColumns := []int{0, 1, 2, 1, 0, 0, 1, 0, }
+	expectedColumns := []int{0, 1, 2, 1, 0, 0, 1, 0}
 
 	expectedPaths := []map[string]Path{
 		map[string]Path{
@@ -1079,8 +1079,7 @@ func Test21(t *testing.T) {
 		map[string]Path{
 			"7": Path{"7", []Point{Point{1, 6, 0}, Point{1, 7, 1}, Point{0, 7, 0}}, "color2"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
@@ -1096,7 +1095,7 @@ func Test22(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"7","6"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"7", "6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
@@ -1133,8 +1132,7 @@ func Test22(t *testing.T) {
 		map[string]Path{
 			"8": Path{"8", []Point{Point{1, 7, 0}, Point{1, 8, 1}, Point{0, 8, 0}}, "color2"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
@@ -1150,7 +1148,7 @@ func Test23(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6","5"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6", "5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
@@ -1187,8 +1185,7 @@ func Test23(t *testing.T) {
 		map[string]Path{
 			"8": Path{"8", []Point{Point{1, 7, 0}, Point{1, 8, 1}, Point{0, 8, 0}}, "color4"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
@@ -1203,11 +1200,11 @@ func Test24(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7","6"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7", "6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10","8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"11","8"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10", "8"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"11", "8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"9"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"10"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"11"}})
@@ -1240,11 +1237,11 @@ func Test24(t *testing.T) {
 		},
 		map[string]Path{
 			"10": Path{"10", []Point{Point{1, 6, 0}, Point{1, 10, 0}}, "color2"},
-			"8": Path{"8", []Point{Point{1, 6, 0}, Point{3, 6, 2}, Point{3, 8, 0}}, "color6"},
+			"8":  Path{"8", []Point{Point{1, 6, 0}, Point{3, 6, 2}, Point{3, 8, 0}}, "color6"},
 		},
 		map[string]Path{
 			"11": Path{"11", []Point{Point{0, 7, 0}, Point{0, 11, 0}}, "color1"},
-			"8": Path{"8", []Point{Point{0, 7, 0}, Point{3, 7, 2}, Point{3, 8, 0}}, "color6"},
+			"8":  Path{"8", []Point{Point{0, 7, 0}, Point{3, 7, 2}, Point{3, 8, 0}}, "color6"},
 		},
 		map[string]Path{
 			"9": Path{"9", []Point{Point{3, 8, 0}, Point{3, 9, 1}, Point{2, 9, 0}}, "color6"},
@@ -1255,8 +1252,7 @@ func Test24(t *testing.T) {
 		map[string]Path{
 			"11": Path{"11", []Point{Point{1, 10, 0}, Point{1, 11, 1}, Point{0, 11, 0}}, "color2"},
 		},
-		map[string]Path{
-		},
+		map[string]Path{},
 	}
 
 	// Validation
