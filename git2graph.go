@@ -216,10 +216,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
-					if !child.FirstInRow {
-						if !child.SubBranch {
-							child.SetPathColor(node.Id, child.Color)
-						}
+					if !child.FirstInRow && !child.SubBranch {
+						child.SetPathColor(node.Id, child.Color)
 					}
 					colors = append(colors[:1], append([]string{child.Color}, colors[1:]...)...)
 
