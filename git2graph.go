@@ -13,7 +13,7 @@ import (
 var colors []string
 var debugMode bool = false
 
-var defaultColors []string = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+var defaultColors []string = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
 
 // Types
 const (
