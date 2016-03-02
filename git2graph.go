@@ -249,11 +249,11 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										for _, childId := range node.Children {
 											child := index[childId]
 											isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-											if (node.Column+node.NbMoveDown) < child.Column && !isNodeMerging &&
-												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) {
-												if !child.SubBranch {
-													nbNodesMergingBack++
-												}
+											if (node.Column+node.NbMoveDown) < child.Column &&
+												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
+												!isNodeMerging &&
+												!child.SubBranch {
+												nbNodesMergingBack++
 											}
 										}
 
