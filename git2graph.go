@@ -209,8 +209,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		// Each children
 		for _, childId := range node.Children {
 			child := index[childId]
-			isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-			if node.Column < child.GetPathHeightAtIdx1(node.Id, node.Idx) && !isNodeMerging {
+			if node.Column < child.GetPathPoint(node.Id, -2).X {
 				nextColumn--
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
@@ -246,10 +245,8 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										nbNodesMergingBack := 0
 										for _, childId := range node.Children {
 											child := index[childId]
-											isNodeMerging := child.GetPathPoint(node.Id, -2).Type == MERGE_TO
-											if node.Column < child.GetPathHeightAtIdx1(node.Id, node.Idx) &&
+											if node.Column < child.GetPathPoint(node.Id, -2).X &&
 												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
-												!isNodeMerging &&
 												!child.SubBranch {
 												nbNodesMergingBack++
 											}
