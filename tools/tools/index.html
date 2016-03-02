@@ -246,36 +246,6 @@
         out += '}';
 
         $('#tests').val(out);
-
-        /**
-        func Test1(t *testing.T) {
-          // Initial input
-          inputNodes := make([]InputNode, 0)
-          inputNodes = append(inputNodes, InputNode{"1", []string{"2"}})
-          inputNodes = append(inputNodes, InputNode{"2", []string{"3"}})
-          inputNodes = append(inputNodes, InputNode{"3", []string{}})
-
-          out, _ := buildTree(inputNodes, customColors)
-
-          // Expected output
-          expectedColumns := []int{0, 0, 0}
-
-          expectedPaths := []map[string]Path{
-            map[string]Path{
-              "2": Path{"2", []Point{Point{0, 0, 0}, Point{0, 1, 0}}, "color1"},
-            },
-            map[string]Path{
-              "3": Path{"3", []Point{Point{0, 1, 0}, Point{0, 2, 0}}, "color1"},
-            },
-          }
-
-          // Validation
-          validateColumns(t, expectedColumns, out)
-          validatePaths(t, expectedPaths, out)
-          validateColors(t, expectedPaths, out)
-        }
-        **/
-
       };
 
       render();
