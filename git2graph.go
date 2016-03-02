@@ -227,7 +227,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 								followingNodeChild := index[followingNodeChildId]
 								if followingNodeChild.Idx < node.Idx {
 									// Following node child has a path that is higher than the current path being merged
-									if followingNodeChild.GetPathPoint(followingNode.Id, -2).X > child.GetPathPoint(node.Id, -2).X {
+									if followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) > child.GetPathPoint(node.Id, -2).X {
 										idxRemove := followingNodeChild.PathLength(followingNode.Id) - 1
 										if idxRemove < 0 {
 											continue
@@ -256,18 +256,13 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 										if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1) - 1, followingNode.Idx, PIPE})
+											followingNode.Column -= nbNodesMergingBack
+											followingNode.NbMoveDown += nbNodesMergingBack
 										} else {
 											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack-1), followingNode.Idx, PIPE})
 										}
 									}
-								}
-							}
-							if (followingNode.Column+followingNode.NbMoveDown) > child.GetPathPoint(node.Id, -2).X {
-								followingNode.Column--
-								followingNode.NbMoveDown++
-								if debugMode {
-									followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Node moved down, %s -> %s", child.Id, node.Id))
 								}
 							}
 						}
