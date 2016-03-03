@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/cli"
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -504,6 +504,10 @@ func bootstrap(c *cli.Context) {
 	}
 
 	serializeOutput(out)
+}
+
+func init() {
+	log.SetLevel(log.WarnLevel)
 }
 
 func main() {
