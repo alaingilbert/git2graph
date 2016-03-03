@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/codegangsta/cli"
 	log "github.com/Sirupsen/logrus"
+	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"os"
 	"os/exec"
