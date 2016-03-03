@@ -47,9 +47,9 @@ type OutputNode struct {
 	Children          []string               `json:"-"`
 	Color             string                 `json:"color"`
 	FirstInRow        bool                   `json:"-"`
-	SubBranch         bool                   `json:"-"`
 	Debug             []string               `json:"debug,omitempty"`
 	InitialNode       map[string]interface{} `json:"initial_node"`
+	SubBranch         map[string]bool        `json:"-"`
 }
 
 func (node *OutputNode) Append(parentId string, point Point) {
@@ -92,6 +92,14 @@ func (node *OutputNode) SetPathColor(parentId, color string) {
 	tmp := node.ParentsPaths[parentId]
 	tmp.Color = color
 	node.ParentsPaths[parentId] = tmp
+}
+
+func (node *OutputNode) SetPathSubBranch(parentId string) {
+	node.SubBranch[parentId] = true
+}
+
+func (node *OutputNode) IsPathSubBranch(parentId string) bool {
+	return node.SubBranch[parentId]
 }
 
 func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
@@ -176,6 +184,7 @@ func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 		newNode.Idx = idx
 		newNode.Children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
+		newNode.SubBranch = make(map[string]bool)
 		out = append(out, &newNode)
 	}
 	return out
@@ -219,19 +228,19 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		for _, childId := range node.Children {
 			child := index[childId]
 			if node.Column < child.GetPathPoint(node.Id, -2).X {
-				if !child.SubBranch {
+				if !child.IsPathSubBranch(node.Id) {
 					nextColumn--
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
 						"operator":   "--",
 						"merging":    child.Id,
 						"into":       node.Id,
-						"sub":        child.SubBranch,
+						"sub":        child.IsPathSubBranch(node.Id),
 					}).Debug("node merging --")
 				}
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
-					if !child.FirstInRow && !child.SubBranch {
+					if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
 						child.SetPathColor(node.Id, child.Color)
 					}
 					colors = append(colors[:1], append([]string{child.Color}, colors[1:]...)...)
@@ -265,7 +274,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 											child := index[childId]
 											if node.Column < child.GetPathPoint(node.Id, -2).X &&
 												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
-												!child.SubBranch {
+												!child.IsPathSubBranch(node.Id) {
 												nbNodesMergingBack++
 											}
 										}
@@ -345,7 +354,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
-					node.SubBranch = true
+					node.SetPathSubBranch(parent.Id)
 					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
 				} else if node.Column > parent.Column {
