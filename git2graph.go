@@ -13,6 +13,7 @@ import (
 
 var colors []string
 var debugMode bool = false
+var noOutput bool = false
 
 var defaultColors []string = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
 
@@ -140,8 +141,10 @@ func (node *OutputNode) PathLength(parentId string) int {
 }
 
 func serializeOutput(out []map[string]interface{}) {
-	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(out)
+	if !noOutput {
+		enc := json.NewEncoder(os.Stdout)
+		enc.Encode(out)
+	}
 }
 
 func getInputNodesFromJson(inputJson string) (nodes []map[string]interface{}, err error) {
@@ -467,6 +470,7 @@ func bootstrap(c *cli.Context) {
 	fileFlag := c.String("file")
 	debugMode = c.Bool("debug")
 	repoFlag := c.Bool("repo")
+	noOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
 
 	if repoFlag {
@@ -532,6 +536,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "l, repo-linear",
 			Usage: "Repository linear history",
+		},
+		cli.BoolFlag{
+			Name:  "n, no-output",
+			Usage: "No output",
 		},
 	}
 	app.Action = bootstrap
