@@ -214,7 +214,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		for _, childId := range node.Children {
 			child := index[childId]
 			if node.Column < child.GetPathPoint(node.Id, -2).X {
-				nextColumn--
+				if !child.SubBranch {
+					nextColumn--
+				}
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
 					if !child.FirstInRow && !child.SubBranch {
