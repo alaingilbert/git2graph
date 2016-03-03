@@ -208,11 +208,11 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			}
 			node.Color, colors = colors[0], colors[1:]
 			nextColumn++
-				log.WithFields(log.Fields{
-					"nextColumn": nextColumn,
-					"operator": "++",
-					"created": node.Id,
-				}).Debug("new node ++")
+			log.WithFields(log.Fields{
+				"nextColumn": nextColumn,
+				"operator":   "++",
+				"created":    node.Id,
+			}).Debug("new node ++")
 		}
 
 		// Each children
@@ -223,10 +223,10 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					nextColumn--
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
-						"operator": "--",
-						"merging": child.Id,
-						"into": node.Id,
-						"sub": child.SubBranch,
+						"operator":   "--",
+						"merging":    child.Id,
+						"into":       node.Id,
+						"sub":        child.SubBranch,
 					}).Debug("node merging --")
 				}
 
@@ -318,9 +318,9 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					nextColumn++
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
-						"operator": "++",
-						"node": node.Id,
-						"parent": parent.Id,
+						"operator":   "++",
+						"node":       node.Id,
+						"parent":     parent.Id,
 					}).Debug("new parent undefined column++")
 
 				}
