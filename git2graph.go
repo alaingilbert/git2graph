@@ -291,7 +291,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 											}
 										} else {
 											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1), followingNode.Idx, PIPE})
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
 									}
 								}
