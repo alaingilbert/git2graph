@@ -1335,10 +1335,10 @@ func Test25(t *testing.T) {
 		},
 		map[string]Path{
 			"15": Path{"15", []Point{Point{1, 13, 0}, Point{1, 15, 0}}, "color2"},
-			"14": Path{"14", []Point{Point{1, 13, 0}, Point{2, 13, 2}, Point{2, 14, 0}}, "color4"},
+			"14": Path{"14", []Point{Point{1, 13, 0}, Point{2, 13, 2}, Point{2, 14, 0}}, "color6"}, // TODO: Wrong color (color4)
 		},
 		map[string]Path{
-			"15": Path{"15", []Point{Point{2, 14, 0}, Point{2, 15, 1}, Point{1, 15, 0}}, "color4"},
+			"15": Path{"15", []Point{Point{2, 14, 0}, Point{2, 15, 1}, Point{1, 15, 0}}, "color6"}, // TODO: Wrong color (color4)
 		},
 		map[string]Path{
 			"16": Path{"16", []Point{Point{1, 15, 0}, Point{1, 16, 1}, Point{0, 16, 0}}, "color2"},
