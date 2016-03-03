@@ -78,9 +78,9 @@ func (node *OutputNode) ColumnDefined() bool {
 
 func (node *OutputNode) HasBiggerParentDefined(index map[string]*OutputNode) bool {
 	found := false
-	for _, pId := range node.Parents {
-		p := index[pId]
-		if p.Column > node.Column {
+	for _, parentNodeId := range node.Parents {
+		parentNode := index[parentNodeId]
+		if parentNode.Column > node.Column {
 			found = true
 			break
 		}
