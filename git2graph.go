@@ -463,6 +463,25 @@ func getInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 	return
 }
 
+func setLogLevel(logLevel string) {
+	switch logLevel {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	case "fatal":
+		log.SetLevel(log.FatalLevel)
+	case "panic":
+		log.SetLevel(log.PanicLevel)
+	default:
+		log.SetLevel(log.WarnLevel)
+	}
+}
+
 func bootstrap(c *cli.Context) {
 	var nodes []map[string]interface{}
 	var err error
@@ -472,6 +491,8 @@ func bootstrap(c *cli.Context) {
 	repoFlag := c.Bool("repo")
 	noOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
+	log := c.String("log")
+	setLogLevel(log)
 
 	if repoFlag {
 		nodes, err = getInputNodesFromRepo()
@@ -528,6 +549,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "j, json",
 			Usage: "Json input",
+		},
+		cli.StringFlag{
+			Name:  "L, log",
+			Usage: "Log level",
 		},
 		cli.BoolFlag{
 			Name:  "d, debug",
