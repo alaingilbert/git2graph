@@ -269,7 +269,6 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					ReleaseColor(child.GetPathColor(node.Id), node.Idx)
 				}
 
-				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
 					if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
 						child.SetPathColor(node.Id, child.Color)
 					}
@@ -328,7 +327,6 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							}
 						}
 					}
-				}
 			}
 		}
 
@@ -338,7 +336,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			node.Append(parent.Id, Point{node.Column, node.Idx, PIPE})
 
 			if !parent.ColumnDefined() {
-				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column) {
+				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
 					parent.Column = node.Column
 					if debugMode {
 						parent.Debug = append(parent.Debug, fmt.Sprintf("1- Column set to %d", node.Column))
@@ -389,7 +387,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					node.SetPathColor(parent.Id, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
-						if node.HasBiggerParentDefined(index) {
+						if node.HasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) {
 							node.Append(parent.Id, Point{node.Column, parent.Idx, MERGE_BACK})
 							node.SetPathColor(parent.Id, node.Color)
 						} else {
