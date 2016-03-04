@@ -1,10 +1,9 @@
-package main
+package git2graph
 
 import (
 	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,8 +11,8 @@ import (
 )
 
 var colors []Color
-var debugMode bool = false
-var noOutput bool = false
+var DebugMode bool = false
+var NoOutput bool = false
 
 type Color struct {
 	ReleaseIdx int
@@ -21,7 +20,7 @@ type Color struct {
 	InUse      bool
 }
 
-var defaultColors []Color = []Color{
+var DefaultColors []Color = []Color{
 	Color{-2, "#5aa1be", false},
 	Color{-2, "#c065b8", false},
 	Color{-2, "#c0ab5f", false},
@@ -152,6 +151,10 @@ func (node *OutputNode) IsPathSubBranch(parentId string) bool {
 
 func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
 	if idx < 0 {
+		if len(node.ParentsPaths[parentId].Path)+idx < 0 {
+			log.Error("1- Weird, need to investigate")
+			return Point{}
+		}
 		return node.ParentsPaths[parentId].Path[len(node.ParentsPaths[parentId].Path)+idx]
 	} else {
 		return node.ParentsPaths[parentId].Path[idx]
@@ -177,14 +180,14 @@ func (node *OutputNode) PathLength(parentId string) int {
 	return len(node.ParentsPaths[parentId].Path)
 }
 
-func serializeOutput(out []map[string]interface{}) {
-	if !noOutput {
+func SerializeOutput(out []map[string]interface{}) {
+	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
 		enc.Encode(out)
 	}
 }
 
-func getInputNodesFromJson(inputJson string) (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromJson(inputJson string) (nodes []map[string]interface{}, err error) {
 	dec := json.NewDecoder(strings.NewReader(inputJson))
 	err = dec.Decode(&nodes)
 	if err != nil {
@@ -241,7 +244,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		// Set column if not defined
 		if !node.ColumnDefined() {
 			node.Column = nextColumn
-			if debugMode {
+			if DebugMode {
 				node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
 			}
 			node.Color = GetColor(node.Idx)
@@ -315,7 +318,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 									if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
 										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 										followingNode.Column -= nbNodesMergingBack
-										if debugMode {
+										if DebugMode {
 											followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
 										}
 									} else {
@@ -338,14 +341,14 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if !parent.ColumnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
 					parent.Column = node.Column
-					if debugMode {
+					if DebugMode {
 						parent.Debug = append(parent.Debug, fmt.Sprintf("1- Column set to %d", node.Column))
 					}
 					parent.Color = node.Color
 					node.SetPathColor(parent.Id, parent.Color)
 				} else {
 					parent.Column = nextColumn
-					if debugMode {
+					if DebugMode {
 						parent.Debug = append(parent.Debug, fmt.Sprintf("2- Column set to %d", nextColumn))
 					}
 					parent.Color = GetColor(node.Idx)
@@ -376,7 +379,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						}
 					}
 					parent.Column = node.Column
-					if debugMode {
+					if DebugMode {
 						parent.Debug = append(parent.Debug, fmt.Sprintf("Column reset to %d", node.Column))
 					}
 					parent.Color = node.Color
@@ -410,6 +413,10 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			for pointIdx, point := range path.Path {
 				if point.X == previousPoint.X && point.Y == previousPoint.Y && point.Type == previousPoint.Type {
 					tmp := node.ParentsPaths[pathIdx]
+					if len(tmp.Path) < pointIdx+1 {
+						log.Error("2- Weird, need to investigate")
+						continue
+					}
 					tmp.Path = append(tmp.Path[:pointIdx], tmp.Path[pointIdx+1:]...)
 					node.ParentsPaths[pathIdx] = tmp
 				}
@@ -420,15 +427,15 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 }
 
 func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) {
-	myColors := defaultColors
-	nodes, err := buildTree(inputNodes, myColors)
+	myColors := DefaultColors
+	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
 		delete(node, "parentsPaths")
 	}
 	return nodes, err
 }
 
-func buildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[string]interface{}, error) {
+func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[string]interface{}, error) {
 	colors = make([]Color, 0)
 	for _, color := range myColors {
 		colors = append(colors, color)
@@ -458,7 +465,7 @@ func buildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 		finalNode["parents_paths"] = node.FinalParentsPaths
 		finalNode["idx"] = node.Idx
 		finalNode["color"] = node.Color
-		if debugMode {
+		if DebugMode {
 			finalNode["debug"] = node.Debug
 		}
 		finalStruct = append(finalStruct, finalNode)
@@ -467,13 +474,13 @@ func buildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 	return finalStruct, nil
 }
 
-func getInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return
 	}
 	inputJson := string(bytes)
-	nodes, err = getInputNodesFromJson(inputJson)
+	nodes, err = GetInputNodesFromJson(inputJson)
 	if err != nil {
 		return
 	}
@@ -490,7 +497,7 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
-func getInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 	START_OF_COMMIT := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+START_OF_COMMIT+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -523,116 +530,4 @@ func getInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 		}
 	}
 	return
-}
-
-func setLogLevel(logLevel string) {
-	switch logLevel {
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	case "error":
-		log.SetLevel(log.ErrorLevel)
-	case "fatal":
-		log.SetLevel(log.FatalLevel)
-	case "panic":
-		log.SetLevel(log.PanicLevel)
-	default:
-		log.SetLevel(log.WarnLevel)
-	}
-}
-
-func bootstrap(c *cli.Context) {
-	var nodes []map[string]interface{}
-	var err error
-	jsonFlag := c.String("json")
-	fileFlag := c.String("file")
-	debugMode = c.Bool("debug")
-	repoFlag := c.Bool("repo")
-	noOutput = c.Bool("no-output")
-	repoLinearFlag := c.Bool("repo-linear")
-	log := c.String("log")
-	setLogLevel(log)
-
-	if repoFlag {
-		nodes, err = getInputNodesFromRepo()
-	} else if repoLinearFlag {
-		nodes, err = getInputNodesFromRepo()
-		serializeOutput(nodes)
-		return
-	} else if jsonFlag != "" {
-		nodes, err = getInputNodesFromJson(jsonFlag)
-	} else if fileFlag != "" {
-		nodes, err = getInputNodesFromFile(fileFlag)
-	} else {
-		cli.ShowAppHelp(c)
-		return
-	}
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	myColors := defaultColors
-
-	out, err := buildTree(nodes, myColors)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, node := range out {
-		delete(node, "parentsPaths")
-	}
-
-	serializeOutput(out)
-}
-
-func init() {
-	log.SetLevel(log.WarnLevel)
-}
-
-func main() {
-	var authors []cli.Author
-	// Collaborators, add your name here :)
-	authors = append(authors, cli.Author{"Alain Gilbert", "alain.gilbert.15@gmail.com"})
-
-	app := cli.NewApp()
-	app.Authors = authors
-	app.Version = "0.0.0"
-	app.Name = "git2graph"
-	app.Usage = "Take a git tree, make a graph structure"
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "f, file",
-			Usage: "File",
-		},
-		cli.StringFlag{
-			Name:  "j, json",
-			Usage: "Json input",
-		},
-		cli.StringFlag{
-			Name:  "L, log",
-			Usage: "Log level",
-		},
-		cli.BoolFlag{
-			Name:  "d, debug",
-			Usage: "Debug mode",
-		},
-		cli.BoolFlag{
-			Name:  "r, repo",
-			Usage: "Repository",
-		},
-		cli.BoolFlag{
-			Name:  "l, repo-linear",
-			Usage: "Repository linear history",
-		},
-		cli.BoolFlag{
-			Name:  "n, no-output",
-			Usage: "No output",
-		},
-	}
-	app.Action = bootstrap
-	app.Run(os.Args)
 }

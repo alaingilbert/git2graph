@@ -1,4 +1,4 @@
-package main
+package git2graph
 
 import (
 	"testing"
@@ -73,7 +73,7 @@ func Test1(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 0, 0}
@@ -104,7 +104,7 @@ func Test2(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
@@ -136,7 +136,7 @@ func Test3(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
@@ -176,7 +176,7 @@ func Test4(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0}
@@ -223,7 +223,7 @@ func Test5(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 0}
@@ -269,7 +269,7 @@ func Test6(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0}
@@ -317,7 +317,7 @@ func Test7(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0, 0}
@@ -369,7 +369,7 @@ func Test8(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 1, 0}
@@ -429,7 +429,7 @@ func Test9(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 0, 2, 1, 0}
@@ -496,7 +496,7 @@ func Test10(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 2, 1, 0}
@@ -552,7 +552,7 @@ func Test11(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0, 0}
@@ -606,7 +606,7 @@ func Test12(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0, 1, 0}
@@ -656,7 +656,7 @@ func Test13(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"10"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 1, 0, 1, 1, 0, 0, 2, 0}
@@ -701,7 +701,7 @@ func Test14(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 1, 0, 2, 0}
@@ -762,7 +762,7 @@ func Test15(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0, 1, 2, 0}
@@ -818,7 +818,7 @@ func Test16(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 0}
@@ -861,7 +861,7 @@ func Test17(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 0, 0}
@@ -905,7 +905,7 @@ func Test18(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 0}
@@ -955,7 +955,7 @@ func Test19(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 1, 0, 4, 3, 0, 2, 0, 1, 0}
@@ -1018,7 +1018,7 @@ func Test20(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 0}
@@ -1060,7 +1060,7 @@ func Test21(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 1, 0, 0, 1, 0}
@@ -1110,7 +1110,7 @@ func Test22(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 1, 0, 0, 1, 0}
@@ -1163,7 +1163,7 @@ func Test23(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 2, 0, 1, 0}
@@ -1219,7 +1219,7 @@ func Test24(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"11"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 4, 1, 1, 0, 3, 2, 1, 0}
@@ -1287,7 +1287,7 @@ func Test25(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 1, 2, 0, 2, 3, 0, 1, 2, 1, 0}
@@ -1356,7 +1356,7 @@ func Test26(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 1, 2, 1, 0}
@@ -1419,7 +1419,7 @@ func Test27(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"17"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 4, 2, 1, 1, 6, 3, 2, 5, 1, 0, 1, 0}
@@ -1500,7 +1500,7 @@ func Test28(t *testing.T) {
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
 
-	out, _ := buildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 0, 1, 0}
