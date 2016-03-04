@@ -11,11 +11,45 @@ import (
 	"strings"
 )
 
-var colors []string
+var colors []Color
 var debugMode bool = false
 var noOutput bool = false
 
-var defaultColors []string = []string{"#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3", "#5aa1be", "#c065b8", "#c0ab5f", "#59bc95", "#7a63be", "#c0615b", "#73bb5e", "#6ee585", "#7088e8", "#eb77a3"}
+type Color struct {
+	ReleaseIdx int
+	color      string
+}
+
+var defaultColors []Color = []Color{
+	Color{-2, "#5aa1be"},
+	Color{-2, "#c065b8"},
+	Color{-2, "#c0ab5f"},
+	Color{-2, "#59bc95"},
+	Color{-2, "#7a63be"},
+	Color{-2, "#c0615b"},
+	Color{-2, "#73bb5e"},
+	Color{-2, "#6ee585"},
+	Color{-2, "#7088e8"},
+	Color{-2, "#eb77a3"},
+}
+
+func GetColor(nodeIdx int) string {
+	colorToTakeIdx := -1
+	for idx, color := range colors {
+		if nodeIdx >= color.ReleaseIdx+2 {
+			colorToTakeIdx = idx
+			break
+		}
+	}
+	color := colors[colorToTakeIdx].color
+	colors = append(colors[:colorToTakeIdx], colors[colorToTakeIdx+1:]...) // Delete
+	return color
+}
+
+func ReleaseColor(color string, idx int) {
+	insertIdx := 0
+	colors = append(colors[:insertIdx], append([]Color{Color{idx, color}}, colors[insertIdx:]...)...) // Insert at 0
+}
 
 // Types
 const (
@@ -196,7 +230,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			if debugMode {
 				node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
 			}
-			node.Color, colors = colors[0], colors[1:]
+			node.Color = GetColor(node.Idx)
 			nextColumn++
 			log.WithFields(log.Fields{
 				"nextColumn": nextColumn,
@@ -224,7 +258,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
 						child.SetPathColor(node.Id, child.Color)
 					}
-					colors = append(colors[:1], append([]string{child.Color}, colors[1:]...)...)
+					ReleaseColor(child.Color, node.Idx)
 
 					// Insert before the last element
 					pos := child.PathLength(node.Id) - 1
@@ -301,7 +335,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					if debugMode {
 						parent.Debug = append(parent.Debug, fmt.Sprintf("2- Column set to %d", nextColumn))
 					}
-					parent.Color, colors = colors[0], colors[1:]
+					parent.Color = GetColor(node.Idx)
 					node.Append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.SetPathColor(parent.Id, parent.Color)
 					node.FirstInRow = true
@@ -381,8 +415,12 @@ func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) 
 	return nodes, err
 }
 
-func buildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
-	colors = myColors
+func buildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[string]interface{}, error) {
+	colors = make([]Color, 0)
+	for _, color := range myColors {
+		colors = append(colors, color)
+	}
+
 	var nodes []*OutputNode = initNodes(inputNodes)
 	var index map[string]*OutputNode = initIndex(nodes)
 
