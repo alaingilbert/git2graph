@@ -13,4 +13,7 @@ deploy:
 github: deploy
 	ghp-import -b $(GITHUB_PAGES_BRANCH) -p $(GITHUB_PAGES_FOLDER)
 
-.PHONY: deploy github
+test:
+	go test ./...
+
+.PHONY: deploy github test
