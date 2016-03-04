@@ -1,9 +1,9 @@
 package main
 
 import (
+	"git2graph/git2graph"
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"git2graph/git2graph"
 	"os"
 )
 
