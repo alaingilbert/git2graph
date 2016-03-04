@@ -41,6 +41,10 @@ func GetColor(nodeIdx int) string {
 			break
 		}
 	}
+	if colorToTakeIdx == -1 {
+		log.Error("No enough colors")
+		return "#000"
+	}
 	color := colors[colorToTakeIdx].color
 	colors = append(colors[:colorToTakeIdx], colors[colorToTakeIdx+1:]...) // Delete
 	return color
