@@ -137,6 +137,10 @@ func (node *OutputNode) SetPathColor(parentId, color string) {
 	node.ParentsPaths[parentId] = tmp
 }
 
+func (node *OutputNode) GetPathColor(parentId string) string {
+	return node.ParentsPaths[parentId].Color
+}
+
 func (node *OutputNode) SetPathSubBranch(parentId string) {
 	node.SubBranch[parentId] = true
 }
@@ -267,7 +271,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
 						child.SetPathColor(node.Id, child.Color)
 					}
-					ReleaseColor(child.Color, node.Idx)
+					ReleaseColor(child.GetPathColor(node.Id), node.Idx)
 
 					// Insert before the last element
 					pos := child.PathLength(node.Id) - 1
