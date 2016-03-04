@@ -269,64 +269,64 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					ReleaseColor(child.GetPathColor(node.Id), node.Idx)
 				}
 
-					if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
-						child.SetPathColor(node.Id, child.Color)
-					}
-					ReleaseColor(child.GetPathColor(node.Id), node.Idx)
+				if !child.FirstInRow && !child.IsPathSubBranch(node.Id) {
+					child.SetPathColor(node.Id, child.Color)
+				}
+				ReleaseColor(child.GetPathColor(node.Id), node.Idx)
 
-					// Insert before the last element
-					pos := child.PathLength(node.Id) - 1
-					point := Point{child.GetPathPoint(node.Id, -2).X, node.Idx, MERGE_BACK}
-					child.Insert(node.Id, pos, point)
+				// Insert before the last element
+				pos := child.PathLength(node.Id) - 1
+				point := Point{child.GetPathPoint(node.Id, -2).X, node.Idx, MERGE_BACK}
+				child.Insert(node.Id, pos, point)
 
-					// Nodes that are following the current node
-					for followingNodeIdx, followingNode := range nodes {
-						if followingNodeIdx > node.Idx {
-							// Following nodes that have a child before the current node
-							for _, followingNodeChildId := range followingNode.Children {
-								followingNodeChild := index[followingNodeChildId]
-								if followingNodeChild.Idx < node.Idx {
-									// Following node child has a path that is higher than the current path being merged
-									if followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) > child.GetPathPoint(node.Id, -2).X {
-										idxRemove := followingNodeChild.PathLength(followingNode.Id) - 1
-										if idxRemove < 0 {
-											continue
-										}
-										if followingNodeChild.PathLength(followingNode.Id) > idxRemove &&
-											followingNodeChild.GetPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).Y {
-											followingNodeChild.Remove(followingNode.Id, idxRemove-1)
-											idxRemove -= 1
-										}
+				// Nodes that are following the current node
+				for followingNodeIdx, followingNode := range nodes {
+					if followingNodeIdx > node.Idx {
+						// Following nodes that have a child before the current node
+						for _, followingNodeChildId := range followingNode.Children {
+							followingNodeChild := index[followingNodeChildId]
+							if followingNodeChild.Idx < node.Idx {
+								// Following node child has a path that is higher than the current path being merged
+								if followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) > child.GetPathPoint(node.Id, -2).X {
+									idxRemove := followingNodeChild.PathLength(followingNode.Id) - 1
+									if idxRemove < 0 {
+										continue
+									}
+									if followingNodeChild.PathLength(followingNode.Id) > idxRemove &&
+										followingNodeChild.GetPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).Y {
+										followingNodeChild.Remove(followingNode.Id, idxRemove-1)
+										idxRemove -= 1
+									}
 
-										nbNodesMergingBack := 0
-										for _, childId := range node.Children {
-											child := index[childId]
-											if node.Column < child.GetPathPoint(node.Id, -2).X &&
-												child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
-												!child.IsPathSubBranch(node.Id) {
-												nbNodesMergingBack++
-											}
+									nbNodesMergingBack := 0
+									for _, childId := range node.Children {
+										child := index[childId]
+										if node.Column < child.GetPathPoint(node.Id, -2).X &&
+											child.GetPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
+											!child.IsPathSubBranch(node.Id) {
+											nbNodesMergingBack++
 										}
+									}
 
-										tmp := followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).X
-										followingNodeChild.Remove(followingNode.Id, idxRemove)
-										followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
-										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
-										if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
-											followingNode.Column -= nbNodesMergingBack
-											if debugMode {
-												followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
-											}
-										} else {
-											followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
+									tmp := followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).X
+									followingNodeChild.Remove(followingNode.Id, idxRemove)
+									followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
+									followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
+									if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
+										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
+										followingNode.Column -= nbNodesMergingBack
+										if debugMode {
+											followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
 										}
+									} else {
+										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
+										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
 								}
 							}
 						}
 					}
+				}
 			}
 		}
 
