@@ -18,25 +18,26 @@ var noOutput bool = false
 type Color struct {
 	ReleaseIdx int
 	color      string
+	InUse      bool
 }
 
 var defaultColors []Color = []Color{
-	Color{-2, "#5aa1be"},
-	Color{-2, "#c065b8"},
-	Color{-2, "#c0ab5f"},
-	Color{-2, "#59bc95"},
-	Color{-2, "#7a63be"},
-	Color{-2, "#c0615b"},
-	Color{-2, "#73bb5e"},
-	Color{-2, "#6ee585"},
-	Color{-2, "#7088e8"},
-	Color{-2, "#eb77a3"},
+	Color{-2, "#5aa1be", false},
+	Color{-2, "#c065b8", false},
+	Color{-2, "#c0ab5f", false},
+	Color{-2, "#59bc95", false},
+	Color{-2, "#7a63be", false},
+	Color{-2, "#c0615b", false},
+	Color{-2, "#73bb5e", false},
+	Color{-2, "#6ee585", false},
+	Color{-2, "#7088e8", false},
+	Color{-2, "#eb77a3", false},
 }
 
 func GetColor(nodeIdx int) string {
 	colorToTakeIdx := -1
 	for idx, color := range colors {
-		if nodeIdx >= color.ReleaseIdx+2 {
+		if nodeIdx >= color.ReleaseIdx+2 && !color.InUse {
 			colorToTakeIdx = idx
 			break
 		}
@@ -45,14 +46,18 @@ func GetColor(nodeIdx int) string {
 		log.Error("No enough colors")
 		return "#000"
 	}
-	color := colors[colorToTakeIdx].color
-	colors = append(colors[:colorToTakeIdx], colors[colorToTakeIdx+1:]...) // Delete
-	return color
+	colors[colorToTakeIdx].InUse = true
+	return colors[colorToTakeIdx].color
 }
 
 func ReleaseColor(color string, idx int) {
-	insertIdx := 0
-	colors = append(colors[:insertIdx], append([]Color{Color{idx, color}}, colors[insertIdx:]...)...) // Insert at 0
+	for colorIdx, colorObj := range colors {
+		if color == colorObj.color {
+			colors[colorIdx].ReleaseIdx = idx
+			colors[colorIdx].InUse = false
+			break
+		}
+	}
 }
 
 // Types

@@ -51,14 +51,14 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []map[st
 }
 
 var customColors []Color = []Color{
-	Color{-2, "color1"},
-	Color{-2, "color2"},
-	Color{-2, "color3"},
-	Color{-2, "color4"},
-	Color{-2, "color5"},
-	Color{-2, "color6"},
-	Color{-2, "color7"},
-	Color{-2, "color8"},
+	Color{-2, "color1", false},
+	Color{-2, "color2", false},
+	Color{-2, "color3", false},
+	Color{-2, "color4", false},
+	Color{-2, "color5", false},
+	Color{-2, "color6", false},
+	Color{-2, "color7", false},
+	Color{-2, "color8", false},
 }
 
 // 1
