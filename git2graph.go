@@ -265,6 +265,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 						"into":       node.Id,
 						"sub":        child.IsPathSubBranch(node.Id),
 					}).Debug("node merging --")
+					ReleaseColor(child.GetPathColor(node.Id), node.Idx)
 				}
 
 				if child.Parents[0] != node.Id || len(child.Parents) <= 1 {
