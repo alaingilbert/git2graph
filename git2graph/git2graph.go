@@ -256,7 +256,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 			}).Debug("new node ++")
 		}
 
-		// Each children
+		// Each children that are merging
 		for _, childId := range node.Children {
 			child := index[childId]
 			if node.Column < child.GetPathPoint(node.Id, -2).X {
@@ -291,16 +291,20 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
 								if followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) > child.GetPathPoint(node.Id, -2).X {
+
+									// Index to delete is the one before last
 									idxRemove := followingNodeChild.PathLength(followingNode.Id) - 1
 									if idxRemove < 0 {
 										continue
 									}
+									// Remove second before last node has same Y, remove the before last node
 									if followingNodeChild.PathLength(followingNode.Id) > idxRemove &&
 										followingNodeChild.GetPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).Y {
 										followingNodeChild.Remove(followingNode.Id, idxRemove-1)
 										idxRemove -= 1
 									}
 
+									// Calculate nb of merging nodes
 									nbNodesMergingBack := 0
 									for _, childId := range node.Children {
 										child := index[childId]
