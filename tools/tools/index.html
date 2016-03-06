@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html ng-app="app">
   <head>
     <title></title>
     <link rel="stylesheet" href="../vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
@@ -11,6 +11,8 @@
     <script src="../vendors/clipboard.min.js"></script>
     <script src="../vendors/jquery.min.js"></script>
     <script src="../vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./js/controllers/HomeController.js"></script>
+    <script src="./js/directives/directives.js"></script>
     <style>
       #tree {
         height: 300px;
@@ -18,7 +20,7 @@
       }
     </style>
   </head>
-  <body>
+  <body ng-controller="HomeController">
     <div class="container-fluid">
       <h1></h1>
 
