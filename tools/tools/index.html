@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
     <link rel="stylesheet" href="../vendors/font-awesome-4.4.0/css/font-awesome.min.css" type="text/css" media="screen" charset="utf-8" />
     <script src="../vendors/d3.min.js"></script>
-    <script src="../vendors/underscore.min.js"></script>
+    <script src="../vendors/lodash.min.js"></script>
     <script src="../vendors/jquery.min.js"></script>
     <script src="../vendors/bootstrap/js/bootstrap.min.js"></script>
     <style>
@@ -206,7 +206,7 @@
                 if (firstCommit > rowIndex) {
                   firstCommit = [rowIndex, rowIndex = firstCommit][0]; // swap vars
                 }
-                if (!_.contains(tree[firstCommit].parents, rowIndex)) {
+                if (!_.includes(tree[firstCommit].parents, rowIndex)) {
                   tree[firstCommit].parents.push(rowIndex.toString());
                   render();
                 }
@@ -234,7 +234,7 @@
         out += '\n	out, _ := buildTree(inputNodes, customColors)\n\n';
 
         out += '	// Expected output\n';
-        var expectedColumns = _.pluck(tree, 'column').join(', ');
+        var expectedColumns = _.map(tree, 'column').join(', ');
         out += '	expectedColumns := []int{' + expectedColumns + '}\n\n';
 
         out += '	expectedPaths := []map[string]Path{\n';
