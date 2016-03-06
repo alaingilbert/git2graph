@@ -221,6 +221,7 @@
                 }
                 if (!_.includes(tree[firstCommit].parents, rowIndex)) {
                   tree[firstCommit].parents.push(rowIndex.toString());
+                  tree[firstCommit].parents = _.sortBy(tree[firstCommit].parents);
                   render();
                 }
               });
