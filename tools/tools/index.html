@@ -14,12 +14,6 @@
         height: 300px;
         min-height: 300px;
       }
-      #out {
-        height: 300px;
-      }
-      #tests {
-        height: 300px;
-      }
     </style>
   </head>
   <body>
@@ -46,22 +40,27 @@
           <svg id="tree" class="form-control"></svg>
         </div>
         <div class="col-sm-4">
-          <label>Input file</label>
-          <button class="copy btn btn-default btn-xs" data-clipboard-target="#out">Copy</button>
-          <textarea id="out" class="form-control" readonly></textarea>
-        </div>
-        <div class="col-sm-4">
-          <label>Tests file</label>
-          <button class="copy btn btn-default btn-xs" data-clipboard-target="#tests">Copy</button>
-          <textarea id="tests" class="form-control" readonly></textarea>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-sm-4">
-          <label>Shell script</label>
-          <button class="copy btn btn-default btn-xs" data-clipboard-target="#shell">Copy</button>
-          <textarea id="shell" class="form-control" readonly></textarea>
+          <div class="row">
+            <div class="col-sm-12">
+              <label>Input file</label>
+              <button class="copy btn btn-default btn-xs" data-clipboard-target="#out">Copy</button>
+              <textarea id="out" class="form-control" readonly></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <label>Tests file</label>
+              <button class="copy btn btn-default btn-xs" data-clipboard-target="#tests">Copy</button>
+              <textarea id="tests" class="form-control" readonly></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <label>Shell script</label>
+              <button class="copy btn btn-default btn-xs" data-clipboard-target="#shell">Copy</button>
+              <textarea id="shell" class="form-control" readonly></textarea>
+            </div>
+          </div>
         </div>
       </div>
 
