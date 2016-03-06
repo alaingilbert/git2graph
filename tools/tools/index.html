@@ -170,7 +170,15 @@
               .attr('cx', function(c) { return c * xGap + xGap; })
               .attr('cy', function(c, i, a) { return a * yGap + yGap })
               .on('mousedown', function() {})
-              .on('mouseup', function() {});
+              .on('mouseup', function(item, columnIndex, rowIndex) {
+                if (selectedPath) {
+                  console.log(selectedPath, columnIndex, rowIndex);
+                  addPathNode(selectedPath[1], columnIndex, rowIndex);
+                  console.log(selectedPath[1]);
+                  selectedPath = null;
+                  render();
+                }
+              });
         }
 
         var addPathNode = function(path, x, y) {
