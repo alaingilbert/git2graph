@@ -173,6 +173,21 @@
               .on('mouseup', function() {});
         }
 
+        var addPathNode = function(path, x, y) {
+          if (y == path.path[0][1] && x > path.path[0][0]) {
+            path.path.splice(1, 0, [x, y, 2]);
+            return;
+          }
+          for (var i = 0; i < path.path.length; i++) {
+            var pathItem = path.path[i];
+            if (y > pathItem[1]) {
+              continue;
+            }
+            path.path.splice(i, 0, [x, y, 1]);
+            break;
+          }
+        };
+
         var nodesGroup = svg.append('g').attr('class', 'nodes');
         var nodeGroup = nodesGroup.selectAll('nodes')
           .data(tree)
