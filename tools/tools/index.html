@@ -217,6 +217,9 @@
             .attr('stroke-width', 3)
             .attr('fill', 'none')
             .attr('stroke', '#5aa1be')
+            .on('mousedown', function(item) {
+              selectedPath = item;
+            })
             .on('click', function(item) {
               var node = item[0];
               var idx = _.indexOf(node.parents, item[1]);
