@@ -51,6 +51,14 @@
           <textarea id="tests" class="form-control" readonly></textarea>
         </div>
       </div>
+
+      <div class="row">
+        <div class="col-sm-4">
+          <label>Shell script</label>
+          <textarea id="shell" class="form-control" readonly></textarea>
+        </div>
+      </div>
+
     </div>
     <script>
       var mode = 'commits';
@@ -214,6 +222,7 @@
         }
 
         generateTestsFile();
+        generateShellScript();
 
         var output = _.map(tree, function(el) { return _.pick(el, ['id', 'parents']); });
         $('#out').val(JSON.stringify(output, null, 2));
@@ -256,6 +265,50 @@
 
         $('#tests').val(out);
       };
+
+
+      var generateShellScript = function() {
+
+        var createCommit = function(id) {
+          var out = '';
+          out += 'touch ' + id + '\n';
+          out += 'git add ' + id + '\n';
+          out += 'git commit -m ' + id + '\n';
+          return out;
+        };
+
+        var reversedNodes = _.cloneDeep(tree);
+        _.reverse(reversedNodes);
+        var out = "";
+        _.each(reversedNodes, function(item, idx) {
+          if (item.parents.length == 0) {
+            out += 'git checkout -b ' + item.id + '\n';
+            out += createCommit(item.id);
+          } else if (item.parents.length == 1) {
+            if (tree[item.parents[0]].column < item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += createCommit(item.id);
+            } else if (tree[item.parents[0]].column == item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += createCommit(item.id);
+            }
+          } else if (item.parents.length == 2) {
+            if (tree[item.parents[0]].column < item.column) {
+              out += 'git checkout ' + item.parents[1] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += 'git merge -m ' + item.parents[0] + ' --no-ff ' + item.parents[0] + '\n';
+            } else if (tree[item.parents[1]].column > item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += 'git merge -m ' + item.parents[1] + ' --no-ff ' + item.parents[1] + '\n';
+            }
+          }
+        });
+        $('#shell').val(out);
+      };
+
 
       render();
     </script>
