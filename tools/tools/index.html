@@ -42,8 +42,25 @@
         </div>
 
         <div class="col-sm-4">
-          <h2>Infos:</h2>
-          <pre id="code"></pre>
+          <h2>Node infos:</h2>
+          <div ng-show="selectedNode">
+            <label>Column:</label>
+            <input ng-model="selectedNode.column" type="text" class="form-control" />
+            <label>Color:</label>
+            <input ng-model="selectedNode.color" type="text" class="form-control" />
+            <div ng-repeat="(key, path) in selectedNode.parentsPaths">
+              <h2>Path to {{key}}:</h2>
+              <label>Color:</label>
+              <input ng-model="selectedNode.parentsPaths[key].color" type="text" class="form-control" />
+              <label>Path:</label>
+              <div ng-repeat="point in path.path">
+                <input ng-model="selectedNode.parentsPaths[key].path[$index]" type="text" class="form-control" />
+              </div>
+            </div>
+            {{selectedNode}}
+          </div>
+
+          <code><pre ng-bind-html="highlight(tree)"></pre></code>
         </div>
 
         <div class="col-sm-4">
