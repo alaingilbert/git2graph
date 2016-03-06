@@ -209,6 +209,21 @@
               render();
             });
 
+        var addPath = function(rowIndex) {
+          var firstNode = tree[firstCommit];
+          var lastNode = tree[rowIndex];
+          tree[firstCommit].parents.push(rowIndex.toString());
+          tree[firstCommit].parents = _.sortBy(tree[firstCommit].parents);
+          tree[firstCommit].parentsPaths[rowIndex.toString()] = {
+            path: [
+              [firstNode.column, parseInt(firstNode.id), 0],
+              [lastNode.column, parseInt(lastNode.id), 0]],
+            color: '#5aa1be'};
+          console.log(tree[firstCommit].parentsPaths[rowIndex.toString()]);
+          firstCommit = null;
+          render();
+        };
+
         // Each nodes
         nodeGroup.append('circle')
           .attr('r', radius)
