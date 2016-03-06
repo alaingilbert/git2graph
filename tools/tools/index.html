@@ -134,58 +134,18 @@
             render();
           });
 
-        lineGroup
-          .append('path')
-          .attr('d', function(path, idx) {
-            var d = [];
-            _.each(path.parents, function(parentId) {
-              var p = tree[parentId];
-              d.push({x: path.column * xGap + xGap, y: path.id * yGap + yGap});
-              // TODO: Add middle points
-              d.push({x: p.column * xGap + xGap, y: p.id * yGap + yGap});
-            });
-            return lineFunction(d)
-          })
-          .attr('stroke-width', 2)
-          .attr('fill', 'none')
-          .attr('stroke', '#5aa1be')
-          .on('click', function(obj, row, c) {
-            tree[obj.id].parents = [];
-            render();
-            console.log(obj, row, c);
-          });
-
         if (mode == 'commits') {
           lineGroup.selectAll('dummyCircle')
             .data(function(d, i) { return _.range(cols); })
             .enter()
             .append('circle')
               .attr('r', radius)
-              .attr('fill', 'none')
-              .attr('stroke', function(a,b,c) {
-                if (tree[c].column == a) {
-                  return '#000';
-                }
-                return '#ddd';
-              })
-              .attr('fill', function(a,b,c) {
-                if (tree[c].column == a) {
-                  return '#0f0';
-                }
-                return '#fff';
-              })
-              .attr('cx', function(c) {
-                return c * xGap + xGap;
-              })
+              .attr('stroke', '#ddd')
+              .attr('fill', '#fff')
+              .attr('cx', function(c) { return c * xGap + xGap; })
               .attr('cy', function(c, i, a) { return a * yGap + yGap })
-              .on('mouseenter', function() {
-                d3.select(this).attr('fill', '#f00');
-              })
-              .on('mouseleave', function(a,b,c) {
-                d3.select(this).attr('fill', function() {
-                  return tree[c].column == a ? '#0f0' : '#fff' ;
-                });
-              })
+              .on('mouseenter', function() { d3.select(this).attr('fill', '#f00'); })
+              .on('mouseleave', function() { d3.select(this).attr('fill', '#fff'); })
               .on('click', function(a,b,c) {
                 tree[c].column = a;
                 render();
@@ -195,49 +155,14 @@
             .data(function(d, i) { return _.range(cols); })
             .enter()
             .append('circle')
-              .attr('r', function(a,b,c) {
-                if (tree[c].column == a) {
-                  return radius;
-                } else {
-                  return 3;
-                }
-              })
+              .attr('r', 3)
               .attr('fill', 'none')
-              .attr('stroke', function(a,b,c) {
-                if (tree[c].column == a) {
-                  return '#000';
-                }
-                return '#ddd';
-              })
-              .attr('fill', function(a,b,c) {
-                if (tree[c].column == a) {
-                  return '#0f0';
-                }
-                return '#aaa';
-              })
-              .attr('cx', function(c) {
-                return c * xGap + xGap;
-              })
+              .attr('stroke', '#ddd')
+              .attr('fill', '#aaa')
+              .attr('cx', function(c) { return c * xGap + xGap; })
               .attr('cy', function(c, i, a) { return a * yGap + yGap })
-              .on('mousedown', function(a,b,c) {
-                firstCommit = c;
-              })
-              .on('mouseup', function(colIndex, colIndex, rowIndex) {
-                if (tree[rowIndex].column != colIndex) {
-                  console.log('...CALISS');
-                }
-                if (firstCommit == rowIndex) {
-                  return;
-                }
-                if (firstCommit > rowIndex) {
-                  firstCommit = [rowIndex, rowIndex = firstCommit][0]; // swap vars
-                }
-                if (!_.includes(tree[firstCommit].parents, rowIndex)) {
-                  tree[firstCommit].parents.push(rowIndex.toString());
-                  tree[firstCommit].parents = _.sortBy(tree[firstCommit].parents);
-                  render();
-                }
-              });
+              .on('mousedown', function() {})
+              .on('mouseup', function() {});
         }
 
         generateTestsFile();
