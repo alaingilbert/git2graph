@@ -218,8 +218,19 @@
               var parentId = item[1];
               var p = tree[parentId];
               var result = [];
-              result.push({x: node.column * xGap + xGap, y: node.id * yGap + yGap});
-              result.push({x: p.column * xGap + xGap, y: p.id * yGap + yGap});
+              _.each(path.path, function(item) {
+                var point = {
+                  x: item[0] * xGap + xGap,
+                  y: item[1] * yGap + yGap
+                };
+                if (item[2] == 2) {
+                  point.y += 6;
+                }
+                if (item[2] == 1) {
+                  point.y -= 6;
+                }
+                result.push(point);
+              });
               return lineFunction(result)
             })
             .attr('stroke-width', 3)
