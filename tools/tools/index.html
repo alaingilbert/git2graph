@@ -165,6 +165,71 @@
               .on('mouseup', function() {});
         }
 
+        var nodesGroup = svg.append('g').attr('class', 'nodes');
+        var nodeGroup = nodesGroup.selectAll('nodes')
+          .data(tree)
+          .enter()
+          .append('g')
+          .attr('class', 'node');
+
+        // Each paths
+        var pathsGroup = nodeGroup
+          .append('g')
+          .attr('class', 'paths')
+          .selectAll('path')
+          .data(function(node) {
+            return _.map(node.parents, function(item) { return [node, item]; });
+          })
+          .enter()
+          .append('path')
+            .attr('d', function(item) {
+              var node = item[0];
+              var parentId = item[1];
+              var p = tree[parentId];
+              var result = [];
+              result.push({x: node.column * xGap + xGap, y: node.id * yGap + yGap});
+              result.push({x: p.column * xGap + xGap, y: p.id * yGap + yGap});
+              return lineFunction(result)
+            })
+            .attr('stroke-width', 2)
+            .attr('fill', 'none')
+            .attr('stroke', '#5aa1be')
+            .on('click', function(item) {
+              var node = item[0];
+              var idx = _.indexOf(node.parents, item[1]);
+              tree[node.id].parents.splice(idx, 1);
+              render();
+            });
+
+        // Each nodes
+        nodeGroup.append('circle')
+          .attr('r', radius)
+          .attr('fill', '#0f0')
+          .attr('stroke', '#000')
+          .attr('cx', function(node) {
+            return node.column * xGap + xGap;
+          })
+          .attr('cy', function(node, idx) { return idx * yGap + yGap })
+          .on('mouseenter', function() { d3.select(this).attr('fill', '#f00'); })
+          .on('mouseleave', function() { d3.select(this).attr('fill', '#0f0'); })
+          .on('mousedown', function(node, rowIndex) {
+            firstCommit = rowIndex;
+          })
+          .on('mouseup', function(node, rowIndex) {
+            if (firstCommit == rowIndex) {
+              return;
+            }
+            if (firstCommit > rowIndex) {
+              firstCommit = [rowIndex, rowIndex = firstCommit][0]; // swap vars
+            }
+            if (!_.includes(tree[firstCommit].parents, rowIndex)) {
+              tree[firstCommit].parents.push(rowIndex.toString());
+              tree[firstCommit].parents = _.sortBy(tree[firstCommit].parents);
+              render();
+            }
+          });
+
+
         generateTestsFile();
         generateShellScript();
 
