@@ -232,7 +232,10 @@
 
         generateTestsFile();
         generateShellScript();
+        generateInputFile();
+      };
 
+      var generateInputFile = function() {
         var output = _.map(tree, function(el) { return _.pick(el, ['id', 'parents']); });
         $('#out').val(JSON.stringify(output, null, 2));
       };
