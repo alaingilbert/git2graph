@@ -86,7 +86,7 @@
       var tree = [];
 
       var btnAddRowClicked = function() {
-        tree.push({id: tree.length.toString(), parents: [], column: 0});
+        tree.push({id: tree.length.toString(), parents: [], column: 0, parentsPaths: {}});
         render();
       };
 
