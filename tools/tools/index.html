@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../vendors/font-awesome-4.4.0/css/font-awesome.min.css" type="text/css" media="screen" charset="utf-8" />
     <script src="../vendors/d3.min.js"></script>
     <script src="../vendors/lodash.min.js"></script>
+    <script src="../vendors/clipboard.min.js"></script>
     <script src="../vendors/jquery.min.js"></script>
     <script src="../vendors/bootstrap/js/bootstrap.min.js"></script>
     <style>
@@ -44,10 +45,12 @@
         </div>
         <div class="col-sm-4">
           <label>Input file</label>
+          <button class="copy btn btn-default btn-xs" data-clipboard-target="#out">Copy</button>
           <textarea id="out" class="form-control" readonly></textarea>
         </div>
         <div class="col-sm-4">
           <label>Tests file</label>
+          <button class="copy btn btn-default btn-xs" data-clipboard-target="#tests">Copy</button>
           <textarea id="tests" class="form-control" readonly></textarea>
         </div>
       </div>
@@ -55,12 +58,14 @@
       <div class="row">
         <div class="col-sm-4">
           <label>Shell script</label>
+          <button class="copy btn btn-default btn-xs" data-clipboard-target="#shell">Copy</button>
           <textarea id="shell" class="form-control" readonly></textarea>
         </div>
       </div>
 
     </div>
     <script>
+      new Clipboard('.copy');
       var mode = 'commits';
       var firstCommit = null;
 
