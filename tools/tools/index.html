@@ -265,6 +265,9 @@
               tree[firstCommit].parents = _.sortBy(tree[firstCommit].parents);
               render();
             }
+          })
+          .on('click', function(node) {
+            selectedNode = node;
           });
 
 
