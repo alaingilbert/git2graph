@@ -56,6 +56,9 @@
             <select ng-model="selectedNode.color" ng-options="color for color in colors" class="form-control"></select>
             <div ng-repeat="(key, path) in selectedNode.parentsPaths">
               <h2>Path to {{key}}:</h2>
+              <div class="form-group">
+                <button ng-click="btnDeletePathClicked(key)" class="btn btn-danger"><i class="fa fa-times"></i> Delete path</button>
+              </div>
               <label>Color:</label>
               <select ng-model="selectedNode.parentsPaths[key].color" ng-options="color for color in colors" class="form-control"></select>
               <label>Path:</label>

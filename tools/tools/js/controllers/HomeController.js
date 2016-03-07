@@ -16,6 +16,9 @@ app.controller('HomeController',
       $scope.selectedNode = null;
     };
 
+    $scope.btnDeletePathClicked = function(key) {
+      delete $scope.selectedNode.parentsPaths[key];
+    };
 
     $scope.btnMoveDownClicked = function(path, $index) {
       var point = path.splice($index, 1)[0];
