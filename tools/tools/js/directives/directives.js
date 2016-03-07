@@ -157,6 +157,12 @@ app.directive('project', function() {
               })
               .attr('stroke-width', 3)
               .attr('fill', 'none')
+              .on('mouseenter', function() {
+                d3.select(this).attr('opacity', 0.4);
+              })
+              .on('mouseleave', function(node) {
+                d3.select(this).attr('opacity', 1);
+              })
               .attr('stroke', function(item) {
                 return item[1].color;
               })
