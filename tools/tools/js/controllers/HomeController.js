@@ -25,6 +25,9 @@ app.controller('HomeController',
           $scope.input = {};
           $scope.input.name = projectName;
           $scope.btnSaveClicked = function() {
+            if (_.isEmpty($scope.input.name)) {
+              return;
+            }
             var names = localStorageService.get('names') || {};
             names[$scope.input.name] = tree;
             localStorageService.set('names', names);
