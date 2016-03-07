@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ngSanitize',]);
+var app = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'LocalStorageModule',]);
 
 app.controller('HomeController',
   function($scope, $sce)
