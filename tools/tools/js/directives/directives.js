@@ -309,6 +309,8 @@ app.directive('project', function() {
         _.reverse(reversedNodes);
         var out = "";
         _.each(reversedNodes, function(item, idx) {
+          item.parents = _.keys(item.parentsPaths);
+          item.parents = _.sortBy(item.parents, function(item) { return $scope.tree[item].column; });
           if (item.parents.length == 0) {
             out += 'git checkout -b ' + item.id + '\n';
             out += createCommit(item.id);
