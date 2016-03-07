@@ -18,6 +18,12 @@ app.controller('HomeController',
     };
 
 
+    $scope.btnAddPointClicked = function(path) {
+      var point = [0, 0, 0];
+      path.push(point);
+    };
+
+
     $scope.btnSaveClicked = function() {
       var modalInstance = $uibModal.open({
         animation: true,

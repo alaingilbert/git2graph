@@ -59,6 +59,9 @@
               <label>Color:</label>
               <select ng-model="selectedNode.parentsPaths[key].color" ng-options="color for color in colors" class="form-control"></select>
               <label>Path:</label>
+              <div class="form-group">
+                <button ng-click="btnAddPointClicked(selectedNode.parentsPaths[key].path)" class="btn btn-success" uib-tooltip="Create new point"><i class="fa fa-plus"></i></button>
+              </div>
               <div ng-repeat="point in path.path">
                 <div class="row">
                   <div class="col-sm-2">
