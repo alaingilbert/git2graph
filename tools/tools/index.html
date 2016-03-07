@@ -54,7 +54,17 @@
               <select ng-model="selectedNode.parentsPaths[key].color" ng-options="color for color in colors" class="form-control"></select>
               <label>Path:</label>
               <div ng-repeat="point in path.path">
-                <input ng-model="selectedNode.parentsPaths[key].path[$index]" type="text" class="form-control" />
+                <div class="row">
+                  <div class="col-sm-4">
+                    <input ng-model="selectedNode.parentsPaths[key].path[$index][0]" type="text" class="form-control" />
+                  </div>
+                  <div class="col-sm-4">
+                    <input ng-model="selectedNode.parentsPaths[key].path[$index][1]" type="text" class="form-control" />
+                  </div>
+                  <div class="col-sm-4">
+                    <input ng-model="selectedNode.parentsPaths[key].path[$index][2]" type="text" class="form-control" />
+                  </div>
+                </div>
               </div>
             </div>
             {{selectedNode}}
