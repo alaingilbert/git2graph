@@ -5,7 +5,38 @@ app.controller('HomeController',
   {
 
     $scope.btnSaveClicked = function() {
-      localStorage.setItem('tree', JSON.stringify($scope.tree));
+      var modalInstance = $uibModal.open({
+        animation: true,
+        template:
+          '<div class="modal-content">' +
+          '  <div class="modal-header">' +
+          '    <button type="button" class="close" ng-click="cancel()">x</button>' +
+          '    <h4 class="modal-title" id="mySmallModalLabel">Save</h4>' +
+          '  </div>' +
+          '  <div class="modal-body">' +
+          '    <input ng-model="input.name" type="text" class="form-control" />' +
+          '  </div>' +
+          '  <div class="modal-footer">' +
+          '    <input type="button" value="Save" class="btn btn-primary" ng-click="btnSaveClicked()" />' +
+          '    <input type="button" value="Close" class="btn btn-default" ng-click="cancel()" />' +
+          '  </div>' +
+          '</div>',
+        controller: function($scope, tree, $uibModalInstance) {
+          $scope.input = {};
+          $scope.btnSaveClicked = function() {
+            var names = localStorageService.get('names') || {};
+            names[$scope.input.name] = tree;
+            localStorageService.set('names', names);
+          };
+          $scope.cancel = function() {
+            $uibModalInstance.dismiss('cancel');
+          };
+        },
+        size: 'sm',
+        resolve: {
+          tree: function() { return $scope.tree; }
+        },
+      });
     };
 
     $scope.btnLoadClicked = function() {
