@@ -42,7 +42,7 @@ app.directive('project', function() {
       };
 
       $scope.btnAddRowClicked = function() {
-        $scope.tree.push({id: $scope.tree.length.toString(), parents: [], column: 0, parentsPaths: {}});
+        $scope.tree.push({id: $scope.tree.length.toString(), parents: [], column: 0, parentsPaths: {}, color: '#5aa1be'});
         $scope.drawTree();
       };
 
