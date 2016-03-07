@@ -13,15 +13,12 @@ app.directive('project', function() {
       show: '='
     },
     template: '<div class="mysvg">' +
-              '  <button class="btn btn-default" ng-click="setMode(\'commits\')"><i class="fa fa-circle"></i></button>' +
-              '  <button class="btn btn-default" ng-click="setMode(\'links\')"><i class="fa fa-share-alt"></i></button>' +
               '  <button class="btn btn-default" ng-click="btnAddRowClicked()"><i class="fa fa-plus"></i> Add row</button>' +
               '  <button class="btn btn-default" ng-click="btnRedrawClicked()">Redraw</button>' +
               '  <svg></svg>' +
               '</div>',
     link: function(scope, element, attrs) {
       var $scope = scope;
-      $scope.mode = 'commits';
 
       var firstCommit = null;
       var selectedPath = null;
@@ -31,11 +28,6 @@ app.directive('project', function() {
         .x(function(d) { return d.x; })
         .y(function(d) { return d.y; })
         .interpolate("linear");
-
-      $scope.setMode = function(mode) {
-        $scope.mode = mode;
-        $scope.drawTree();
-      };
 
       $scope.btnRedrawClicked = function() {
         $scope.drawTree();
@@ -83,44 +75,31 @@ app.directive('project', function() {
             $scope.drawTree();
           });
 
-          if ($scope.mode == 'commits') {
-            lineGroup.selectAll('dummyCircle')
-              .data(function(d, i) { return _.range(cols); })
-              .enter()
-              .append('circle')
-                .attr('r', radius)
-                .attr('stroke', '#ddd')
-                .attr('fill', '#fff')
-                .attr('cx', function(c) { return c * xGap + xGap; })
-                .attr('cy', function(c, i, a) { return a * yGap + yGap })
-                .on('mouseenter', function() { d3.select(this).attr('fill', '#f00'); })
-                .on('mouseleave', function() { d3.select(this).attr('fill', '#fff'); })
-                .on('click', function(a,b,c) {
-                  $scope.tree[c].column = a;
+          lineGroup.selectAll('dummyCircle')
+            .data(function(d, i) { return _.range(cols); })
+            .enter()
+            .append('circle')
+              .attr('r', 5)
+              .attr('stroke', '#ddd')
+              .attr('fill', '#ddd')
+              .attr('cx', function(c) { return c * xGap + xGap; })
+              .attr('cy', function(c, i, a) { return a * yGap + yGap })
+              .on('mouseenter', function() { d3.select(this).attr('fill', '#aaa'); })
+              .on('mouseleave', function() { d3.select(this).attr('fill', '#ddd'); })
+              .on('mousedown', function() {})
+              .on('mouseup', function(item, columnIndex, rowIndex) {
+                if (selectedPath) {
+                  console.log(selectedPath, columnIndex, rowIndex);
+                  addPathNode(selectedPath[1], columnIndex, rowIndex);
+                  console.log(selectedPath[1]);
+                  selectedPath = null;
                   $scope.drawTree();
-                });
-          } else {
-            lineGroup.selectAll('dummyCircle')
-              .data(function(d, i) { return _.range(cols); })
-              .enter()
-              .append('circle')
-                .attr('r', 5)
-                .attr('fill', 'none')
-                .attr('stroke', '#ddd')
-                .attr('fill', '#ddd')
-                .attr('cx', function(c) { return c * xGap + xGap; })
-                .attr('cy', function(c, i, a) { return a * yGap + yGap })
-                .on('mousedown', function() {})
-                .on('mouseup', function(item, columnIndex, rowIndex) {
-                  if (selectedPath) {
-                    console.log(selectedPath, columnIndex, rowIndex);
-                    addPathNode(selectedPath[1], columnIndex, rowIndex);
-                    console.log(selectedPath[1]);
-                    selectedPath = null;
-                    $scope.drawTree();
-                  }
-                });
-          }
+                }
+              })
+              .on('click', function(a,b,c) {
+                $scope.tree[c].column = a;
+                $scope.drawTree();
+              });
 
           var addPathNode = function(path, x, y) {
             if (y == path.path[0][1] && x > path.path[0][0]) {
