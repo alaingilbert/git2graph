@@ -13,6 +13,11 @@ app.controller('HomeController',
     };
 
 
+    $scope.btnRemovePointClicked = function(path, $index) {
+      path.splice($index, 1);
+    };
+
+
     $scope.btnSaveClicked = function() {
       var modalInstance = $uibModal.open({
         animation: true,

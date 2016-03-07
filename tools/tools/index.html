@@ -71,6 +71,7 @@
                     <input ng-model="selectedNode.parentsPaths[key].path[$index][2]" type="text" class="form-control" />
                   </div>
                   <div class="col-sm-6">
+                    <button ng-click="btnRemovePointClicked(selectedNode.parentsPaths[key].path, $index)" class="btn btn-danger" uib-tooltip="Remove point"><i class="fa fa-times"></i></button>
                   </div>
                 </div>
               </div>
