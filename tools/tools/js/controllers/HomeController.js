@@ -17,6 +17,12 @@ app.controller('HomeController',
     };
 
 
+    $scope.btnMoveDownClicked = function(path, $index) {
+      var point = path.splice($index, 1)[0];
+      path.splice($index + 1, 0, point);
+    };
+
+
     $scope.btnRemovePointClicked = function(path, $index) {
       path.splice($index, 1);
     };
