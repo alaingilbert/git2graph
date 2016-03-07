@@ -16,6 +16,7 @@ app.directive('project', function() {
               '  <button class="btn btn-default" ng-click="setMode(\'commits\')"><i class="fa fa-circle"></i></button>' +
               '  <button class="btn btn-default" ng-click="setMode(\'links\')"><i class="fa fa-share-alt"></i></button>' +
               '  <button class="btn btn-default" ng-click="btnAddRowClicked()"><i class="fa fa-plus"></i> Add row</button>' +
+              '  <button class="btn btn-default" ng-click="btnRedrawClicked()">Redraw</button>' +
               '  <svg></svg>' +
               '</div>',
     link: function(scope, element, attrs) {
@@ -33,6 +34,10 @@ app.directive('project', function() {
 
       $scope.setMode = function(mode) {
         $scope.mode = mode;
+        $scope.drawTree();
+      };
+
+      $scope.btnRedrawClicked = function() {
         $scope.drawTree();
       };
 
