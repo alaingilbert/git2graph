@@ -23,6 +23,7 @@ app.controller('HomeController',
           '</div>',
         controller: function($scope, tree, $uibModalInstance, projectName) {
           $scope.input = {};
+          $scope.input.name = projectName;
           $scope.btnSaveClicked = function() {
             var names = localStorageService.get('names') || {};
             names[$scope.input.name] = tree;
