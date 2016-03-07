@@ -206,8 +206,16 @@ app.directive('project', function() {
               return node.column * xGap + xGap;
             })
             .attr('cy', function(node, idx) { return idx * yGap + yGap })
-            .on('mouseenter', function() { d3.select(this).attr('fill', '#f00'); })
-            .on('mouseleave', function(node) { d3.select(this).attr('fill', node.color); })
+            .on('mouseenter', function() {
+              d3.select(this).attr('opacity', 0.4);
+            })
+            .on('mouseleave', function(node) {
+              if ($scope.selectedNode && $scope.selectedNode.id == node.id) {
+                d3.select(this).attr('opacity', 0.4);
+              } else {
+                d3.select(this).attr('opacity', 1);
+              }
+            })
             .on('mousedown', function(node, rowIndex) {
               firstCommit = rowIndex;
             })
