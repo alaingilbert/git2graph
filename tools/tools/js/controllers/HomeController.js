@@ -40,8 +40,29 @@ app.controller('HomeController',
     };
 
     $scope.btnLoadClicked = function() {
-      var savedTree = localStorage.getItem('tree');
-      $scope.tree = JSON.parse(savedTree);
+      var modalInstance = $uibModal.open({
+        animation: true,
+        template:
+          '<div class="modal-content">' +
+          '  <div class="modal-header">' +
+          '    <button type="button" class="close" ng-click="cancel()">x</button>' +
+          '    <h4 class="modal-title" id="mySmallModalLabel">Load</h4>' +
+          '  </div>' +
+          '  <div class="modal-body">' +
+          '    <select ng-model="input.name" ng-options="name for name in names" class="form-control" ng-enter="btnLoadClicked()" focus-me></select>' +
+          '  </div>' +
+          '  <div class="modal-footer">' +
+          '    <input type="button" value="Load" class="btn btn-primary" ng-click="btnLoadClicked()" />' +
+          '    <input type="button" value="Close" class="btn btn-default" ng-click="cancel()" />' +
+          '  </div>' +
+          '</div>',
+        controller: 'LoadModalController',
+        size: 'sm',
+      }).result.then(function(res) {
+        if (res) {
+          $scope.tree = res;
+        }
+      });
     };
 
 
