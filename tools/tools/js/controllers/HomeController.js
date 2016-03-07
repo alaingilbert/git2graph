@@ -21,7 +21,7 @@ app.controller('HomeController',
             node.parentsPaths[key-1] = path;
           }
         });
-        delete node.parentsPaths[nbNodes];
+        delete node.parentsPaths[nbNodes-1];
       });
     };
 
