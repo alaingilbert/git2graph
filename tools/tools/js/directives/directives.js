@@ -245,3 +245,46 @@ app.directive('project', function() {
     }
   }
 });
+
+
+app.directive('focusMe', function($timeout) {
+  return {
+    scope: { trigger: '@focusMe' },
+    link: function(scope, element, attr) {
+      var predicate = attr.focusMe || true;
+      switch (predicate) {
+        case "true": case "yes": case "1":
+          predicate = true;
+          break;
+        case "false": case "no": case "0": case null:
+          predicate = false;
+          break;
+        default:
+          predicate = Boolean(predicate);
+          break;
+      }
+      if (!predicate) {
+        return;
+      }
+      scope.$watch('trigger', function(value) {
+        $timeout(function() {
+          element[0].focus();
+        });
+      });
+    }
+  };
+});
+
+
+app.directive('ngEnter', function() {
+  return function(scope, element, attrs) {
+    element.bind("keydown keypress", function(event) {
+      if(event.which === 13) {
+        scope.$apply(function(){
+          scope.$eval(attrs.ngEnter, {'event': event});
+        });
+        event.preventDefault();
+      }
+    });
+  };
+});
