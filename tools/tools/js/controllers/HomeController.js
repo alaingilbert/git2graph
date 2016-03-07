@@ -10,9 +10,42 @@ app.controller('HomeController',
       });
     };
 
+    var removeFromChildrenParents = function(parentId) {
+      _.each($scope.tree, function(node) {
+        delete node.parentsPaths[parentId];
+      });
+      var nbNodes = $scope.tree.length;
+      _.each($scope.tree, function(node) {
+        _.each(node.parentsPaths, function(path, key) {
+          if (key > parentId) {
+            node.parentsPaths[key-1] = path;
+          }
+        });
+        delete node.parentsPaths[nbNodes];
+      });
+    };
+
     $scope.btnDeleteNodeClicked = function() {
-      $scope.tree.splice($scope.selectedNode.id, 1);
+      var idToRemove = $scope.selectedNode.id;
+      $scope.tree.splice(idToRemove, 1);
       recreateIds();
+      removeFromChildrenParents(idToRemove);
+      _.each($scope.tree, function(node) {
+        _.each(node.parents, function(nodeParent, idx) {
+          if (nodeParent == idToRemove) {
+            node.parents.splice(idx, 1);
+          } else if (nodeParent > idToRemove) {
+            node.parents[idx]--;
+          }
+        });
+        _.each(node.parentsPaths, function(path, parentId) {
+          _.each(path.path, function(point, idx) {
+            if (point[1] > idToRemove) {
+              node.parentsPaths[parentId].path[idx][1]--;
+            }
+          });
+        });
+      });
       $scope.selectedNode = null;
     };
 
