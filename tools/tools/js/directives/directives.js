@@ -210,7 +210,12 @@ app.directive('project', function() {
               }
             })
             .on('click', function(node) {
-              $scope.selectedNode = node;
+              if ($scope.selectedNode && $scope.selectedNode.id == node.id) {
+                $scope.selectedNode = null;
+              } else {
+                $scope.selectedNode = node;
+              }
+              $scope.drawTree();
             });
 
       };
