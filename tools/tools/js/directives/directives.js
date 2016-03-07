@@ -188,6 +188,13 @@ app.directive('project', function() {
           nodeGroup.append('circle')
             .attr('r', radius)
             .attr('fill', function(node) { return node.color; })
+            .attr('opacity', function(node) {
+              if ($scope.selectedNode && $scope.selectedNode.id == node.id) {
+                return 0.4;
+              } else {
+                return 1;
+              }
+            })
             .attr('stroke', '#000')
             .attr('cx', function(node) {
               return node.column * xGap + xGap;
