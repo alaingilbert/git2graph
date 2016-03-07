@@ -211,7 +211,6 @@ app.directive('project', function() {
             })
             .on('click', function(node) {
               $scope.selectedNode = node;
-              $scope.$apply();
             });
 
       };
