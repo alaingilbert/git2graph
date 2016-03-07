@@ -14,7 +14,7 @@ app.controller('HomeController',
           '    <h4 class="modal-title" id="mySmallModalLabel">Save</h4>' +
           '  </div>' +
           '  <div class="modal-body">' +
-          '    <input ng-model="input.name" type="text" class="form-control" />' +
+          '    <input ng-model="input.name" type="text" class="form-control" ng-enter="btnSaveClicked()" focus-me required />' +
           '  </div>' +
           '  <div class="modal-footer">' +
           '    <input type="button" value="Save" class="btn btn-primary" ng-click="btnSaveClicked()" />' +
