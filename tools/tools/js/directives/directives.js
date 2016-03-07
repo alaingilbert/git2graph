@@ -216,9 +216,9 @@ app.directive('project', function() {
 
       };
 
-      $scope.$watchCollection('tree', function(newValue, oldValue) {
+      $scope.$watch('tree', function(newValue, oldValue) {
         $scope.drawTree();
-      });
+      }, true);
 
     }
   }
