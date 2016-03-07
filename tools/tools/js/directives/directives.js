@@ -92,9 +92,7 @@ app.directive('project', function() {
               .on('mousedown', function() {})
               .on('mouseup', function(item, columnIndex, rowIndex) {
                 if (selectedPath) {
-                  console.log(selectedPath, columnIndex, rowIndex);
                   addPathNode(selectedPath[1], columnIndex, rowIndex);
-                  console.log(selectedPath[1]);
                   selectedPath = null;
                   $scope.drawTree();
                 }
@@ -114,7 +112,11 @@ app.directive('project', function() {
               if (y > pathItem[1]) {
                 continue;
               }
-              path.path.splice(i, 0, [x, y, 1]);
+              if (y == pathItem[1] && x < pathItem[0]) {
+                path.path.splice(i+1, 0, [x, y, 0]);
+              } else {
+                path.path.splice(i, 0, [x, y, 1]);
+              }
               break;
             }
           };
