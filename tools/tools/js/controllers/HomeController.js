@@ -65,7 +65,8 @@ app.controller('HomeController',
         size: 'sm',
       }).result.then(function(res) {
         if (res) {
-          $scope.tree = res;
+          $scope.input.projectName = res.projectName;
+          $scope.tree = res.data;
         }
       });
     };
