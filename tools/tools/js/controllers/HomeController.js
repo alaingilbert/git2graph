@@ -41,6 +41,21 @@ app.controller('HomeController',
     (function constructor() {
       $scope.selectedNode = null;
       $scope.tree = [];
+
+      $scope.colors = [
+        '#5aa1be',
+        '#c065b8',
+        '#c0ab5f',
+        '#59bc95',
+        '#7a63be',
+        '#c0615b',
+        '#73bb5e',
+        '#6ee585',
+        '#7088e8',
+        '#eb77a3',
+        '#c2e675',
+      ];
+
     })();
 
   }

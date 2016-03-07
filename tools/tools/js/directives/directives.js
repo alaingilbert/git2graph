@@ -8,6 +8,7 @@ app.directive('project', function() {
       createDependency: '=',
       tree: '=',
       selectedNode: '=',
+      colors: '=',
       dependency: '=',
       show: '='
     },
