@@ -55,6 +55,7 @@ app.controller('HomeController',
             var names = localStorageService.get('names') || {};
             names[$scope.input.name] = tree;
             localStorageService.set('names', names);
+            $uibModalInstance.close();
           };
           $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
