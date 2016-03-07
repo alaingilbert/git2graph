@@ -208,14 +208,14 @@ app.directive('project', function() {
           // Each nodes
           nodeGroup.append('circle')
             .attr('r', radius)
-            .attr('fill', '#0f0')
+            .attr('fill', function(node) { return node.color; })
             .attr('stroke', '#000')
             .attr('cx', function(node) {
               return node.column * xGap + xGap;
             })
             .attr('cy', function(node, idx) { return idx * yGap + yGap })
             .on('mouseenter', function() { d3.select(this).attr('fill', '#f00'); })
-            .on('mouseleave', function() { d3.select(this).attr('fill', '#0f0'); })
+            .on('mouseleave', function(node) { d3.select(this).attr('fill', node.color); })
             .on('mousedown', function(node, rowIndex) {
               firstCommit = rowIndex;
             })
