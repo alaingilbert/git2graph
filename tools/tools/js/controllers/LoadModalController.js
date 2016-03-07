@@ -10,7 +10,10 @@ app.controller('LoadModalController',
 
 
     $scope.btnLoadClicked = function() {
-      $uibModalInstance.close($scope.projects[$scope.input.name]);
+      var result = {};
+      result.projectName = $scope.input.name;
+      result.data = $scope.projects[$scope.input.name];
+      $uibModalInstance.close(result);
     };
 
 
