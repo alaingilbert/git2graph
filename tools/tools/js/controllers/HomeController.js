@@ -93,6 +93,7 @@ app.controller('HomeController',
     (function constructor() {
       $scope.selectedNode = null;
       $scope.tree = [];
+      $scope.input = {};
 
       $scope.colors = [
         '#5aa1be',
