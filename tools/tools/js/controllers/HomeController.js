@@ -4,6 +4,15 @@ app.controller('HomeController',
   function($scope, $uibModal, localStorageService)
   {
 
+    $scope.btnDeleteNodeClicked = function() {
+      $scope.tree.splice($scope.selectedNode.id, 1);
+      _.map($scope.tree, function(node, idx) {
+        node.id = idx.toString();
+      });
+      $scope.selectedNode = null;
+    };
+
+
     $scope.btnSaveClicked = function() {
       var modalInstance = $uibModal.open({
         animation: true,

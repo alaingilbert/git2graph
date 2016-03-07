@@ -47,6 +47,9 @@
         <div class="col-sm-4">
           <div ng-show="selectedNode">
             <h2>Node infos:</h2>
+            <div class="form-group">
+              <button ng-click="btnDeleteNodeClicked()" class="btn btn-danger"><i class="fa fa-times"></i> Delete node</button>
+            </div>
             <label>Column:</label>
             <input ng-model="selectedNode.column" type="text" class="form-control" />
             <label>Color:</label>
