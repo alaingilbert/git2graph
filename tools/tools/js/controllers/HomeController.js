@@ -135,6 +135,9 @@ app.controller('HomeController',
 
     (function constructor() {
       $scope.selectedNode = null;
+      $scope.inputFile = '';
+      $scope.testFile = '';
+      $scope.shellFile = '';
       $scope.tree = [];
       $scope.input = {};
 

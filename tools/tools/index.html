@@ -41,7 +41,7 @@
             <button class="btn btn-default" ng-click="btnSaveClicked()">Save</button>
             <button class="btn btn-default" ng-click="btnLoadClicked()">Load</button>
           </div>
-          <project tree="tree" selected-node="selectedNode" colors="colors"></project>
+          <project tree="tree" selected-node="selectedNode" colors="colors" input-file="inputFile" test-file="testFile" shell-file="shellFile"></project>
         </div>
 
         <div class="col-sm-4">
@@ -90,21 +90,21 @@
             <div class="col-sm-12">
               <label>Input file</label>
               <button class="copy btn btn-default btn-xs" data-clipboard-target="#out">Copy</button>
-              <textarea id="out" class="form-control" readonly></textarea>
+              <textarea ng-model="inputFile" id="out" class="form-control" readonly></textarea>
             </div>
           </div>
           <div class="row">
             <div class="col-sm-12">
               <label>Tests file</label>
               <button class="copy btn btn-default btn-xs" data-clipboard-target="#tests">Copy</button>
-              <textarea id="tests" class="form-control" readonly></textarea>
+              <textarea ng-model="testFile" id="tests" class="form-control" readonly></textarea>
             </div>
           </div>
           <div class="row">
             <div class="col-sm-12">
               <label>Shell script</label>
               <button class="copy btn btn-default btn-xs" data-clipboard-target="#shell">Copy</button>
-              <textarea id="shell" class="form-control" readonly></textarea>
+              <textarea ng-model="shellFile" id="shell" class="form-control" readonly></textarea>
             </div>
           </div>
           <div class="row">
@@ -121,101 +121,6 @@
     </div>
     <script>
       new Clipboard('.copy');
-
-      var render = function() {
-        //generateTestsFile();
-        //generateShellScript();
-        //generateInputFile();
-      };
-
-      var generateInputFile = function() {
-        var output = _.map(tree, function(el) { return _.pick(el, ['id', 'parents']); });
-        $('#out').val(JSON.stringify(output, null, 2));
-      };
-
-      var generateTestsFile = function() {
-        var testName = 'Test1';
-        var out = '';
-        out += 'func ' + testName + '(t *testing.T) {\n';
-
-        out += '	// Initial input\n';
-        out += '	inputNodes := make([]map[string]interface{}, 0)\n';
-        _.each(tree, function(node) {
-          var p = _.map(node.parents, function(el) { return '"' + el + '"'; }).join(',');
-          out += '	inputNodes = append(inputNodes, map[string]interface{}{"id": "' + node.id + '", "parents": []string{' + p + '}})\n';
-        });
-
-        out += '\n	out, _ := buildTree(inputNodes, customColors)\n\n';
-
-        out += '	// Expected output\n';
-        var expectedColumns = _.map(tree, 'column').join(', ');
-        out += '	expectedColumns := []int{' + expectedColumns + '}\n\n';
-
-        out += '	expectedPaths := []map[string]Path{\n';
-        _.each(tree, function(node) {
-          out += '		map[string]Path{\n';
-          _.each(node.parents, function(parentId) {
-            var parentNode = tree[parentId];
-            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "nocolor"},\n';
-          });
-          out += '		},\n';
-        });
-        out += '	}\n\n';
-
-        out += '	// Validation\n';
-        out += '	validateColumns(t, expectedColumns, out)\n';
-        out += '	validatePaths(t, expectedPaths, out)\n';
-        out += '	validateColors(t, expectedPaths, out)\n';
-        out += '}';
-
-        $('#tests').val(out);
-      };
-
-
-      var generateShellScript = function() {
-
-        var createCommit = function(id) {
-          var out = '';
-          out += 'touch ' + id + '\n';
-          out += 'git add ' + id + '\n';
-          out += 'git commit -m ' + id + '\n';
-          return out;
-        };
-
-        var reversedNodes = _.cloneDeep(tree);
-        _.reverse(reversedNodes);
-        var out = "";
-        _.each(reversedNodes, function(item, idx) {
-          if (item.parents.length == 0) {
-            out += 'git checkout -b ' + item.id + '\n';
-            out += createCommit(item.id);
-          } else if (item.parents.length == 1) {
-            if (tree[item.parents[0]].column < item.column) {
-              out += 'git checkout ' + item.parents[0] + '\n';
-              out += 'git checkout -b ' + item.id + '\n';
-              out += createCommit(item.id);
-            } else if (tree[item.parents[0]].column == item.column) {
-              out += 'git checkout ' + item.parents[0] + '\n';
-              out += 'git checkout -b ' + item.id + '\n';
-              out += createCommit(item.id);
-            }
-          } else if (item.parents.length == 2) {
-            if (tree[item.parents[0]].column < item.column) {
-              out += 'git checkout ' + item.parents[1] + '\n';
-              out += 'git checkout -b ' + item.id + '\n';
-              out += 'git merge -m ' + item.parents[0] + ' --no-ff ' + item.parents[0] + '\n';
-            } else if (tree[item.parents[1]].column > item.column) {
-              out += 'git checkout ' + item.parents[0] + '\n';
-              out += 'git checkout -b ' + item.id + '\n';
-              out += 'git merge -m ' + item.parents[1] + ' --no-ff ' + item.parents[1] + '\n';
-            }
-          }
-        });
-        $('#shell').val(out);
-      };
-
-
-      render();
     </script>
   </body>
 </html>

@@ -6,6 +6,9 @@ app.directive('project', function() {
     //scope: true,
     scope: {
       createDependency: '=',
+      inputFile: '=',
+      testFile: '=',
+      shellFile: '=',
       tree: '=',
       selectedNode: '=',
       colors: '=',
@@ -239,7 +242,100 @@ app.directive('project', function() {
               $scope.drawTree();
             });
 
+        generateInputFile();
+        generateTestsFile();
+        generateShellScript();
       };
+
+
+      var generateInputFile = function() {
+        var output = _.map($scope.tree, function(el) { return _.pick(el, ['id', 'parents']); });
+        $scope.inputFile = JSON.stringify(output, null, 2);
+      };
+
+
+      var generateTestsFile = function() {
+        var testName = 'Test1';
+        var out = '';
+        out += 'func ' + testName + '(t *testing.T) {\n';
+
+        out += '	// Initial input\n';
+        out += '	inputNodes := make([]map[string]interface{}, 0)\n';
+        _.each($scope.tree, function(node) {
+          var p = _.map(node.parents, function(el) { return '"' + el + '"'; }).join(',');
+          out += '	inputNodes = append(inputNodes, map[string]interface{}{"id": "' + node.id + '", "parents": []string{' + p + '}})\n';
+        });
+
+        out += '\n	out, _ := buildTree(inputNodes, customColors)\n\n';
+
+        out += '	// Expected output\n';
+        var expectedColumns = _.map($scope.tree, 'column').join(', ');
+        out += '	expectedColumns := []int{' + expectedColumns + '}\n\n';
+
+        out += '	expectedPaths := []map[string]Path{\n';
+        _.each($scope.tree, function(node) {
+          out += '		map[string]Path{\n';
+          _.each(node.parents, function(parentId) {
+            var parentNode = $scope.tree[parentId];
+            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "nocolor"},\n';
+          });
+          out += '		},\n';
+        });
+        out += '	}\n\n';
+
+        out += '	// Validation\n';
+        out += '	validateColumns(t, expectedColumns, out)\n';
+        out += '	validatePaths(t, expectedPaths, out)\n';
+        out += '	validateColors(t, expectedPaths, out)\n';
+        out += '}';
+
+        $scope.testFile = out;
+      };
+
+
+      var generateShellScript = function() {
+
+        var createCommit = function(id) {
+          var out = '';
+          out += 'touch ' + id + '\n';
+          out += 'git add ' + id + '\n';
+          out += 'git commit -m ' + id + '\n';
+          return out;
+        };
+
+        var reversedNodes = _.cloneDeep($scope.tree);
+        _.reverse(reversedNodes);
+        var out = "";
+        _.each(reversedNodes, function(item, idx) {
+          if (item.parents.length == 0) {
+            out += 'git checkout -b ' + item.id + '\n';
+            out += createCommit(item.id);
+          } else if (item.parents.length == 1) {
+            if ($scope.tree[item.parents[0]].column < item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += createCommit(item.id);
+            } else if ($scope.tree[item.parents[0]].column == item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += createCommit(item.id);
+            }
+          } else if (item.parents.length == 2) {
+            if ($scope.tree[item.parents[0]].column < item.column) {
+              out += 'git checkout ' + item.parents[1] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += 'git merge -m ' + item.parents[0] + ' --no-ff ' + item.parents[0] + '\n';
+            } else if ($scope.tree[item.parents[1]].column > item.column) {
+              out += 'git checkout ' + item.parents[0] + '\n';
+              out += 'git checkout -b ' + item.id + '\n';
+              out += 'git merge -m ' + item.parents[1] + ' --no-ff ' + item.parents[1] + '\n';
+            }
+          }
+        });
+
+        $scope.shellFile = out;
+      };
+
 
       $scope.$watch('tree', function(newValue, oldValue) {
         $scope.drawTree();
