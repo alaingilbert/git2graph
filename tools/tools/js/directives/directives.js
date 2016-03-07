@@ -218,7 +218,6 @@ app.directive('project', function() {
 
       $scope.$watchCollection('tree', function(newValue, oldValue) {
         $scope.drawTree();
-        //new ZeroClipboard($('.copy-btn'));
       });
 
     }
