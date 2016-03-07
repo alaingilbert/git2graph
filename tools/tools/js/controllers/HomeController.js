@@ -21,7 +21,7 @@ app.controller('HomeController',
           '    <input type="button" value="Close" class="btn btn-default" ng-click="cancel()" />' +
           '  </div>' +
           '</div>',
-        controller: function($scope, tree, $uibModalInstance) {
+        controller: function($scope, tree, $uibModalInstance, projectName) {
           $scope.input = {};
           $scope.btnSaveClicked = function() {
             var names = localStorageService.get('names') || {};
@@ -34,6 +34,7 @@ app.controller('HomeController',
         },
         size: 'sm',
         resolve: {
+          projectName: function() { return $scope.input.projectName; },
           tree: function() { return $scope.tree; }
         },
       });
