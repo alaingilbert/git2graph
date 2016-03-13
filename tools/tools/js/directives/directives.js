@@ -286,11 +286,29 @@ app.directive('project', function() {
 
         out += '	expectedPaths := []map[string]Path{\n';
         _.each($scope.tree, function(node) {
+          node.parents = _.keys(node.parentsPaths);
+          node.parents = _.sortBy(node.parents, function(item) { return $scope.tree[item].column; });
+          var maxParentLength = 0;
+          _.each(node.parents, function(parentId) {
+            if (parentId.length > maxParentLength) {
+              maxParentLength = parentId.length;
+            }
+          });
+          if (!node.parents.length) {
+            return;
+          }
           out += '		map[string]Path{\n';
           _.each(node.parents, function(parentId) {
-            var parentNode = $scope.tree[parentId];
-            var color = 'color' + (_.indexOf($scope.colors, parentNode.color) + 1);
-            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "' + color + '"},\n';
+            var prefix = "";
+            _.each(_.range(maxParentLength - parentId.length), function() { prefix += " "; });
+            var color = 'color' + (_.indexOf($scope.colors, node.parentsPaths[parentId].color) + 1);
+            out += '			"' + parentId + '":' + prefix + ' Path{"' + parentId + '", []Point{';
+            var points = [];
+            _.each(node.parentsPaths[parentId].path, function(point) {
+              points.push('Point{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');
+            });
+            out += points.join(', ');
+            out += '}, "' + color + '"},\n';
           });
           out += '		},\n';
         });
