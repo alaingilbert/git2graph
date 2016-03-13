@@ -310,8 +310,11 @@ app.directive('project', function() {
         var createCommit = function(id) {
           var out = '';
           out += 'touch ' + id + '\n';
+          out += 'sleep 0.2\n';
           out += 'git add ' + id + '\n';
+          out += 'sleep 0.2\n';
           out += 'git commit -m ' + id + '\n';
+          out += 'sleep 0.2\n';
           return out;
         };
 
@@ -339,10 +342,12 @@ app.directive('project', function() {
               out += 'git checkout ' + item.parents[1] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
               out += 'git merge -m ' + item.parents[0] + ' --no-ff ' + item.parents[0] + '\n';
+              out += 'sleep 0.2\n';
             } else if ($scope.tree[item.parents[1]].column > item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
               out += 'git merge -m ' + item.parents[1] + ' --no-ff ' + item.parents[1] + '\n';
+              out += 'sleep 0.2\n';
             }
           }
         });
