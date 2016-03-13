@@ -63,6 +63,16 @@ app.directive('project', function() {
           .append('g');
 
         lineGroup
+          .append('text')
+          .attr('x', 3)
+          .attr('y', function(path, idx) {
+            return yGap * idx + yGap;
+          })
+          .attr('alignment-baseline', 'middle')
+          .attr('text-anchor', 'left')
+          .text(function(path, idx) { return idx; });
+
+        lineGroup
           .append('path')
           .attr('d', function(path, idx) {
             var d = [];
