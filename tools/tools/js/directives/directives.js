@@ -53,7 +53,7 @@ app.directive('project', function() {
         var svg = d3.select(element.find('svg')[0])
           .style('border', '1px solid gray')
           .attr('width', '100%')
-          .attr('height', '300px');
+          .style('height', ($scope.tree.length + 1) * yGap + radius);
         svg.selectAll('*').remove();
 
         var linesGroup = svg.append('g');
