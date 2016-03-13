@@ -1523,6 +1523,137 @@ func Test28(t *testing.T) {
 	validateColors(t, expectedPaths, out)
 }
 
+func Test29(t *testing.T) {
+	// Initial input
+	inputNodes := make([]map[string]interface{}, 0)
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"15"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"17"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"18"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"20"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"9", "10"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"9", "11"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"13", "14"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"21"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"16", "15"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"19"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"26"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"27"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{"25"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "18", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "19", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "20", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "21", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{"25"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "25", "parents": []string{"26"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "26", "parents": []string{"27"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "27", "parents": []string{}})
+
+	out, _ := BuildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 2, 3, 4, 5, 6, 0, 3, 0, 7, 3, 5, 0, 4, 1, 0, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0}
+
+	expectedPaths := []map[string]Path{
+		map[string]Path{
+			"7": Path{"7", []Point{Point{0, 0, 0}, Point{0, 7, 0}}, "color1"},
+		},
+		map[string]Path{
+			"15": Path{"15", []Point{Point{1, 1, 0}, Point{1, 15, 0}}, "color2"},
+		},
+		map[string]Path{
+			"17": Path{"17", []Point{Point{2, 2, 0}, Point{2, 17, 0}}, "color3"},
+		},
+		map[string]Path{
+			"8": Path{"8", []Point{Point{3, 3, 0}, Point{3, 8, 0}}, "color4"},
+		},
+		map[string]Path{
+			"18": Path{"18", []Point{Point{4, 4, 0}, Point{4, 13, 1}, Point{3, 13, 0}, Point{3, 18, 0}}, "color5"},
+		},
+		map[string]Path{
+			"12": Path{"12", []Point{Point{5, 5, 0}, Point{5, 12, 0}}, "color6"},
+		},
+		map[string]Path{
+			"20": Path{"20", []Point{Point{6, 6, 0}, Point{6, 13, 1}, Point{5, 13, 0}, Point{5, 20, 0}}, "color7"},
+		},
+		map[string]Path{
+			"9":  Path{"9", []Point{Point{0, 7, 0}, Point{0, 9, 0}}, "color1"},
+			"10": Path{"10", []Point{Point{0, 7, 0}, Point{7, 7, 2}, Point{7, 10, 0}}, "color8"},
+		},
+		map[string]Path{
+			"9":  Path{"9", []Point{Point{3, 8, 0}, Point{0, 8, 2}, Point{0, 9, 0}}, "color1"},
+			"11": Path{"11", []Point{Point{3, 8, 0}, Point{3, 11, 0}}, "color4"},
+		},
+		map[string]Path{
+			"13": Path{"13", []Point{Point{0, 9, 0}, Point{0, 13, 0}}, "color1"},
+			"14": Path{"14", []Point{Point{0, 9, 0}, Point{8, 9, 2}, Point{8, 13, 1}, Point{7, 13, 0}, Point{7, 14, 1}, Point{4, 14, 0}}, "color6"},
+		},
+		map[string]Path{
+			"21": Path{"21", []Point{Point{7, 10, 0}, Point{7, 13, 1}, Point{6, 13, 0}, Point{6, 21, 0}}, "color8"},
+		},
+		map[string]Path{
+			"13": Path{"13", []Point{Point{3, 11, 0}, Point{3, 13, 1}, Point{0, 13, 0}}, "color4"},
+		},
+		map[string]Path{
+			"14": Path{"14", []Point{Point{5, 12, 0}, Point{5, 13, 1}, Point{4, 13, 0}, Point{4, 14, 0}}, "color6"},
+		},
+		map[string]Path{
+			"16": Path{"16", []Point{Point{0, 13, 0}, Point{0, 16, 0}}, "color1"},
+			"15": Path{"15", []Point{Point{0, 13, 0}, Point{1, 13, 2}, Point{1, 15, 0}}, "color2"},
+		},
+		map[string]Path{
+			"19": Path{"19", []Point{Point{4, 14, 0}, Point{4, 19, 0}}, "color6"},
+		},
+		map[string]Path{
+			"26": Path{"26", []Point{Point{1, 15, 0}, Point{1, 26, 0}}, "color2"},
+		},
+		map[string]Path{
+			"27": Path{"27", []Point{Point{0, 16, 0}, Point{0, 27, 0}}, "color1"},
+		},
+		map[string]Path{
+			"25": Path{"25", []Point{Point{2, 17, 0}, Point{2, 25, 0}}, "color3"},
+		},
+		map[string]Path{
+			"24": Path{"24", []Point{Point{3, 18, 0}, Point{3, 24, 0}}, "color5"},
+		},
+		map[string]Path{
+			"23": Path{"23", []Point{Point{4, 19, 0}, Point{4, 23, 0}}, "color6"},
+		},
+		map[string]Path{
+			"22": Path{"22", []Point{Point{5, 20, 0}, Point{5, 22, 0}}, "color7"},
+		},
+		map[string]Path{
+			"22": Path{"22", []Point{Point{6, 21, 0}, Point{6, 22, 1}, Point{5, 22, 0}}, "color8"},
+		},
+		map[string]Path{
+			"23": Path{"23", []Point{Point{5, 22, 0}, Point{5, 23, 1}, Point{4, 23, 0}}, "color7"},
+		},
+		map[string]Path{
+			"24": Path{"24", []Point{Point{4, 23, 0}, Point{4, 24, 1}, Point{3, 24, 0}}, "color6"},
+		},
+		map[string]Path{
+			"25": Path{"25", []Point{Point{3, 24, 0}, Point{3, 25, 1}, Point{2, 25, 0}}, "color5"},
+		},
+		map[string]Path{
+			"26": Path{"26", []Point{Point{2, 25, 0}, Point{2, 26, 1}, Point{1, 26, 0}}, "color3"},
+		},
+		map[string]Path{
+			"27": Path{"27", []Point{Point{1, 26, 0}, Point{1, 27, 1}, Point{0, 27, 0}}, "color2"},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
 func TestPathHeight1(t *testing.T) {
 	out := OutputNode{ParentsPaths: map[string]Path{"1": Path{Path: []Point{
 		Point{X: 0, Y: 2, Type: 0},
