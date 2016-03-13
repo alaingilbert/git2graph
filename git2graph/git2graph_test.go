@@ -885,7 +885,6 @@ func Test17(t *testing.T) {
 		map[string]Path{
 			"6": Path{"6", []Point{Point{0, 5, 0}, Point{0, 6, 0}}, "color1"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -929,7 +928,6 @@ func Test18(t *testing.T) {
 		map[string]Path{
 			"6": Path{"6", []Point{Point{1, 5, 0}, Point{1, 6, 1}, Point{0, 6, 0}}, "color3"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -999,7 +997,6 @@ func Test19(t *testing.T) {
 		map[string]Path{
 			"12": Path{"12", []Point{Point{1, 11, 0}, Point{1, 12, 1}, Point{0, 12, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1039,7 +1036,6 @@ func Test20(t *testing.T) {
 		map[string]Path{
 			"5": Path{"5", []Point{Point{0, 4, 0}, Point{0, 5, 0}}, "color1"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1088,7 +1084,6 @@ func Test21(t *testing.T) {
 		map[string]Path{
 			"7": Path{"7", []Point{Point{1, 6, 0}, Point{1, 7, 1}, Point{0, 7, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1141,7 +1136,6 @@ func Test22(t *testing.T) {
 		map[string]Path{
 			"8": Path{"8", []Point{Point{1, 7, 0}, Point{1, 8, 1}, Point{0, 8, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1194,7 +1188,6 @@ func Test23(t *testing.T) {
 		map[string]Path{
 			"8": Path{"8", []Point{Point{1, 7, 0}, Point{1, 8, 1}, Point{0, 8, 0}}, "color4"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1261,7 +1254,6 @@ func Test24(t *testing.T) {
 		map[string]Path{
 			"11": Path{"11", []Point{Point{1, 10, 0}, Point{1, 11, 1}, Point{0, 11, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1334,7 +1326,6 @@ func Test25(t *testing.T) {
 		map[string]Path{
 			"12": Path{"12", []Point{Point{1, 11, 0}, Point{1, 12, 1}, Point{0, 12, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1388,7 +1379,6 @@ func Test26(t *testing.T) {
 		map[string]Path{
 			"8": Path{"8", []Point{Point{1, 7, 0}, Point{1, 8, 1}, Point{0, 8, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1480,7 +1470,6 @@ func Test27(t *testing.T) {
 		map[string]Path{
 			"17": Path{"17", []Point{Point{1, 16, 0}, Point{1, 17, 1}, Point{0, 17, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
@@ -1526,7 +1515,6 @@ func Test28(t *testing.T) {
 		map[string]Path{
 			"6": Path{"6", []Point{Point{1, 5, 0}, Point{1, 6, 1}, Point{0, 6, 0}}, "color2"},
 		},
-		map[string]Path{},
 	}
 
 	// Validation
