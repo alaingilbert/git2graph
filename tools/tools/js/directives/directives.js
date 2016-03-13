@@ -278,7 +278,7 @@ app.directive('project', function() {
           out += '	inputNodes = append(inputNodes, map[string]interface{}{"id": "' + node.id + '", "parents": []string{' + p + '}})\n';
         });
 
-        out += '\n	out, _ := buildTree(inputNodes, customColors)\n\n';
+        out += '\n	out, _ := BuildTree(inputNodes, customColors)\n\n';
 
         out += '	// Expected output\n';
         var expectedColumns = _.map($scope.tree, 'column').join(', ');
