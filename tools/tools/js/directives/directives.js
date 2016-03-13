@@ -289,7 +289,8 @@ app.directive('project', function() {
           out += '		map[string]Path{\n';
           _.each(node.parents, function(parentId) {
             var parentNode = $scope.tree[parentId];
-            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "nocolor"},\n';
+            var color = 'color' + (_.indexOf($scope.colors, parentNode.color) + 1);
+            out += '			"' + parentId + '": Path{"' + parentId + '", []Point{Point{' + node.column + ', ' + node.id + ', 0}, Point{' + parentNode.column + ', ' + parentNode.id + ', 0}}, "' + color + '"},\n';
           });
           out += '		},\n';
         });
