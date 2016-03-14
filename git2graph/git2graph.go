@@ -155,7 +155,19 @@ func (node *OutputNode) IsPathSubBranch(parentId string) bool {
 func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
 	if idx < 0 {
 		if len(node.ParentsPaths[parentId].Path)+idx < 0 {
-			log.Error("1- Weird, need to investigate")
+			if index[parentId].Idx < index[node.Id].Idx {
+				log.WithFields(log.Fields{
+					"idx": idx,
+					"node id": node.Id,
+					"parent id": parentId,
+				}).Error("Error in repo structure. parent idx < node idx")
+				return Point{}
+			}
+			log.WithFields(log.Fields{
+				"idx": idx,
+				"node id": node.Id,
+				"parent id": parentId,
+			}).Error("1- Weird, need to investigate")
 			return Point{}
 		}
 		return node.ParentsPaths[parentId].Path[len(node.ParentsPaths[parentId].Path)+idx]
