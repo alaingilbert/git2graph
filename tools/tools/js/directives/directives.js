@@ -160,6 +160,9 @@ app.directive('project', function() {
                     x: item[0] * xGap + xGap,
                     y: item[1] * yGap + yGap
                   };
+                  if (item[2] == 3) {
+                    point.y += 6;
+                  }
                   if (item[2] == 2) {
                     point.y += 6;
                   }
