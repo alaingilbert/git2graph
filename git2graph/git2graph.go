@@ -13,6 +13,7 @@ import (
 var colors []Color
 var DebugMode bool = false
 var NoOutput bool = false
+var index map[string]*OutputNode = make(map[string]*OutputNode)
 
 type Color struct {
 	ReleaseIdx int
@@ -122,7 +123,7 @@ func (node *OutputNode) ColumnDefined() bool {
 	return node.Column != -1
 }
 
-func (node *OutputNode) HasBiggerParentDefined(index map[string]*OutputNode) bool {
+func (node *OutputNode) HasBiggerParentDefined() bool {
 	found := false
 	for _, parentNodeId := range node.Parents {
 		parentNode := index[parentNodeId]
@@ -245,7 +246,7 @@ func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 	return index
 }
 
-func initChildren(nodes []*OutputNode, index map[string]*OutputNode) {
+func initChildren(nodes []*OutputNode) {
 	for _, node := range nodes {
 		for _, parentId := range node.Parents {
 			index[parentId].Children = append(index[parentId].Children, node.Id)
@@ -253,7 +254,7 @@ func initChildren(nodes []*OutputNode, index map[string]*OutputNode) {
 	}
 }
 
-func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
+func setColumns(nodes []*OutputNode) {
 	nextColumn := 0
 	for _, node := range nodes {
 		// Set column if not defined
@@ -421,7 +422,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 					node.SetPathColor(parent.Id, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
-						if node.HasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) {
+						if node.HasBiggerParentDefined() || (parentIdx == 0 && parent.Idx > node.Idx+1) {
 							node.Append(parent.Id, Point{node.Column, parent.Idx, MERGE_BACK})
 							node.SetPathColor(parent.Id, node.Color)
 						} else {
@@ -470,10 +471,10 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 	}
 
 	var nodes []*OutputNode = initNodes(inputNodes)
-	var index map[string]*OutputNode = initIndex(nodes)
+	index = initIndex(nodes)
 
-	initChildren(nodes, index)
-	setColumns(nodes, index)
+	initChildren(nodes)
+	setColumns(nodes)
 
 	for _, node := range nodes {
 		for parentId, path := range node.ParentsPaths {
