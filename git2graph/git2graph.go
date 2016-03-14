@@ -282,6 +282,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				point := Point{child.GetPathPoint(node.Id, -2).X, node.Idx, MERGE_BACK}
 				child.Insert(node.Id, pos, point)
 
+				processedNodes := make(map[string]bool)
 				// Nodes that are following the current node
 				for followingNodeIdx, followingNode := range nodes {
 					if followingNodeIdx > node.Idx {
@@ -320,8 +321,12 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 									followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
 									followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 									if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
-										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
-										followingNode.Column -= nbNodesMergingBack
+										if !processedNodes[followingNode.Id] {
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
+											followingNode.Column -= nbNodesMergingBack
+										} else {
+											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
+										}
 										if DebugMode {
 											followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
 										}
@@ -331,6 +336,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 									}
 								}
 							}
+							processedNodes[followingNode.Id] = true
 						}
 					}
 				}
