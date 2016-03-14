@@ -53,7 +53,7 @@
             <label>Column:</label>
             <input ng-model="selectedNode.column" type="text" class="form-control" />
             <label>Color:</label>
-            <select ng-model="selectedNode.color" ng-options="color for color in colors" class="form-control"></select>
+            <select ng-model="selectedNode.color" ng-options="formatColor(color) for color in colors" class="form-control"></select>
             <div ng-repeat="(key, path) in selectedNode.parentsPaths">
               <h2>Path to {{key}}:</h2>
               <div class="form-group">

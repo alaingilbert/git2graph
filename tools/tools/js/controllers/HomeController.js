@@ -150,6 +150,11 @@ app.controller('HomeController',
     };
 
 
+    $scope.formatColor = function(color) {
+      return 'color' + (_.indexOf($scope.colors, color) + 1) + ' - ' + color;
+    };
+
+
     (function constructor() {
       $scope.selectedNode = null;
       $scope.inputFile = '';
