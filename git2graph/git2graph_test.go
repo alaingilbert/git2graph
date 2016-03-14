@@ -59,6 +59,8 @@ var customColors []Color = []Color{
 	Color{-2, "color6", false},
 	Color{-2, "color7", false},
 	Color{-2, "color8", false},
+	Color{-2, "color9", false},
+	Color{-2, "color10", false},
 }
 
 // 1
