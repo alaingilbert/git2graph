@@ -200,7 +200,7 @@ app.directive('project', function() {
               path: [
                 [firstNode.column, parseInt(firstNode.id), 0],
                 [lastNode.column, parseInt(lastNode.id), 0]],
-              color: '#5aa1be'};
+              color: firstNode.color};
             firstCommit = null;
             $scope.drawTree();
           };
