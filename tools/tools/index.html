@@ -69,7 +69,7 @@
                 <button ng-click="btnDeletePathClicked(key)" class="btn btn-danger"><i class="fa fa-times"></i> Delete path</button>
               </div>
               <label>Color:</label>
-              <select ng-model="selectedNode.parentsPaths[key].color" ng-options="color for color in colors" class="form-control"></select>
+              <select ng-model="selectedNode.parentsPaths[key].color" ng-options="formatColor(color) for color in colors" class="form-control"></select>
               <label>Path:</label>
               <div class="form-group">
                 <button ng-click="btnAddPointClicked(selectedNode.parentsPaths[key].path)" class="btn btn-success" uib-tooltip="Create new point"><i class="fa fa-plus"></i></button>
