@@ -21,6 +21,15 @@
         height: 300px;
         min-height: 300px;
       }
+      .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       /* IE/Edge */
+        user-select: none;           /* non-prefixed version, currently
+                                        not supported by any browser */
+      }
     </style>
   </head>
   <body ng-controller="HomeController">
@@ -35,7 +44,7 @@
 
       <div class="row">
 
-        <div class="col-sm-4">
+        <div class="col-sm-4 noselect">
           <label>Svg</label>
           <div class="">
             <button class="btn btn-default" ng-click="btnSaveClicked()">Save</button>
