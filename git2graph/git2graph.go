@@ -439,17 +439,14 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 
 	// Deduplicate path nodes
 	for _, node := range nodes {
-		for pathIdx, path := range node.ParentsPaths {
+		for parentId, path := range node.ParentsPaths {
 			previousPoint := Point{-1, -1, -1}
-			for pointIdx, point := range path.Path {
+			for pointIdx := len(path.Path) - 1; pointIdx >= 0; pointIdx-- {
+				point := path.Path[pointIdx]
 				if point.X == previousPoint.X && point.Y == previousPoint.Y && point.Type == previousPoint.Type {
-					tmp := node.ParentsPaths[pathIdx]
-					if len(tmp.Path) < pointIdx+1 {
-						log.Error("2- Weird, need to investigate")
-						continue
-					}
-					tmp.Path = append(tmp.Path[:pointIdx], tmp.Path[pointIdx+1:]...)
-					node.ParentsPaths[pathIdx] = tmp
+					parentPath := node.ParentsPaths[parentId]
+					parentPath.Path = append(parentPath.Path[:pointIdx], parentPath.Path[pointIdx+1:]...)
+					node.ParentsPaths[parentId] = parentPath
 				}
 				previousPoint = point
 			}
