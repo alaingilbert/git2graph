@@ -260,6 +260,7 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 		}
 
 		// Each children that are merging
+		processedNodes := make(map[string]map[string]bool)
 		for _, childId := range node.Children {
 			child := index[childId]
 			if node.Column < child.GetPathPoint(node.Id, -2).X {
@@ -285,7 +286,6 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 				point := Point{child.GetPathPoint(node.Id, -2).X, node.Idx, MERGE_BACK}
 				child.Insert(node.Id, pos, point)
 
-				processedNodes := make(map[string]bool)
 				// Nodes that are following the current node
 				for followingNodeIdx, followingNode := range nodes {
 					if followingNodeIdx > node.Idx {
@@ -319,12 +319,15 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										}
 									}
 
+									if processedNodes[followingNode.Id] != nil && processedNodes[followingNode.Id][followingNodeChild.Id] {
+										continue
+									}
 									tmp := followingNodeChild.GetPathPoint(followingNode.Id, idxRemove-1).X
 									followingNodeChild.Remove(followingNode.Id, idxRemove)
 									followingNodeChild.Append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
 									followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 									if followingNode.Column > child.GetPathPoint(node.Id, -2).X {
-										if !processedNodes[followingNode.Id] {
+										if processedNodes[followingNode.Id] == nil {
 											followingNodeChild.Append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
 										} else {
@@ -337,9 +340,12 @@ func setColumns(nodes []*OutputNode, index map[string]*OutputNode) {
 										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
 										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
+									if (processedNodes[followingNode.Id] == nil) {
+										processedNodes[followingNode.Id] = make(map[string]bool)
+									}
+									processedNodes[followingNode.Id][followingNodeChild.Id] = true
 								}
 							}
-							processedNodes[followingNode.Id] = true
 						}
 					}
 				}
