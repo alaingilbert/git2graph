@@ -158,15 +158,15 @@ func (node *OutputNode) GetPathPoint(parentId string, idx int) Point {
 		if len(node.ParentsPaths[parentId].Path)+idx < 0 {
 			if index[parentId].Idx < index[node.Id].Idx {
 				log.WithFields(log.Fields{
-					"idx": idx,
-					"node id": node.Id,
+					"idx":       idx,
+					"node id":   node.Id,
 					"parent id": parentId,
 				}).Error("Error in repo structure. parent idx < node idx")
 				return Point{}
 			}
 			log.WithFields(log.Fields{
-				"idx": idx,
-				"node id": node.Id,
+				"idx":       idx,
+				"node id":   node.Id,
 				"parent id": parentId,
 			}).Error("1- Weird, need to investigate")
 			return Point{}
@@ -353,7 +353,7 @@ func setColumns(nodes []*OutputNode) {
 										followingNodeChild.Append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
 										followingNodeChild.Append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
-									if (processedNodes[followingNode.Id] == nil) {
+									if processedNodes[followingNode.Id] == nil {
 										processedNodes[followingNode.Id] = make(map[string]bool)
 									}
 									processedNodes[followingNode.Id][followingNodeChild.Id] = true
