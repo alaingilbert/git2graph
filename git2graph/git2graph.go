@@ -47,7 +47,7 @@ func GetColor(nodeIdx int) string {
 		}
 	}
 	if colorToTakeIdx == -1 {
-		log.Error("No enough colors")
+		log.Error("Not enough colors")
 		return "#000"
 	}
 	colors[colorToTakeIdx].InUse = true
