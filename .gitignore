@@ -1,2 +1,3 @@
 *.swp
+*.out
 tools/renderer/examples.js
