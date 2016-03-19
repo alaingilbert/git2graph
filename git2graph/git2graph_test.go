@@ -63,6 +63,19 @@ var customColors []Color = []Color{
 	Color{-2, "color10", false},
 }
 
+func TestDebug(t *testing.T) {
+	DebugMode = true
+	inputNodes := make([]map[string]interface{}, 0)
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"2"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	out, _ := BuildTree(inputNodes, customColors)
+	// Ensure nodes have debug property
+	if len(out[0]["debug"].([]string)) <= 0 {
+		t.Fail()
+	}
+}
+
 func TestNotEnoughColors(t *testing.T) {
 	var colors []Color = []Color{
 		Color{-2, "color1", false},
