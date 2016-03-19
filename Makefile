@@ -16,4 +16,8 @@ github: deploy
 test:
 	go test ./...
 
+cover:
+	go test -coverprofile cover.out ./git2graph/
+	go tool cover -html=cover.out
+
 .PHONY: deploy github test
