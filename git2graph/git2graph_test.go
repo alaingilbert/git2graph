@@ -63,6 +63,22 @@ var customColors []Color = []Color{
 	Color{-2, "color10", false},
 }
 
+func TestNotEnoughColors(t *testing.T) {
+	var colors []Color = []Color{
+		Color{-2, "color1", false},
+		Color{-2, "color2", false},
+	}
+	inputNodes := make([]map[string]interface{}, 0)
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	out, _ := BuildTree(inputNodes, colors)
+	if out[2]["color"] != "#000" {
+		t.Fail()
+	}
+}
+
 // 1
 // |
 // 2
