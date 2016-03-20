@@ -254,8 +254,26 @@ func initChildren(nodes []*OutputNode) {
 	}
 }
 
+type StringSet struct {
+	Items map[string]bool
+}
+
+func NewStringSet() StringSet {
+	s := StringSet{}
+	s.Items = make(map[string]bool)
+	return s
+}
+
+func (s *StringSet) Add(in string) {
+	s.Items[in] = true
+}
+
+func (s *StringSet) Remove(in string) {
+	delete(s.Items, in)
+}
+
 func setColumns(nodes []*OutputNode) {
-	followingNodesWithChildrenBeforeIdx := make([]string, 0)
+	followingNodesWithChildrenBeforeIdx := NewStringSet()
 	nextColumn := 0
 	for _, node := range nodes {
 		// Set column if not defined
@@ -274,26 +292,10 @@ func setColumns(nodes []*OutputNode) {
 		}
 
 		// Cache the following node with child before the current node
-		// Should be replaced by a set (should be two lines '-__-)
 		for _, parentId := range node.Parents {
-			found := false
-			for _, nodeId := range followingNodesWithChildrenBeforeIdx {
-				if nodeId == parentId {
-					found = true
-					break
-				}
-			}
-			if !found {
-				followingNodesWithChildrenBeforeIdx = append(followingNodesWithChildrenBeforeIdx, parentId)
-			}
+			followingNodesWithChildrenBeforeIdx.Add(parentId)
 		}
-		for idx := len(followingNodesWithChildrenBeforeIdx) - 1; idx >= 0; idx-- {
-			nodeId := followingNodesWithChildrenBeforeIdx[idx]
-			if nodeId == node.Id {
-				followingNodesWithChildrenBeforeIdx = append(followingNodesWithChildrenBeforeIdx[:idx], followingNodesWithChildrenBeforeIdx[idx+1:]...)
-				break
-			}
-		}
+		followingNodesWithChildrenBeforeIdx.Remove(node.Id)
 
 		// Each children that are merging
 		processedNodes := make(map[string]map[string]bool)
@@ -323,7 +325,7 @@ func setColumns(nodes []*OutputNode) {
 				child.Insert(node.Id, pos, point)
 
 				// Nodes that are following the current node
-				for _, followingNodeId := range followingNodesWithChildrenBeforeIdx {
+				for followingNodeId, _ := range followingNodesWithChildrenBeforeIdx.Items {
 					followingNode := index[followingNodeId]
 					if followingNode.Idx > node.Idx {
 						// Following nodes that have a child before the current node
