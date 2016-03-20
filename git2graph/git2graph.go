@@ -241,6 +241,12 @@ func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 	index := make(map[string]*OutputNode)
 	for _, node := range nodes {
+		// Remove bad parents (parents that are before children)
+		for idx := len(node.Parents) - 1; idx >= 0; idx-- {
+			if index[node.Parents[idx]] != nil {
+				node.Parents = append(node.Parents[:idx], node.Parents[idx+1:]...)
+			}
+		}
 		index[node.Id] = node
 	}
 	return index
