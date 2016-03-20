@@ -92,6 +92,37 @@ func TestNotEnoughColors(t *testing.T) {
 	}
 }
 
+func TestGetInputNodesFromJson(t *testing.T) {
+	json := `[{"id": "1", "parents": ["2"]}, {"id": "2", "parents": ["3"]}, {"id": "3", "parents": []}]`
+	inputNodes, _ := GetInputNodesFromJson(json)
+	out, _ := BuildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 0, 0}
+
+	expectedPaths := []map[string]Path{
+		map[string]Path{
+			"2": Path{"2", []Point{Point{0, 0, 0}, Point{0, 1, 0}}, "color1"},
+		},
+		map[string]Path{
+			"3": Path{"3", []Point{Point{0, 1, 0}, Point{0, 2, 0}}, "color1"},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
+func TestGetInputNodesFromJsonWithBadJson(t *testing.T) {
+	json := `[{"id": "1", "parents": ["2"]}, {"id": "2", "parents": ["3"]}, {"id": "3", "parents": []}`
+	_, err := GetInputNodesFromJson(json)
+	if err == nil {
+		t.Fail()
+	}
+}
+
 // 1
 // |
 // 2
