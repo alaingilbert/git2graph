@@ -255,6 +255,7 @@ func initChildren(nodes []*OutputNode) {
 }
 
 func setColumns(nodes []*OutputNode) {
+	followingNodesWithChildrenBeforeIdx := make([]string, 0)
 	nextColumn := 0
 	for _, node := range nodes {
 		// Set column if not defined
@@ -270,6 +271,28 @@ func setColumns(nodes []*OutputNode) {
 				"operator":   "++",
 				"created":    node.Id,
 			}).Debug("new node ++")
+		}
+
+		// Cache the following node with child before the current node
+		// Should be replaced by a set (should be two lines '-__-)
+		for _, parentId := range node.Parents {
+			found := false
+			for _, nodeId := range followingNodesWithChildrenBeforeIdx {
+				if nodeId == parentId {
+					found = true
+					break
+				}
+			}
+			if !found {
+				followingNodesWithChildrenBeforeIdx = append(followingNodesWithChildrenBeforeIdx, parentId)
+			}
+		}
+		for idx := len(followingNodesWithChildrenBeforeIdx) - 1; idx >= 0; idx-- {
+			nodeId := followingNodesWithChildrenBeforeIdx[idx]
+			if nodeId == node.Id {
+				followingNodesWithChildrenBeforeIdx = append(followingNodesWithChildrenBeforeIdx[:idx], followingNodesWithChildrenBeforeIdx[idx+1:]...)
+				break
+			}
 		}
 
 		// Each children that are merging
@@ -300,8 +323,9 @@ func setColumns(nodes []*OutputNode) {
 				child.Insert(node.Id, pos, point)
 
 				// Nodes that are following the current node
-				for followingNodeIdx, followingNode := range nodes {
-					if followingNodeIdx > node.Idx {
+				for _, followingNodeId := range followingNodesWithChildrenBeforeIdx {
+					followingNode := index[followingNodeId]
+					if followingNode.Idx > node.Idx {
 						// Following nodes that have a child before the current node
 						for _, followingNodeChildId := range followingNode.Children {
 							followingNodeChild := index[followingNodeChildId]
