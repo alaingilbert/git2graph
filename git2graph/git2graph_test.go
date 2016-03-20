@@ -1868,3 +1868,35 @@ func TestPathHeight1(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func BenchmarkTest1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		inputNodes := make([]map[string]interface{}, 0)
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"15"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"14"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"22"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5", "10"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6", "7"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"16", "8"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"9"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"11"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"16"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"13", "16"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"21"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"23"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"18", "17"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "18", "parents": []string{"20", "19"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "19", "parents": []string{"20"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "20", "parents": []string{"24"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "21", "parents": []string{"22"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
+		inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{}})
+		BuildTree(inputNodes, customColors)
+	}
+}
