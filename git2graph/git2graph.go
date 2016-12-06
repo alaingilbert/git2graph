@@ -80,18 +80,21 @@ const (
 	MERGE_TO   = iota // 3: ┌
 )
 
+// Point TODO
 type Point struct {
 	X    int `json:"x"`
 	Y    int `json:"y"`
 	Type int `json:"type"`
 }
 
+// Path TODO
 type Path struct {
 	Id    string  `json:"id"`
 	Path  []Point `json:"path"`
 	Color string  `json:"color"`
 }
 
+// OutputNode TODO
 type OutputNode struct {
 	Id                string                 `json:"id"`
 	Parents           []string               `json:"parents"`
