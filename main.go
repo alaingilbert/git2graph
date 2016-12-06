@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func bootstrap(c *cli.Context) {
+func bootstrap(c *cli.Context) error {
 	var nodes []map[string]interface{}
 	var err error
 	jsonFlag := c.String("json")
@@ -24,18 +24,18 @@ func bootstrap(c *cli.Context) {
 	} else if repoLinearFlag {
 		nodes, err = git2graph.GetInputNodesFromRepo()
 		git2graph.SerializeOutput(nodes)
-		return
+		return err
 	} else if jsonFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromJson(jsonFlag)
 	} else if fileFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromFile(fileFlag)
 	} else {
 		cli.ShowAppHelp(c)
-		return
+		return err
 	}
 	if err != nil {
 		log.Error(err)
-		return
+		return err
 	}
 
 	myColors := git2graph.DefaultColors
@@ -43,13 +43,15 @@ func bootstrap(c *cli.Context) {
 	out, err := git2graph.BuildTree(nodes, myColors)
 	if err != nil {
 		log.Error(err)
-		return
+		return err
 	}
 	for _, node := range out {
 		delete(node, "parentsPaths")
 	}
 
 	git2graph.SerializeOutput(out)
+
+	return err
 }
 
 func setLogLevel(logLevel string) {
