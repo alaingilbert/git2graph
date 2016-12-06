@@ -10,6 +10,9 @@ import (
 func bootstrap(c *cli.Context) error {
 	var nodes []map[string]interface{}
 	var err error
+	fromFlag := c.Int("from")
+	sizeFlag := c.Int("size")
+	contextFlag := c.Bool("context")
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
 	git2graph.DebugMode = c.Bool("debug")
@@ -26,7 +29,7 @@ func bootstrap(c *cli.Context) error {
 		git2graph.SerializeOutput(nodes)
 		return err
 	} else if jsonFlag != "" {
-		nodes, err = git2graph.GetInputNodesFromJson(jsonFlag)
+		nodes, err = git2graph.GetInputNodesFromJSON(jsonFlag)
 	} else if fileFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromFile(fileFlag)
 	} else {
@@ -49,7 +52,33 @@ func bootstrap(c *cli.Context) error {
 		delete(node, "parentsPaths")
 	}
 
-	git2graph.SerializeOutput(out)
+	var tmp []map[string]interface{}
+	if fromFlag >= 0 && sizeFlag >= 1 {
+		// TODO: include context (nodes before "from" that have parents inside or after the range)
+		if contextFlag {
+			for _, node := range out {
+				hasParentsInContext := false
+				for _, nodeParent := range node["parents_paths"].([]git2graph.Path) {
+					if nodeParent.Path[len(nodeParent.Path)-1].Y >= fromFlag {
+						hasParentsInContext = true
+					}
+				}
+				if hasParentsInContext ||
+					node["idx"].(int) >= fromFlag && node["idx"].(int) < fromFlag+sizeFlag {
+					tmp = append(tmp, node)
+				}
+				if node["idx"].(int) >= fromFlag+sizeFlag-1 {
+					break
+				}
+			}
+		} else {
+			tmp = out[fromFlag : fromFlag+sizeFlag]
+		}
+	} else {
+		tmp = out
+	}
+
+	git2graph.SerializeOutput(tmp)
 
 	return err
 }
@@ -115,6 +144,21 @@ func main() {
 		cli.BoolFlag{
 			Name:  "n, no-output",
 			Usage: "No output",
+		},
+		// TODO: From should be a sha
+		cli.IntFlag{
+			Name:  "from",
+			Usage: "From",
+			Value: -1,
+		},
+		cli.IntFlag{
+			Name:  "size",
+			Usage: "Size",
+			Value: -1,
+		},
+		cli.BoolFlag{
+			Name:  "context",
+			Usage: "Include context",
 		},
 	}
 	app.Action = bootstrap

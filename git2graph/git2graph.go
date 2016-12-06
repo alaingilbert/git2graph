@@ -507,6 +507,17 @@ func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) 
 	return nodes, err
 }
 
+// GetPaginated TODO
+func GetPaginated(inputNodes []map[string]interface{}, from, size int) ([]map[string]interface{}, error) {
+	myColors := DefaultColors
+	nodes, err := BuildTree(inputNodes, myColors)
+	for _, node := range nodes {
+		delete(node, "parentsPaths")
+	}
+	return nodes[from : from+size], err
+}
+
+// BuildTree TODO
 func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[string]interface{}, error) {
 	colors = make([]Color, 0)
 	for _, color := range myColors {
