@@ -1897,6 +1897,8 @@ func BenchmarkTest1(b *testing.B) {
 		inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
 		inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
 		inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{}})
-		BuildTree(inputNodes, customColors)
+		if _, err := BuildTree(inputNodes, customColors); err != nil {
+			b.Logf("Failed to build tree")
+		}
 	}
 }

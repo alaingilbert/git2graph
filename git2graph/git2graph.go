@@ -211,7 +211,9 @@ func (node *OutputNode) pathLength(parentID string) int {
 func SerializeOutput(out []map[string]interface{}) {
 	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
-		enc.Encode(out)
+		if err := enc.Encode(out); err != nil {
+			log.Error("Could not encode json")
+		}
 	}
 }
 
