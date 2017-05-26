@@ -70,7 +70,7 @@
         var shaMargin = 60;
 
         var svg = d3.select($('#tree')[0]);
-        svg.style('height', tree.length * yGap + radius);
+        svg.style('height', (_.max(tree, 'idx').idx+1)* yGap + radius);
         svg.selectAll('*').remove();
         var sg = svg.append('g')
 
@@ -121,7 +121,7 @@
             })
             .attr('stroke', 'black')
             .attr('cx', function(commit) { return 5 + commit.column * xGap + shaMargin; })
-            .attr('cy', function(commit, idx) { return 5 + idx * yGap; })
+            .attr('cy', function(commit, idx) { return 5 + commit.idx * yGap; })
             .on('mouseover', function(commit) {
               console.log(commit.debug);
             });
@@ -132,7 +132,7 @@
           .append('text')
           .attr('font-size', 12)
           .attr('x', function(commit) { return 0; })
-          .attr('y', function(commit, idx) { return 5 + idx * yGap; })
+          .attr('y', function(commit, idx) { return 5 + commit.idx * yGap; })
           .attr('alignment-baseline', 'middle')
           .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
           .text(function(commit) {
