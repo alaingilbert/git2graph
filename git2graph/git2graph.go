@@ -390,7 +390,7 @@ func setColumns(nodes []*OutputNode) {
 										if node.Column < child.getPathPoint(node.Id, -2).X &&
 											child.getPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
 											!child.isPathSubBranch(node.Id) &&
-											!child.hasOlderParent(node.Idx) {
+											!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.Id, 1).Type == MERGE_TO) {
 											nbNodesMergingBack++
 										}
 									}
