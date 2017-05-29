@@ -149,6 +149,18 @@ func (node *OutputNode) hasBiggerParentDefined() bool {
 	return found
 }
 
+func (node *OutputNode) hasOlderParent(idx int) bool {
+	found := false
+	for _, parentNodeID := range node.Parents {
+		parentNode := index[parentNodeID]
+		if parentNode.Idx > idx {
+			found = true
+			break
+		}
+	}
+	return found
+}
+
 func (node *OutputNode) setPathColor(parentID, color string) {
 	tmp := node.ParentsPaths[parentID]
 	tmp.Color = color
@@ -338,7 +350,7 @@ func setColumns(nodes []*OutputNode) {
 					releaseColor(child.getPathColor(node.Id), node.Idx)
 				}
 
-				if !child.FirstInRow && !child.isPathSubBranch(node.Id) {
+				if !child.FirstInRow && !child.isPathSubBranch(node.Id) && !child.hasOlderParent(node.Idx) {
 					child.setPathColor(node.Id, child.Color)
 				}
 				releaseColor(child.getPathColor(node.Id), node.Idx)
@@ -377,7 +389,8 @@ func setColumns(nodes []*OutputNode) {
 										child := index[childID]
 										if node.Column < child.getPathPoint(node.Id, -2).X &&
 											child.getPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
-											!child.isPathSubBranch(node.Id) {
+											!child.isPathSubBranch(node.Id) &&
+											!child.hasOlderParent(node.Idx) {
 											nbNodesMergingBack++
 										}
 									}
