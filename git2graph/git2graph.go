@@ -44,6 +44,9 @@ var DefaultColors = []Color{
 	Color{-2, "#6fdfe9", false},
 	Color{-2, "#d87de8", false},
 	Color{-2, "#eab774", false},
+	Color{-2, "#be82fb", false},
+	Color{-2, "#72d7fc", false},
+	Color{-2, "#adfb82", false},
 }
 
 func getColor(nodeIdx int) string {
