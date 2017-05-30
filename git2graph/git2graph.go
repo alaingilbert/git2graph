@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -604,7 +605,7 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo TODO
-func GetInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]interface{}, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -612,6 +613,8 @@ func GetInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 	}
 	outString := string(outBytes)
 	lines := strings.Split(outString, "\n")
+	ids := 0
+	shaMap := make(map[string]string)
 	i := 0
 	for i < len(lines) {
 		if i >= len(lines) {
@@ -629,11 +632,26 @@ func GetInputNodesFromRepo() (nodes []map[string]interface{}, err error) {
 		//subject := lines[i+7]
 		i += 8
 		node := map[string]interface{}{}
-		node["id"] = sha
+		shaMap[sha] = strconv.Itoa(ids)
+		if seqIds {
+			node["id"] = strconv.Itoa(ids)
+		} else {
+			node["id"] = sha
+		}
 		node["parents"] = parents
 		nodes = append(nodes, node)
+		ids++
 		if lines[i] != startOfCommit {
 			break
+		}
+	}
+	if seqIds {
+		for _, node := range nodes {
+			mappedParents := make([]string, 0)
+			for _, parentSha := range node["parents"].([]string) {
+				mappedParents = append(mappedParents, shaMap[parentSha])
+			}
+			node["parents"] = mappedParents
 		}
 	}
 	return

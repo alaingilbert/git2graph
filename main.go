@@ -2,9 +2,10 @@ package main
 
 import (
 	"git2graph/git2graph"
+	"os"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"os"
 )
 
 func bootstrap(c *cli.Context) error {
@@ -19,13 +20,14 @@ func bootstrap(c *cli.Context) error {
 	repoFlag := c.Bool("repo")
 	git2graph.NoOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
+	seqIds := c.Bool("seq-ids")
 	logLevel := c.String("log")
 	setLogLevel(logLevel)
 
 	if repoFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo()
+		nodes, err = git2graph.GetInputNodesFromRepo(seqIds)
 	} else if repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo()
+		nodes, err = git2graph.GetInputNodesFromRepo(seqIds)
 		git2graph.SerializeOutput(nodes)
 		return err
 	} else if jsonFlag != "" {
@@ -140,6 +142,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "l, repo-linear",
 			Usage: "Repository linear history",
+		},
+		cli.BoolFlag{
+			Name:  "s, seq-ids",
+			Usage: "Use sequentiel ids instead of sha for linear history",
 		},
 		cli.BoolFlag{
 			Name:  "n, no-output",
