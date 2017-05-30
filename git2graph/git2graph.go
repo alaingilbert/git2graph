@@ -338,7 +338,8 @@ func setColumns(nodes []*OutputNode) {
 		for _, childID := range node.Children {
 			child := index[childID]
 			if node.Column < child.getPathPoint(node.Id, -2).X {
-				if !child.isPathSubBranch(node.Id) {
+				if !child.isPathSubBranch(node.Id) &&
+					!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.Id, 1).Type == MERGE_TO) {
 					nextColumn--
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
