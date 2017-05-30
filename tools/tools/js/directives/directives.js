@@ -63,30 +63,40 @@ app.directive('project', function() {
           .append('g');
 
         lineGroup
-          .append('text')
-          .attr('x', 3)
-          .attr('y', function(path, idx) {
-            return yGap * idx + yGap;
-          })
-          .attr('alignment-baseline', 'middle')
-          .attr('text-anchor', 'left')
-          .text(function(path, idx) { return idx; });
-
-        lineGroup
           .append('path')
           .attr('d', function(path, idx) {
             var d = [];
-            d.push({x: 0, y: idx * yGap + yGap});
+            d.push({x: xGap, y: idx * yGap + yGap});
             d.push({x: $(svg[0][0]).width(), y: idx * yGap + yGap});
             return lineFunction(d)
           })
           .attr('stroke-width', 1)
           .attr('fill', 'none')
-          .attr('stroke', '#aaa')
-          .on('click', function(a, row, c) {
-            $scope.tree.splice(row, 1);
-            $scope.drawTree();
-          });
+          .attr('stroke', '#aaa');
+
+          lineGroup
+            .append('text')
+            .attr('x', 3)
+            .attr('y', function(path, idx) {
+              return yGap * idx + yGap;
+            })
+            .attr('alignment-baseline', 'middle')
+            .attr('text-anchor', 'left')
+            .text(function(path, idx) { return $scope.tree[idx].id; })
+            .on('click', function(a, row, c) {
+              _.each($scope.tree, function(node, idx) {
+                if (idx > row) {
+                  $scope.tree[idx].id = (parseInt($scope.tree[idx].id) - 1).toString();
+                  _.each(node.parentsPaths, function(pp, k) {
+                    _.each(pp.path, function(pt, idx3) {
+                      $scope.tree[idx].parentsPaths[k].path[idx3][1] -= 1;
+                    });
+                  });
+                }
+              });
+              $scope.tree.splice(row, 1);
+              $scope.drawTree();
+            });
 
           lineGroup.selectAll('dummyCircle')
             .data(function(d, i) { return _.range(cols); })
