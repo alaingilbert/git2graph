@@ -632,9 +632,10 @@ func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]interface{}, err err
 		//subject := lines[i+7]
 		i += 8
 		node := map[string]interface{}{}
-		shaMap[sha] = strconv.Itoa(ids)
 		if seqIds {
-			node["id"] = strconv.Itoa(ids)
+			id := strconv.Itoa(ids)
+			shaMap[sha] = id
+			node["id"] = id
 		} else {
 			node["id"] = sha
 		}
