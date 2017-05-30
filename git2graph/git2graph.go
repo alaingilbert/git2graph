@@ -594,7 +594,7 @@ func GetInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err
 }
 
 func deleteEmpty(s []string) []string {
-	var r []string
+	r := make([]string, 0)
 	for _, str := range s {
 		if str != "" {
 			r = append(r, str)
