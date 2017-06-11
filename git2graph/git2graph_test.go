@@ -1926,6 +1926,80 @@ func Test32(t *testing.T) {
 	validateColors(t, expectedPaths, out)
 }
 
+func Test33(t *testing.T) {
+	// Initial input
+	inputNodes := make([]map[string]interface{}, 0)
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"9", "4"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "6"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"12", "11"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{}})
+
+	out, _ := BuildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 2, 0, 3, 1, 4, 2, 1, 0, 1, 2, 1, 0}
+
+	expectedPaths := []map[string]Path{
+		map[string]Path{
+			"3": Path{"3", []Point{Point{0, 0, 0}, Point{0, 3, 0}}, "color1"},
+		},
+		map[string]Path{
+			"5": Path{"5", []Point{Point{1, 1, 0}, Point{1, 5, 0}}, "color2"},
+		},
+		map[string]Path{
+			"7": Path{"7", []Point{Point{2, 2, 0}, Point{2, 7, 0}}, "color3"},
+		},
+		map[string]Path{
+			"9": Path{"9", []Point{Point{0, 3, 0}, Point{0, 9, 0}}, "color1"},
+			"4": Path{"4", []Point{Point{0, 3, 0}, Point{3, 3, 2}, Point{3, 4, 0}}, "color4"},
+		},
+		map[string]Path{
+			"9": Path{"9", []Point{Point{3, 4, 0}, Point{3, 9, 1}, Point{0, 9, 0}}, "color4"},
+		},
+		map[string]Path{
+			"8": Path{"8", []Point{Point{1, 5, 0}, Point{1, 8, 0}}, "color2"},
+			"6": Path{"6", []Point{Point{1, 5, 0}, Point{4, 5, 2}, Point{4, 6, 0}}, "color5"},
+		},
+		map[string]Path{
+			"10": Path{"10", []Point{Point{4, 6, 0}, Point{4, 9, 1}, Point{3, 9, 0}, Point{3, 10, 1}, Point{1, 10, 0}}, "color5"},
+		},
+		map[string]Path{
+			"10": Path{"10", []Point{Point{2, 7, 0}, Point{2, 10, 1}, Point{1, 10, 0}}, "color3"},
+		},
+		map[string]Path{
+			"10": Path{"10", []Point{Point{1, 8, 0}, Point{1, 10, 0}}, "color2"},
+		},
+		map[string]Path{
+			"13": Path{"13", []Point{Point{0, 9, 0}, Point{0, 13, 0}}, "color1"},
+		},
+		map[string]Path{
+			"12": Path{"12", []Point{Point{1, 10, 0}, Point{1, 12, 0}}, "color2"},
+			"11": Path{"11", []Point{Point{1, 10, 0}, Point{2, 10, 2}, Point{2, 11, 0}}, "color6"},
+		},
+		map[string]Path{
+			"12": Path{"12", []Point{Point{2, 11, 0}, Point{2, 12, 1}, Point{1, 12, 0}}, "color6"},
+		},
+		map[string]Path{
+			"13": Path{"13", []Point{Point{1, 12, 0}, Point{1, 13, 1}, Point{0, 13, 0}}, "color2"},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
 func TestPathHeight1(t *testing.T) {
 	out := OutputNode{ParentsPaths: map[string]Path{"1": Path{Path: []Point{
 		Point{X: 0, Y: 2, Type: 0},
