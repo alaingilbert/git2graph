@@ -379,7 +379,7 @@ func setColumns(nodes []*OutputNode) {
 										continue
 									}
 									// Remove second before last node has same Y, remove the before last node
-									if followingNodeChild.pathLength(followingNode.Id) > idxRemove &&
+									for followingNodeChild.pathLength(followingNode.Id) > idxRemove &&
 										followingNodeChild.getPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.Id, idxRemove-1).Y {
 										followingNodeChild.remove(followingNode.Id, idxRemove-1)
 										idxRemove--
