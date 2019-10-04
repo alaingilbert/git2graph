@@ -94,7 +94,7 @@ type Point struct {
 
 // Path TODO
 type Path struct {
-	Id    string  `json:"id"`
+	ID    string  `json:"id"`
 	Path  []Point `json:"path"`
 	Color string  `json:"color"`
 }
