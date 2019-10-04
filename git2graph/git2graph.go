@@ -567,7 +567,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentID, path.Path, path.Color})
 		}
 	}
-	finalStruct := []map[string]interface{}{}
+	finalStruct := make([]map[string]interface{}, 0)
 	for _, node := range nodes {
 		finalNode := map[string]interface{}{}
 		for key, value := range node.InitialNode {
