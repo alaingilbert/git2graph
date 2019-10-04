@@ -31,7 +31,7 @@ func bootstrap(c *cli.Context) error {
 		git2graph.SerializeOutput(nodes)
 		return err
 	} else if jsonFlag != "" {
-		nodes, err = git2graph.GetInputNodesFromJSON(jsonFlag)
+		nodes, err = git2graph.GetInputNodesFromJSON([]byte(jsonFlag))
 	} else if fileFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromFile(fileFlag)
 	} else {

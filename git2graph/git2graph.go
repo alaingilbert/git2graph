@@ -1,6 +1,7 @@
 package git2graph
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -240,15 +241,19 @@ func SerializeOutput(out []map[string]interface{}) {
 }
 
 // GetInputNodesFromJSON Get nodes from json object
-func GetInputNodesFromJSON(inputJSON string) (nodes []map[string]interface{}, err error) {
-	dec := json.NewDecoder(strings.NewReader(inputJSON))
+func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]interface{}, err error) {
+	dec := json.NewDecoder(bytes.NewReader(inputJSON))
 	err = dec.Decode(&nodes)
 	if err != nil {
 		return
 	}
 	for _, node := range nodes {
 		parents := make([]string, 0)
-		for _, parent := range node["parents"].([]interface{}) {
+		nodeParents, ok := node["parents"]
+		if !ok {
+			log.Fatal("malformed json input, node missing parents property")
+		}
+		for _, parent := range nodeParents.([]interface{}) {
 			parents = append(parents, parent.(string))
 		}
 		node["parents"] = parents
@@ -259,10 +264,18 @@ func GetInputNodesFromJSON(inputJSON string) (nodes []map[string]interface{}, er
 func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
+		id, ok := node["id"].(string)
+		if !ok {
+			log.Fatal("id property must be a string")
+		}
+		parents, ok := node["parents"].([]string)
+		if !ok {
+			log.Fatal("parents property must be an array of string")
+		}
 		newNode := OutputNode{}
 		newNode.InitialNode = node
-		newNode.Id = node["id"].(string)
-		newNode.Parents = node["parents"].([]string)
+		newNode.Id = id
+		newNode.Parents = parents
 		newNode.Column = -1
 		newNode.parentsPaths = make(map[string]Path)
 		newNode.FinalParentsPaths = make([]Path, 0)
@@ -582,8 +595,7 @@ func GetInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err
 	if err != nil {
 		return
 	}
-	inputJSON := string(bytes)
-	nodes, err = GetInputNodesFromJSON(inputJSON)
+	nodes, err = GetInputNodesFromJSON(bytes)
 	if err != nil {
 		return
 	}
