@@ -591,11 +591,11 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 
 // GetInputNodesFromFile TODO
 func GetInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
-	bytes, err := ioutil.ReadFile(filePath)
+	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return
 	}
-	nodes, err = GetInputNodesFromJSON(bytes)
+	nodes, err = GetInputNodesFromJSON(fileBytes)
 	if err != nil {
 		return
 	}
