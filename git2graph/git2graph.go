@@ -103,35 +103,35 @@ type OutputNode struct {
 	Id                string                 `json:"id"`
 	Parents           []string               `json:"parents"`
 	Column            int                    `json:"column"`
-	ParentsPaths      map[string]Path        `json:"-"`
 	FinalParentsPaths []Path                 `json:"parents_paths"`
 	Idx               int                    `json:"idx"`
-	Children          []string               `json:"-"`
 	Color             string                 `json:"color"`
-	FirstInRow        bool                   `json:"-"`
 	Debug             []string               `json:"debug,omitempty"`
 	InitialNode       map[string]interface{} `json:"initial_node"`
-	SubBranch         map[string]bool        `json:"-"`
+	parentsPaths      map[string]Path
+	children          []string
+	firstInRow        bool
+	subBranch         map[string]bool
 }
 
 func (node *OutputNode) append(parentID string, point Point) {
-	tmp := node.ParentsPaths[parentID]
+	tmp := node.parentsPaths[parentID]
 	tmp.Path = append(tmp.Path, point)
-	node.ParentsPaths[parentID] = tmp
+	node.parentsPaths[parentID] = tmp
 }
 
 func (node *OutputNode) remove(parentID string, idx int) {
-	tmp := node.ParentsPaths[parentID]
+	tmp := node.parentsPaths[parentID]
 	tmp.Path = append(tmp.Path[:idx], tmp.Path[idx+1:]...)
-	node.ParentsPaths[parentID] = tmp
+	node.parentsPaths[parentID] = tmp
 }
 
 func (node *OutputNode) insert(parentID string, idx int, point Point) {
-	tmp := node.ParentsPaths[parentID]
+	tmp := node.parentsPaths[parentID]
 	tmp.Path = append(tmp.Path, Point{})
 	copy(tmp.Path[idx+1:], tmp.Path[idx:])
 	tmp.Path[idx] = point
-	node.ParentsPaths[parentID] = tmp
+	node.parentsPaths[parentID] = tmp
 }
 
 func (node *OutputNode) columnDefined() bool {
@@ -163,26 +163,26 @@ func (node *OutputNode) hasOlderParent(idx int) bool {
 }
 
 func (node *OutputNode) setPathColor(parentID, color string) {
-	tmp := node.ParentsPaths[parentID]
+	tmp := node.parentsPaths[parentID]
 	tmp.Color = color
-	node.ParentsPaths[parentID] = tmp
+	node.parentsPaths[parentID] = tmp
 }
 
 func (node *OutputNode) getPathColor(parentID string) string {
-	return node.ParentsPaths[parentID].Color
+	return node.parentsPaths[parentID].Color
 }
 
 func (node *OutputNode) setPathSubBranch(parentID string) {
-	node.SubBranch[parentID] = true
+	node.subBranch[parentID] = true
 }
 
 func (node *OutputNode) isPathSubBranch(parentID string) bool {
-	return node.SubBranch[parentID]
+	return node.subBranch[parentID]
 }
 
 func (node *OutputNode) getPathPoint(parentID string, idx int) Point {
 	if idx < 0 {
-		if len(node.ParentsPaths[parentID].Path)+idx < 0 {
+		if len(node.parentsPaths[parentID].Path)+idx < 0 {
 			if index[parentID].Idx < index[node.Id].Idx {
 				log.WithFields(log.Fields{
 					"idx":       idx,
@@ -198,9 +198,9 @@ func (node *OutputNode) getPathPoint(parentID string, idx int) Point {
 			}).Error("1- Weird, need to investigate")
 			return Point{}
 		}
-		return node.ParentsPaths[parentID].Path[len(node.ParentsPaths[parentID].Path)+idx]
+		return node.parentsPaths[parentID].Path[len(node.parentsPaths[parentID].Path)+idx]
 	}
-	return node.ParentsPaths[parentID].Path[idx]
+	return node.parentsPaths[parentID].Path[idx]
 }
 
 //GetPathHeightAtIdx Get the path X at Idx
@@ -211,7 +211,7 @@ func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heig
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
-	for _, point := range node.ParentsPaths[parentID].Path {
+	for _, point := range node.parentsPaths[parentID].Path {
 		if point.Y <= lookupIdx {
 			height = point.X
 		}
@@ -220,7 +220,7 @@ func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heig
 }
 
 func (node *OutputNode) pathLength(parentID string) int {
-	return len(node.ParentsPaths[parentID].Path)
+	return len(node.parentsPaths[parentID].Path)
 }
 
 // SerializeOutput Json encode object
@@ -258,12 +258,12 @@ func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 		newNode.Id = node["id"].(string)
 		newNode.Parents = node["parents"].([]string)
 		newNode.Column = -1
-		newNode.ParentsPaths = make(map[string]Path)
+		newNode.parentsPaths = make(map[string]Path)
 		newNode.FinalParentsPaths = make([]Path, 0)
 		newNode.Idx = idx
-		newNode.Children = make([]string, 0)
+		newNode.children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
-		newNode.SubBranch = make(map[string]bool)
+		newNode.subBranch = make(map[string]bool)
 		out = append(out, &newNode)
 	}
 	return out
@@ -286,7 +286,7 @@ func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 func initChildren(nodes []*OutputNode) {
 	for _, node := range nodes {
 		for _, parentID := range node.Parents {
-			index[parentID].Children = append(index[parentID].Children, node.Id)
+			index[parentID].children = append(index[parentID].children, node.Id)
 		}
 	}
 }
@@ -336,7 +336,7 @@ func setColumns(nodes []*OutputNode) {
 
 		// Each children that are merging
 		processedNodes := make(map[string]map[string]bool)
-		for _, childID := range node.Children {
+		for _, childID := range node.children {
 			child := index[childID]
 			if node.Column < child.getPathPoint(node.Id, -2).X {
 				if !child.isPathSubBranch(node.Id) &&
@@ -352,7 +352,7 @@ func setColumns(nodes []*OutputNode) {
 					releaseColor(child.getPathColor(node.Id), node.Idx)
 				}
 
-				if !child.FirstInRow && !child.isPathSubBranch(node.Id) && !child.hasOlderParent(node.Idx) {
+				if !child.firstInRow && !child.isPathSubBranch(node.Id) && !child.hasOlderParent(node.Idx) {
 					child.setPathColor(node.Id, child.Color)
 				}
 				releaseColor(child.getPathColor(node.Id), node.Idx)
@@ -367,7 +367,7 @@ func setColumns(nodes []*OutputNode) {
 					followingNode := index[followingNodeID]
 					if followingNode.Idx > node.Idx {
 						// Following nodes that have a child before the current node
-						for _, followingNodeChildID := range followingNode.Children {
+						for _, followingNodeChildID := range followingNode.children {
 							followingNodeChild := index[followingNodeChildID]
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
@@ -387,7 +387,7 @@ func setColumns(nodes []*OutputNode) {
 
 									// Calculate nb of merging nodes
 									nbNodesMergingBack := 0
-									for _, childID := range node.Children {
+									for _, childID := range node.children {
 										child := index[childID]
 										if node.Column < child.getPathPoint(node.Id, -2).X &&
 											child.getPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
@@ -451,7 +451,7 @@ func setColumns(nodes []*OutputNode) {
 					parent.Color = getColor(node.Idx)
 					node.append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.Id, parent.Color)
-					node.FirstInRow = true
+					node.firstInRow = true
 					nextColumn++
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
@@ -463,7 +463,7 @@ func setColumns(nodes []*OutputNode) {
 				}
 			} else if parent.columnDefined() {
 				if node.Column < parent.Column && parentIdx == 0 {
-					for _, childID := range parent.Children {
+					for _, childID := range parent.children {
 						child := index[childID]
 						idxRemove := child.pathLength(parent.Id) - 1
 						if idxRemove > 0 {
@@ -505,14 +505,14 @@ func setColumns(nodes []*OutputNode) {
 
 	// Deduplicate path nodes
 	for _, node := range nodes {
-		for parentID, path := range node.ParentsPaths {
+		for parentID, path := range node.parentsPaths {
 			previousPoint := Point{-1, -1, -1}
 			for pointIdx := len(path.Path) - 1; pointIdx >= 0; pointIdx-- {
 				point := path.Path[pointIdx]
 				if point.X == previousPoint.X && point.Y == previousPoint.Y && point.Type == previousPoint.Type {
-					parentPath := node.ParentsPaths[parentID]
+					parentPath := node.parentsPaths[parentID]
 					parentPath.Path = append(parentPath.Path[:pointIdx], parentPath.Path[pointIdx+1:]...)
-					node.ParentsPaths[parentID] = parentPath
+					node.parentsPaths[parentID] = parentPath
 				}
 				previousPoint = point
 			}
@@ -554,7 +554,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 	setColumns(nodes)
 
 	for _, node := range nodes {
-		for parentID, path := range node.ParentsPaths {
+		for parentID, path := range node.parentsPaths {
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentID, path.Path, path.Color})
 		}
 	}
@@ -564,7 +564,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
-		finalNode["parentsPaths"] = node.ParentsPaths // Kept for tests
+		finalNode["parentsPaths"] = node.parentsPaths // Kept for tests
 		finalNode["id"] = node.Id
 		finalNode["parents"] = node.Parents
 		finalNode["column"] = node.Column

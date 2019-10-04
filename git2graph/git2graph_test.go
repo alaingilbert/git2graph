@@ -2001,7 +2001,7 @@ func Test33(t *testing.T) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	out := OutputNode{ParentsPaths: map[string]Path{"1": Path{Path: []Point{
+	out := OutputNode{parentsPaths: map[string]Path{"1": Path{Path: []Point{
 		Point{X: 0, Y: 2, Type: 0},
 		Point{X: 3, Y: 2, Type: 2},
 		Point{X: 3, Y: 9, Type: 1},
