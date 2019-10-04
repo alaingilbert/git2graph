@@ -114,6 +114,12 @@ type OutputNode struct {
 	subBranch         map[string]bool
 }
 
+func (node *OutputNode) addDebug(msg string) {
+	if DebugMode {
+		node.Debug = append(node.Debug, msg)
+	}
+}
+
 func (node *OutputNode) append(parentID string, point Point) {
 	tmp := node.parentsPaths[parentID]
 	tmp.Path = append(tmp.Path, point)
@@ -316,9 +322,7 @@ func setColumns(nodes []*OutputNode) {
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = nextColumn
-			if DebugMode {
-				node.Debug = append(node.Debug, fmt.Sprintf("Column set to %d", nextColumn))
-			}
+			node.addDebug(fmt.Sprintf("Column set to %d", nextColumn))
 			node.Color = getColor(node.Idx)
 			nextColumn++
 			log.WithFields(log.Fields{
@@ -411,9 +415,7 @@ func setColumns(nodes []*OutputNode) {
 										} else {
 											followingNodeChild.append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
-										if DebugMode {
-											followingNode.Debug = append(followingNode.Debug, fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
-										}
+										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
 									} else {
 										followingNodeChild.append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
 										followingNodeChild.append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
@@ -438,16 +440,12 @@ func setColumns(nodes []*OutputNode) {
 			if !parent.columnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
 					parent.Column = node.Column
-					if DebugMode {
-						parent.Debug = append(parent.Debug, fmt.Sprintf("1- Column set to %d", node.Column))
-					}
+					parent.addDebug(fmt.Sprintf("1- Column set to %d", node.Column))
 					parent.Color = node.Color
 					node.setPathColor(parent.Id, parent.Color)
 				} else {
 					parent.Column = nextColumn
-					if DebugMode {
-						parent.Debug = append(parent.Debug, fmt.Sprintf("2- Column set to %d", nextColumn))
-					}
+					parent.addDebug(fmt.Sprintf("2- Column set to %d", nextColumn))
 					parent.Color = getColor(node.Idx)
 					node.append(parent.Id, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.Id, parent.Color)
@@ -476,9 +474,7 @@ func setColumns(nodes []*OutputNode) {
 						}
 					}
 					parent.Column = node.Column
-					if DebugMode {
-						parent.Debug = append(parent.Debug, fmt.Sprintf("Column reset to %d", node.Column))
-					}
+					parent.addDebug(fmt.Sprintf("Column reset to %d", node.Column))
 					parent.Color = node.Color
 					node.setPathColor(parent.Id, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
