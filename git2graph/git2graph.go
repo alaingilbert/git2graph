@@ -101,7 +101,7 @@ type Path struct {
 
 // OutputNode TODO
 type OutputNode struct {
-	Id                string                 `json:"id"`
+	ID                string                 `json:"id"`
 	Parents           []string               `json:"parents"`
 	Column            int                    `json:"column"`
 	FinalParentsPaths []Path                 `json:"parents_paths"`
@@ -190,17 +190,17 @@ func (node *OutputNode) isPathSubBranch(parentID string) bool {
 func (node *OutputNode) getPathPoint(parentID string, idx int) Point {
 	if idx < 0 {
 		if len(node.parentsPaths[parentID].Path)+idx < 0 {
-			if index[parentID].Idx < index[node.Id].Idx {
+			if index[parentID].Idx < index[node.ID].Idx {
 				log.WithFields(log.Fields{
 					"idx":       idx,
-					"node id":   node.Id,
+					"node id":   node.ID,
 					"parent id": parentID,
 				}).Error("Error in repo structure. parent idx < node idx")
 				return Point{}
 			}
 			log.WithFields(log.Fields{
 				"idx":       idx,
-				"node id":   node.Id,
+				"node id":   node.ID,
 				"parent id": parentID,
 			}).Error("1- Weird, need to investigate")
 			return Point{}
@@ -274,7 +274,7 @@ func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
 		}
 		newNode := OutputNode{}
 		newNode.InitialNode = node
-		newNode.Id = id
+		newNode.ID = id
 		newNode.Parents = parents
 		newNode.Column = -1
 		newNode.parentsPaths = make(map[string]Path)
@@ -297,7 +297,7 @@ func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 				node.Parents = append(node.Parents[:idx], node.Parents[idx+1:]...)
 			}
 		}
-		index[node.Id] = node
+		index[node.ID] = node
 	}
 	return index
 }
@@ -305,7 +305,7 @@ func initIndex(nodes []*OutputNode) map[string]*OutputNode {
 func initChildren(nodes []*OutputNode) {
 	for _, node := range nodes {
 		for _, parentID := range node.Parents {
-			index[parentID].children = append(index[parentID].children, node.Id)
+			index[parentID].children = append(index[parentID].children, node.ID)
 		}
 	}
 }
@@ -341,7 +341,7 @@ func setColumns(nodes []*OutputNode) {
 			log.WithFields(log.Fields{
 				"nextColumn": nextColumn,
 				"operator":   "++",
-				"created":    node.Id,
+				"created":    node.ID,
 			}).Debug("new node ++")
 		}
 
@@ -349,35 +349,35 @@ func setColumns(nodes []*OutputNode) {
 		for _, parentID := range node.Parents {
 			followingNodesWithChildrenBeforeIdx.Add(parentID)
 		}
-		followingNodesWithChildrenBeforeIdx.Remove(node.Id)
+		followingNodesWithChildrenBeforeIdx.Remove(node.ID)
 
 		// Each children that are merging
 		processedNodes := make(map[string]map[string]bool)
 		for _, childID := range node.children {
 			child := index[childID]
-			if node.Column < child.getPathPoint(node.Id, -2).X {
-				if !child.isPathSubBranch(node.Id) &&
-					!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.Id, 1).Type == MERGE_TO) {
+			if node.Column < child.getPathPoint(node.ID, -2).X {
+				if !child.isPathSubBranch(node.ID) &&
+					!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 					nextColumn--
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
 						"operator":   "--",
-						"merging":    child.Id,
-						"into":       node.Id,
-						"sub":        child.isPathSubBranch(node.Id),
+						"merging":    child.ID,
+						"into":       node.ID,
+						"sub":        child.isPathSubBranch(node.ID),
 					}).Debug("node merging --")
-					releaseColor(child.getPathColor(node.Id), node.Idx)
+					releaseColor(child.getPathColor(node.ID), node.Idx)
 				}
 
-				if !child.firstInRow && !child.isPathSubBranch(node.Id) && !child.hasOlderParent(node.Idx) {
-					child.setPathColor(node.Id, child.Color)
+				if !child.firstInRow && !child.isPathSubBranch(node.ID) && !child.hasOlderParent(node.Idx) {
+					child.setPathColor(node.ID, child.Color)
 				}
-				releaseColor(child.getPathColor(node.Id), node.Idx)
+				releaseColor(child.getPathColor(node.ID), node.Idx)
 
 				// Insert before the last element
-				pos := child.pathLength(node.Id) - 1
-				point := Point{child.getPathPoint(node.Id, -2).X, node.Idx, MERGE_BACK}
-				child.insert(node.Id, pos, point)
+				pos := child.pathLength(node.ID) - 1
+				point := Point{child.getPathPoint(node.ID, -2).X, node.Idx, MERGE_BACK}
+				child.insert(node.ID, pos, point)
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
@@ -388,17 +388,17 @@ func setColumns(nodes []*OutputNode) {
 							followingNodeChild := index[followingNodeChildID]
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
-								if followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) > child.getPathPoint(node.Id, -2).X {
+								if followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > child.getPathPoint(node.ID, -2).X {
 
 									// Index to delete is the one before last
-									idxRemove := followingNodeChild.pathLength(followingNode.Id) - 1
+									idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
 									if idxRemove < 0 {
 										continue
 									}
 									// Remove second before last node has same Y, remove the before last node
-									for followingNodeChild.pathLength(followingNode.Id) > idxRemove &&
-										followingNodeChild.getPathPoint(followingNode.Id, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.Id, idxRemove-1).Y {
-										followingNodeChild.remove(followingNode.Id, idxRemove-1)
+									for followingNodeChild.pathLength(followingNode.ID) > idxRemove &&
+										followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
+										followingNodeChild.remove(followingNode.ID, idxRemove-1)
 										idxRemove--
 									}
 
@@ -406,37 +406,37 @@ func setColumns(nodes []*OutputNode) {
 									nbNodesMergingBack := 0
 									for _, childID := range node.children {
 										child := index[childID]
-										if node.Column < child.getPathPoint(node.Id, -2).X &&
-											child.getPathPoint(node.Id, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.Id, node.Idx) &&
-											!child.isPathSubBranch(node.Id) &&
-											!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.Id, 1).Type == MERGE_TO) {
+										if node.Column < child.getPathPoint(node.ID, -2).X &&
+											child.getPathPoint(node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
+											!child.isPathSubBranch(node.ID) &&
+											!(child.hasOlderParent(node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 											nbNodesMergingBack++
 										}
 									}
 
-									if processedNodes[followingNode.Id] != nil && processedNodes[followingNode.Id][followingNodeChild.Id] {
+									if processedNodes[followingNode.ID] != nil && processedNodes[followingNode.ID][followingNodeChild.ID] {
 										continue
 									}
-									tmp := followingNodeChild.getPathPoint(followingNode.Id, idxRemove-1).X
-									followingNodeChild.remove(followingNode.Id, idxRemove)
-									followingNodeChild.append(followingNode.Id, Point{tmp, node.Idx, MERGE_BACK})
-									followingNodeChild.append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
-									if followingNode.Column > child.getPathPoint(node.Id, -2).X {
-										if processedNodes[followingNode.Id] == nil {
-											followingNodeChild.append(followingNode.Id, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
+									tmp := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
+									followingNodeChild.remove(followingNode.ID, idxRemove)
+									followingNodeChild.append(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
+									followingNodeChild.append(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
+									if followingNode.Column > child.getPathPoint(node.ID, -2).X {
+										if processedNodes[followingNode.ID] == nil {
+											followingNodeChild.append(followingNode.ID, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
 										} else {
-											followingNodeChild.append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
+											followingNodeChild.append(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
-										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.Id, child.Id, followingNode.Column, nbNodesMergingBack))
+										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.ID, child.ID, followingNode.Column, nbNodesMergingBack))
 									} else {
-										followingNodeChild.append(followingNode.Id, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-										followingNodeChild.append(followingNode.Id, Point{followingNode.Column, followingNode.Idx, PIPE})
+										followingNodeChild.append(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
+										followingNodeChild.append(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
-									if processedNodes[followingNode.Id] == nil {
-										processedNodes[followingNode.Id] = make(map[string]bool)
+									if processedNodes[followingNode.ID] == nil {
+										processedNodes[followingNode.ID] = make(map[string]bool)
 									}
-									processedNodes[followingNode.Id][followingNodeChild.Id] = true
+									processedNodes[followingNode.ID][followingNodeChild.ID] = true
 								}
 							}
 						}
@@ -448,27 +448,27 @@ func setColumns(nodes []*OutputNode) {
 		for parentIdx, parentID := range node.Parents {
 			parent := index[parentID]
 
-			node.append(parent.Id, Point{node.Column, node.Idx, PIPE})
+			node.append(parent.ID, Point{node.Column, node.Idx, PIPE})
 
 			if !parent.columnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
 					parent.Column = node.Column
 					parent.addDebug(fmt.Sprintf("1- Column set to %d", node.Column))
 					parent.Color = node.Color
-					node.setPathColor(parent.Id, parent.Color)
+					node.setPathColor(parent.ID, parent.Color)
 				} else {
 					parent.Column = nextColumn
 					parent.addDebug(fmt.Sprintf("2- Column set to %d", nextColumn))
 					parent.Color = getColor(node.Idx)
-					node.append(parent.Id, Point{parent.Column, node.Idx, FORK})
-					node.setPathColor(parent.Id, parent.Color)
+					node.append(parent.ID, Point{parent.Column, node.Idx, FORK})
+					node.setPathColor(parent.ID, parent.Color)
 					node.firstInRow = true
 					nextColumn++
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
 						"operator":   "++",
-						"node":       node.Id,
-						"parent":     parent.Id,
+						"node":       node.ID,
+						"parent":     parent.ID,
 					}).Debug("new parent undefined column++")
 
 				}
@@ -476,38 +476,38 @@ func setColumns(nodes []*OutputNode) {
 				if node.Column < parent.Column && parentIdx == 0 {
 					for _, childID := range parent.children {
 						child := index[childID]
-						idxRemove := child.pathLength(parent.Id) - 1
+						idxRemove := child.pathLength(parent.ID) - 1
 						if idxRemove > 0 {
-							if child.getPathPoint(parent.Id, idxRemove).Type != FORK {
-								child.remove(parent.Id, idxRemove)
+							if child.getPathPoint(parent.ID, idxRemove).Type != FORK {
+								child.remove(parent.ID, idxRemove)
 							}
-							pos := child.pathLength(parent.Id) - 1
-							child.append(parent.Id, Point{child.getPathPoint(parent.Id, pos).X, parent.Idx, MERGE_BACK})
-							child.append(parent.Id, Point{node.Column, parent.Idx, PIPE})
+							pos := child.pathLength(parent.ID) - 1
+							child.append(parent.ID, Point{child.getPathPoint(parent.ID, pos).X, parent.Idx, MERGE_BACK})
+							child.append(parent.ID, Point{node.Column, parent.Idx, PIPE})
 						}
 					}
 					parent.Column = node.Column
 					parent.addDebug(fmt.Sprintf("Column reset to %d", node.Column))
 					parent.Color = node.Color
-					node.setPathColor(parent.Id, node.Color)
+					node.setPathColor(parent.ID, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
-					node.setPathSubBranch(parent.Id)
-					node.append(parent.Id, Point{parent.Column, node.Idx, FORK})
-					node.setPathColor(parent.Id, parent.Color)
+					node.setPathSubBranch(parent.ID)
+					node.append(parent.ID, Point{parent.Column, node.Idx, FORK})
+					node.setPathColor(parent.ID, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
 						if node.hasBiggerParentDefined() || (parentIdx == 0 && parent.Idx > node.Idx+1) {
-							node.append(parent.Id, Point{node.Column, parent.Idx, MERGE_BACK})
-							node.setPathColor(parent.Id, node.Color)
+							node.append(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
+							node.setPathColor(parent.ID, node.Color)
 						} else {
-							node.append(parent.Id, Point{parent.Column, node.Idx, MERGE_TO})
-							node.setPathColor(parent.Id, parent.Color)
+							node.append(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
+							node.setPathColor(parent.ID, parent.Color)
 						}
 					}
 				}
 			}
 
-			node.append(parent.Id, Point{parent.Column, parent.Idx, PIPE})
+			node.append(parent.ID, Point{parent.Column, parent.Idx, PIPE})
 
 		}
 	}
@@ -574,7 +574,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[str
 			finalNode[key] = value
 		}
 		finalNode["parentsPaths"] = node.parentsPaths // Kept for tests
-		finalNode["id"] = node.Id
+		finalNode["id"] = node.ID
 		finalNode["parents"] = node.Parents
 		finalNode["column"] = node.Column
 		finalNode["parents_paths"] = node.FinalParentsPaths
