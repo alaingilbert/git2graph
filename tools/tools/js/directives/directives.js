@@ -310,7 +310,7 @@ app.directive('project', function() {
           if (!node.parents.length) {
             return;
           }
-          out += '		map[string]Path{\n';
+          out += '		{\n';
           _.each(node.parents, function(parentId) {
             var prefix = "";
             _.each(_.range(maxParentLength - parentId.length), function() { prefix += " "; });
@@ -318,7 +318,7 @@ app.directive('project', function() {
             out += '			"' + parentId + '":' + prefix + ' Path{"' + parentId + '", []Point{';
             var points = [];
             _.each(node.parentsPaths[parentId].path, function(point) {
-              points.push('Point{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');
+              points.push('{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');
             });
             out += points.join(', ');
             out += '}, "' + color + '"},\n';
