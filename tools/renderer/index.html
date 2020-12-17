@@ -70,9 +70,9 @@
         var shaMargin = 60;
 
         var svg = d3.select($('#tree')[0]);
-        svg.style('height', (_.max(tree, 'idx').idx+1)* yGap + radius);
+        svg.style('height', (_.max(tree, 'idx').idx+1)* yGap + 2 * radius + 'px');
         svg.selectAll('*').remove();
-        var sg = svg.append('g')
+        var sg = svg.append('g').attr('transform', 'translate(0, ' + radius + ')' )
 
         var lineFunction = d3.svg.line()
           .x(function(d) { return d.x; })
