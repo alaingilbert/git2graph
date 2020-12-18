@@ -80,9 +80,9 @@ func releaseColor(color string, idx int) {
 // Types
 const (
 	PIPE       = iota // 0: |
-	MERGE_BACK = iota // 1: ┘
-	FORK       = iota // 2: ┐
-	MERGE_TO   = iota // 3: ┌
+	MERGE_BACK        // 1: ┘
+	FORK              // 2: ┐
+	MERGE_TO          // 3: ┌
 )
 
 // Point TODO
