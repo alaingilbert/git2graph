@@ -4,8 +4,8 @@ import (
 	"git2graph/git2graph"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 )
 
 func bootstrap(c *cli.Context) error {
