@@ -1,6 +1,7 @@
 ![Logo](img/logo.png)
 
-The main goal of this library is to take a linear git history, and create a structure that we can use to draw a graph of the commits/branches.
+Given a list of commits and their parents, return a structure that tells you exactly how to draw the git graph.  
+The algorithm try to reproduce the "sourcetree" graph style.
 
 It takes a json:
 
