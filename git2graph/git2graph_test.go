@@ -50,17 +50,17 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []map[st
 	}
 }
 
-var customColors = []Color{
-	{-2, "color1", false},
-	{-2, "color2", false},
-	{-2, "color3", false},
-	{-2, "color4", false},
-	{-2, "color5", false},
-	{-2, "color6", false},
-	{-2, "color7", false},
-	{-2, "color8", false},
-	{-2, "color9", false},
-	{-2, "color10", false},
+var customColors = []string{
+	"color1",
+	"color2",
+	"color3",
+	"color4",
+	"color5",
+	"color6",
+	"color7",
+	"color8",
+	"color9",
+	"color10",
 }
 
 func TestDebug(t *testing.T) {
@@ -77,9 +77,9 @@ func TestDebug(t *testing.T) {
 }
 
 func TestNotEnoughColors(t *testing.T) {
-	var colors = []Color{
-		{-2, "color1", false},
-		{-2, "color2", false},
+	var colors = []string{
+		"color1",
+		"color2",
 	}
 	inputNodes := make([]map[string]interface{}, 0)
 	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})

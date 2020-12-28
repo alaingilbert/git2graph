@@ -29,24 +29,24 @@ type Color struct {
 }
 
 // DefaultColors Default colors
-var DefaultColors = []Color{
-	{-2, "#5aa1be", false},
-	{-2, "#c065b8", false},
-	{-2, "#c0ab5f", false},
-	{-2, "#59bc95", false},
-	{-2, "#7a63be", false},
-	{-2, "#c0615b", false},
-	{-2, "#73bb5e", false},
-	{-2, "#6ee585", false},
-	{-2, "#7088e8", false},
-	{-2, "#eb77a3", false},
-	{-2, "#c2e675", false},
-	{-2, "#6fdfe9", false},
-	{-2, "#d87de8", false},
-	{-2, "#eab774", false},
-	{-2, "#be82fb", false},
-	{-2, "#72d7fc", false},
-	{-2, "#adfb82", false},
+var DefaultColors = []string{
+	"#5aa1be",
+	"#c065b8",
+	"#c0ab5f",
+	"#59bc95",
+	"#7a63be",
+	"#c0615b",
+	"#73bb5e",
+	"#6ee585",
+	"#7088e8",
+	"#eb77a3",
+	"#c2e675",
+	"#6fdfe9",
+	"#d87de8",
+	"#eab774",
+	"#be82fb",
+	"#72d7fc",
+	"#adfb82",
 }
 
 func getColor(nodeIdx int) string {
@@ -548,10 +548,10 @@ func GetPaginated(inputNodes []map[string]interface{}, from, size int) ([]map[st
 }
 
 // BuildTree TODO
-func BuildTree(inputNodes []map[string]interface{}, myColors []Color) ([]map[string]interface{}, error) {
+func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
 	colors = make([]Color, 0)
-	for _, color := range myColors {
-		colors = append(colors, color)
+	for _, colorStr := range myColors {
+		colors = append(colors, Color{ReleaseIdx: -2, color: colorStr, InUse: false})
 	}
 
 	nodes := initNodes(inputNodes)
