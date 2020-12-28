@@ -341,11 +341,7 @@ app.directive('project', function() {
 
         var createCommit = function(id) {
           var out = '';
-          out += 'touch ' + id + '\n';
-          out += 'sleep 0.2\n';
-          out += 'git add ' + id + '\n';
-          out += 'sleep 0.2\n';
-          out += 'git commit -m ' + id + '\n';
+          out += 'git commit --allow-empty -m ' + id + '\n';
           out += 'sleep 0.2\n';
           return out;
         };
