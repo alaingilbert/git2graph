@@ -94,7 +94,7 @@ func TestNotEnoughColors(t *testing.T) {
 
 func TestGetInputNodesFromJson(t *testing.T) {
 	json := `[{"id": "1", "parents": ["2"]}, {"id": "2", "parents": ["3"]}, {"id": "3", "parents": []}]`
-	inputNodes, _ := GetInputNodesFromJSON(json)
+	inputNodes, _ := GetInputNodesFromJSON([]byte(json))
 	out, _ := BuildTree(inputNodes, customColors)
 
 	// Expected output
@@ -117,7 +117,7 @@ func TestGetInputNodesFromJson(t *testing.T) {
 
 func TestGetInputNodesFromJsonWithBadJson(t *testing.T) {
 	json := `[{"id": "1", "parents": ["2"]}, {"id": "2", "parents": ["3"]}, {"id": "3", "parents": []}`
-	_, err := GetInputNodesFromJSON(json)
+	_, err := GetInputNodesFromJSON([]byte(json))
 	if err == nil {
 		t.Fail()
 	}
