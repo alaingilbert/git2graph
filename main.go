@@ -145,7 +145,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "s, seq-ids",
-			Usage: "Use sequentiel ids instead of sha for linear history",
+			Usage: "Use sequential ids instead of sha for linear history",
 		},
 		cli.BoolFlag{
 			Name:  "n, no-output",
