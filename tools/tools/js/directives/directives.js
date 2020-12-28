@@ -350,12 +350,7 @@ app.directive('project', function() {
             out += 'git commit --allow-empty -m ' + item.id + '\n';
             out += 'sleep 0.2\n';
           } else if (item.parents.length === 1) {
-            if ($scope.tree[item.parents[0]].column < item.column) {
-              out += 'git checkout ' + item.parents[0] + '\n';
-              out += 'git checkout -b ' + item.id + '\n';
-              out += 'git commit --allow-empty -m ' + item.id + '\n';
-              out += 'sleep 0.2\n';
-            } else if ($scope.tree[item.parents[0]].column === item.column) {
+            if ($scope.tree[item.parents[0]].column <= item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
               out += 'git commit --allow-empty -m ' + item.id + '\n';
