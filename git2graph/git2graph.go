@@ -13,8 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var colors []Color
-
 // DebugMode Debug mode
 var DebugMode = false
 
@@ -49,7 +47,7 @@ var DefaultColors = []string{
 	"#adfb82",
 }
 
-func getColor(nodeIdx int) string {
+func getColor(colors []Color, nodeIdx int) string {
 	colorToTakeIdx := -1
 	for idx, color := range colors {
 		if nodeIdx >= color.ReleaseIdx+2 && !color.InUse {
@@ -65,7 +63,7 @@ func getColor(nodeIdx int) string {
 	return colors[colorToTakeIdx].color
 }
 
-func releaseColor(color string, idx int) {
+func releaseColor(colors []Color, color string, idx int) {
 	for colorIdx, colorObj := range colors {
 		if color == colorObj.color {
 			colors[colorIdx].ReleaseIdx = idx
@@ -326,7 +324,7 @@ func (s *stringSet) Remove(in string) {
 	delete(s.Items, in)
 }
 
-func setColumns(index map[string]*OutputNode, nodes []*OutputNode) {
+func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := 0
 	for _, node := range nodes {
@@ -334,7 +332,7 @@ func setColumns(index map[string]*OutputNode, nodes []*OutputNode) {
 		if !node.columnDefined() {
 			node.Column = nextColumn
 			node.addDebug(fmt.Sprintf("Column set to %d", nextColumn))
-			node.Color = getColor(node.Idx)
+			node.Color = getColor(colors, node.Idx)
 			nextColumn++
 			log.WithFields(log.Fields{
 				"nextColumn": nextColumn,
@@ -364,13 +362,13 @@ func setColumns(index map[string]*OutputNode, nodes []*OutputNode) {
 						"into":       node.ID,
 						"sub":        child.isPathSubBranch(node.ID),
 					}).Debug("node merging --")
-					releaseColor(child.getPathColor(node.ID), node.Idx)
+					releaseColor(colors, child.getPathColor(node.ID), node.Idx)
 				}
 
 				if !child.firstInRow && !child.isPathSubBranch(node.ID) && !child.hasOlderParent(index, node.Idx) {
 					child.setPathColor(node.ID, child.Color)
 				}
-				releaseColor(child.getPathColor(node.ID), node.Idx)
+				releaseColor(colors, child.getPathColor(node.ID), node.Idx)
 
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
@@ -457,7 +455,7 @@ func setColumns(index map[string]*OutputNode, nodes []*OutputNode) {
 				} else {
 					parent.Column = nextColumn
 					parent.addDebug(fmt.Sprintf("2- Column set to %d", nextColumn))
-					parent.Color = getColor(node.Idx)
+					parent.Color = getColor(colors, node.Idx)
 					node.append(parent.ID, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.ID, parent.Color)
 					node.firstInRow = true
@@ -549,7 +547,7 @@ func GetPaginated(inputNodes []map[string]interface{}, from, size int) ([]map[st
 
 // BuildTree TODO
 func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
-	colors = make([]Color, 0)
+	colors := make([]Color, 0)
 	for _, colorStr := range myColors {
 		colors = append(colors, Color{ReleaseIdx: -2, color: colorStr, InUse: false})
 	}
@@ -558,7 +556,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[st
 	index := initIndex(nodes)
 
 	initChildren(index, nodes)
-	setColumns(index, nodes)
+	setColumns(index, colors, nodes)
 
 	for _, node := range nodes {
 		for parentID, path := range node.parentsPaths {
