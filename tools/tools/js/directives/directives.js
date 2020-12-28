@@ -345,23 +345,23 @@ app.directive('project', function() {
         _.each(reversedNodes, function(item, idx) {
           item.parents = _.keys(item.parentsPaths);
           item.parents = _.sortBy(item.parents, function(item) { return $scope.tree[item].column; });
-          if (item.parents.length == 0) {
+          if (item.parents.length === 0) {
             out += 'git checkout -b ' + item.id + '\n';
             out += 'git commit --allow-empty -m ' + id + '\n';
             out += 'sleep 0.2\n';
-          } else if (item.parents.length == 1) {
+          } else if (item.parents.length === 1) {
             if ($scope.tree[item.parents[0]].column < item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
               out += 'git commit --allow-empty -m ' + item.id + '\n';
               out += 'sleep 0.2\n';
-            } else if ($scope.tree[item.parents[0]].column == item.column) {
+            } else if ($scope.tree[item.parents[0]].column === item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
               out += 'git commit --allow-empty -m ' + item.id + '\n';
               out += 'sleep 0.2\n';
             }
-          } else if (item.parents.length == 2) {
+          } else if (item.parents.length === 2) {
             if ($scope.tree[item.parents[0]].column < item.column) {
               out += 'git checkout ' + item.parents[1] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
