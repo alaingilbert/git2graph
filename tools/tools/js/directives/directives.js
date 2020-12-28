@@ -339,13 +339,6 @@ app.directive('project', function() {
 
       var generateShellScript = function() {
 
-        var createCommit = function(id) {
-          var out = '';
-          out += 'git commit --allow-empty -m ' + id + '\n';
-          out += 'sleep 0.2\n';
-          return out;
-        };
-
         var reversedNodes = _.cloneDeep($scope.tree);
         _.reverse(reversedNodes);
         var out = "";
@@ -354,16 +347,19 @@ app.directive('project', function() {
           item.parents = _.sortBy(item.parents, function(item) { return $scope.tree[item].column; });
           if (item.parents.length == 0) {
             out += 'git checkout -b ' + item.id + '\n';
-            out += createCommit(item.id);
+            out += 'git commit --allow-empty -m ' + id + '\n';
+            out += 'sleep 0.2\n';
           } else if (item.parents.length == 1) {
             if ($scope.tree[item.parents[0]].column < item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
-              out += createCommit(item.id);
+              out += 'git commit --allow-empty -m ' + item.id + '\n';
+              out += 'sleep 0.2\n';
             } else if ($scope.tree[item.parents[0]].column == item.column) {
               out += 'git checkout ' + item.parents[0] + '\n';
               out += 'git checkout -b ' + item.id + '\n';
-              out += createCommit(item.id);
+              out += 'git commit --allow-empty -m ' + item.id + '\n';
+              out += 'sleep 0.2\n';
             }
           } else if (item.parents.length == 2) {
             if ($scope.tree[item.parents[0]].column < item.column) {
