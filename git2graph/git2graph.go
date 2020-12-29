@@ -117,6 +117,24 @@ func (node *OutputNode) addDebug(msg string) {
 	}
 }
 
+// append a point to a parent path if it is not a duplicate
+func (node *OutputNode) noDupAppend(parentID string, point Point) {
+	tmp := node.parentsPaths[parentID]
+	if len(tmp.Path) > 0 && tmp.Path[len(tmp.Path)-1] == point {
+		return
+	}
+	node.append(parentID, point)
+}
+
+// insert a point to a parent path if it is not a duplicate
+func (node *OutputNode) noDupInsert(parentID string, idx int, point Point) {
+	tmp := node.parentsPaths[parentID]
+	if tmp.Path[idx-1] == point || tmp.Path[idx] == point {
+		return
+	}
+	node.insert(parentID, idx, point)
+}
+
 func (node *OutputNode) append(parentID string, point Point) {
 	tmp := node.parentsPaths[parentID]
 	tmp.Path = append(tmp.Path, point)
@@ -373,7 +391,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
 				point := Point{child.getPathPoint(index, node.ID, -2).X, node.Idx, MERGE_BACK}
-				child.insert(node.ID, pos, point)
+				child.noDupInsert(node.ID, pos, point)
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
@@ -415,19 +433,19 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									}
 									tmp := followingNodeChild.getPathPoint(index, followingNode.ID, idxRemove-1).X
 									followingNodeChild.remove(followingNode.ID, idxRemove)
-									followingNodeChild.append(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
-									followingNodeChild.append(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
+									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
+									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
 									if followingNode.Column > child.getPathPoint(index, node.ID, -2).X {
 										if processedNodes[followingNode.ID] == nil {
-											followingNodeChild.append(followingNode.ID, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
+											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
 										} else {
-											followingNodeChild.append(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
+											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
 										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.ID, child.ID, followingNode.Column, nbNodesMergingBack))
 									} else {
-										followingNodeChild.append(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
-										followingNodeChild.append(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
+										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
+										followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
 									if processedNodes[followingNode.ID] == nil {
 										processedNodes[followingNode.ID] = make(map[string]bool)
@@ -444,7 +462,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		for parentIdx, parentID := range node.Parents {
 			parent := index[parentID]
 
-			node.append(parent.ID, Point{node.Column, node.Idx, PIPE})
+			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, PIPE})
 
 			if !parent.columnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
@@ -456,7 +474,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					parent.Column = nextColumn
 					parent.addDebug(fmt.Sprintf("2- Column set to %d", nextColumn))
 					parent.Color = getColor(colors, node.Idx)
-					node.append(parent.ID, Point{parent.Column, node.Idx, FORK})
+					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.ID, parent.Color)
 					node.firstInRow = true
 					nextColumn++
@@ -478,8 +496,8 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 								child.remove(parent.ID, idxRemove)
 							}
 							pos := child.pathLength(parent.ID) - 1
-							child.append(parent.ID, Point{child.getPathPoint(index, parent.ID, pos).X, parent.Idx, MERGE_BACK})
-							child.append(parent.ID, Point{node.Column, parent.Idx, PIPE})
+							child.noDupAppend(parent.ID, Point{child.getPathPoint(index, parent.ID, pos).X, parent.Idx, MERGE_BACK})
+							child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
 						}
 					}
 					parent.Column = node.Column
@@ -488,39 +506,23 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					node.setPathColor(parent.ID, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
 					node.setPathSubBranch(parent.ID)
-					node.append(parent.ID, Point{parent.Column, node.Idx, FORK})
+					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.ID, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
 						if node.hasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) {
-							node.append(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
+							node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
 							node.setPathColor(parent.ID, node.Color)
 						} else {
-							node.append(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
+							node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
 							node.setPathColor(parent.ID, parent.Color)
 						}
 					}
 				}
 			}
 
-			node.append(parent.ID, Point{parent.Column, parent.Idx, PIPE})
+			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, PIPE})
 
-		}
-	}
-
-	// Deduplicate path nodes
-	for _, node := range nodes {
-		for parentID, path := range node.parentsPaths {
-			previousPoint := Point{-1, -1, -1}
-			for pointIdx := len(path.Path) - 1; pointIdx >= 0; pointIdx-- {
-				point := path.Path[pointIdx]
-				if point.X == previousPoint.X && point.Y == previousPoint.Y && point.Type == previousPoint.Type {
-					parentPath := node.parentsPaths[parentID]
-					parentPath.Path = append(parentPath.Path[:pointIdx], parentPath.Path[pointIdx+1:]...)
-					node.parentsPaths[parentID] = parentPath
-				}
-				previousPoint = point
-			}
 		}
 	}
 }
