@@ -96,7 +96,7 @@ Use D3.js to render the graph represented by the output of Git2Graph.
 ## How to run
 
 ```
-go run git2graph.go -j '...'
+go run main.go -j '...'
 ```
 
 Or
@@ -108,7 +108,7 @@ git2graph -j '...'
 
 ## How to test
 ```
-go test
+go test ./...
 ```
 
 ## TODO
@@ -122,5 +122,5 @@ go test
 - Create a new branch
 - Make your changes
 - Create new tests
-- Append your name/email in git2graph.go (contributors list)
+- Append your name/email in main.go (contributors list)
 - Make a pull request :)
