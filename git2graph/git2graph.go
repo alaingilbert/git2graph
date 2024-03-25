@@ -234,7 +234,7 @@ func (node *OutputNode) getPathPoint(index map[string]*OutputNode, parentID stri
 	return node.parentsPaths[parentID].Path[idx]
 }
 
-//GetPathHeightAtIdx Get the path X at Idx
+// GetPathHeightAtIdx Get the path X at Idx
 func (node *OutputNode) GetPathHeightAtIdx(index map[string]*OutputNode, parentID string, lookupIdx int) (height int) {
 	height = -1
 	firstPoint := node.getPathPoint(index, parentID, 0)
