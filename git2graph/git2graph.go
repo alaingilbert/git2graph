@@ -481,11 +481,11 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				parent.Column = node.Column
 				parent.Color = node.Color
 				node.setPathColor(parent.ID, node.Color)
-			} else if node.Column < parent.Column && parentIdx > 0 {
+			} else if node.Column < parent.Column {
 				node.setPathSubBranch(parent.ID)
 				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
 				node.setPathColor(parent.ID, parent.Color)
-			} else if node.Column > parent.Column && len(node.Parents) > 1 {
+			} else if node.Column > parent.Column {
 				if node.hasBiggerParentDefined(index) || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch(index))) {
 					node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
 					node.setPathColor(parent.ID, node.Color)
