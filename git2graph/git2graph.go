@@ -371,10 +371,11 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 			child := index[childID]
 			secondToLastPoint := child.getPathPoint(node.ID, -2)
 			if node.Column < secondToLastPoint.X {
+				secondPoint := child.getPathPoint(node.ID, 1)
 				childIsSubBranch := child.isPathSubBranch(node.ID)
 				childHasOlderParent := child.hasOlderParent(index, node.Idx)
 				if !childIsSubBranch &&
-					!(childHasOlderParent && child.getPathPoint(node.ID, 1).Type.IsMergeTo()) {
+					!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
 					nextColumn--
 				}
 
