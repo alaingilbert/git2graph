@@ -391,60 +391,58 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
 					followingNode := index[followingNodeID]
-					if followingNode.Idx > node.Idx {
-						// Following nodes that have a child before the current node
-						for _, followingNodeChildID := range followingNode.children {
-							followingNodeChild := index[followingNodeChildID]
-							if followingNodeChild.Idx < node.Idx {
-								// Following node child has a path that is higher than the current path being merged
-								if followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X {
+					// Following nodes that have a child before the current node
+					for _, followingNodeChildID := range followingNode.children {
+						followingNodeChild := index[followingNodeChildID]
+						if followingNodeChild.Idx < node.Idx {
+							// Following node child has a path that is higher than the current path being merged
+							if followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X {
 
-									// Index to delete is the one before last
-									idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
-									if idxRemove < 0 {
-										continue
-									}
-									// Remove second before last node has same Y, remove the before last node
-									for followingNodeChild.pathLength(followingNode.ID) > idxRemove &&
-										followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
-										followingNodeChild.remove(followingNode.ID, idxRemove-1)
-										idxRemove--
-									}
-
-									// Calculate nb of merging nodes
-									nbNodesMergingBack := 0
-									for _, childID := range node.children {
-										child := index[childID]
-										childIsSubBranch := child.isPathSubBranch(node.ID)
-										childHasOlderParent := child.hasOlderParent(index, node.Idx)
-										secondToLastPoint := child.getPathPoint(node.ID, -2)
-										secondPoint := child.getPathPoint(node.ID, 1)
-										if node.Column < secondToLastPoint.X &&
-											secondToLastPoint.X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
-											!childIsSubBranch &&
-											!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
-											nbNodesMergingBack++
-										}
-									}
-
-									if processedNodes[followingNode.ID][followingNodeChild.ID] {
-										continue
-									}
-									pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
-									followingNodeChild.remove(followingNode.ID, idxRemove)
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
-									if followingNode.Column <= secondToLastPoint.X {
-										followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
-									} else if processedNodes[followingNode.ID] == nil {
-										followingNode.Column -= nbNodesMergingBack
-									}
-									followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
-									if processedNodes[followingNode.ID] == nil {
-										processedNodes[followingNode.ID] = make(map[string]bool)
-									}
-									processedNodes[followingNode.ID][followingNodeChild.ID] = true
+								// Index to delete is the one before last
+								idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
+								if idxRemove < 0 {
+									continue
 								}
+								// Remove second before last node has same Y, remove the before last node
+								for followingNodeChild.pathLength(followingNode.ID) > idxRemove &&
+									followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
+									followingNodeChild.remove(followingNode.ID, idxRemove-1)
+									idxRemove--
+								}
+
+								// Calculate nb of merging nodes
+								nbNodesMergingBack := 0
+								for _, childID := range node.children {
+									child := index[childID]
+									childIsSubBranch := child.isPathSubBranch(node.ID)
+									childHasOlderParent := child.hasOlderParent(index, node.Idx)
+									secondToLastPoint := child.getPathPoint(node.ID, -2)
+									secondPoint := child.getPathPoint(node.ID, 1)
+									if node.Column < secondToLastPoint.X &&
+										secondToLastPoint.X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
+										!childIsSubBranch &&
+										!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
+										nbNodesMergingBack++
+									}
+								}
+
+								if processedNodes[followingNode.ID][followingNodeChild.ID] {
+									continue
+								}
+								pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
+								followingNodeChild.remove(followingNode.ID, idxRemove)
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
+								if followingNode.Column <= secondToLastPoint.X {
+									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
+								} else if processedNodes[followingNode.ID] == nil {
+									followingNode.Column -= nbNodesMergingBack
+								}
+								followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
+								if processedNodes[followingNode.ID] == nil {
+									processedNodes[followingNode.ID] = make(map[string]bool)
+								}
+								processedNodes[followingNode.ID][followingNodeChild.ID] = true
 							}
 						}
 					}
@@ -500,9 +498,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					node.setPathColor(parent.ID, parent.Color)
 				}
 			}
-
 			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, PIPE})
-
 		}
 	}
 }
