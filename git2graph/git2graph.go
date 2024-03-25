@@ -386,8 +386,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
-				point := Point{secondToLastPoint.X, node.Idx, MERGE_BACK}
-				child.noDupInsert(node.ID, pos, point)
+				child.noDupInsert(node.ID, pos, Point{secondToLastPoint.X, node.Idx, MERGE_BACK})
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
