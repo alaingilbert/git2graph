@@ -6,9 +6,11 @@ import (
 
 func validateColumns(t *testing.T, expectedColumns []int, data []map[string]any) {
 	for idx, row := range data {
-		if row["column"] != expectedColumns[idx] {
+		expectedColumn := expectedColumns[idx]
+		actualColumn := row["column"]
+		if actualColumn != expectedColumn {
 			t.Fail()
-			t.Logf("ID: %s, Expected column: %d, Actual column: %d", row["id"], expectedColumns[idx], row["column"])
+			t.Logf("ID: %s, Expected column: %d, Actual column: %d", row["id"], expectedColumn, actualColumn)
 		}
 	}
 }
@@ -19,17 +21,19 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []map[str
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
-			if len(node["parentsPaths"].(map[string]Path)[parentID].Path) != len(expectedPaths[nodeIdx][parentID].Path) {
+			expectedPath := expectedPaths[nodeIdx][parentID].Path
+			parentPath := node["parentsPaths"].(map[string]Path)[parentID]
+			if len(parentPath.Path) != len(expectedPath) {
 				t.Fail()
-				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPaths[nodeIdx][parentID].Path), len(node["parentsPaths"].(map[string]Path)[parentID].Path))
-				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPaths[nodeIdx][parentID], node["parentsPaths"].(map[string]Path)[parentID])
+				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPath), len(parentPath.Path))
+				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath)
 				return
 			}
-			for pathIdx, pathNode := range node["parentsPaths"].(map[string]Path)[parentID].Path {
-				if pathNode != expectedPaths[nodeIdx][parentID].Path[pathIdx] {
+			for pathIdx, pathNode := range parentPath.Path {
+				if pathNode != expectedPath[pathIdx] {
 					t.Fail()
-					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPaths[nodeIdx][parentID].Path[pathIdx], pathNode)
-					t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPaths[nodeIdx][parentID].Path, node["parentsPaths"].(map[string]Path)[parentID].Path)
+					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPath[pathIdx], pathNode)
+					t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath.Path)
 				}
 			}
 		}
@@ -42,8 +46,10 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []map[st
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
-			if expectedPaths[nodeIdx][parentID].Color != node["parentsPaths"].(map[string]Path)[parentID].Color {
-				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPaths[nodeIdx][parentID].Color, node["parentsPaths"].(map[string]Path)[parentID].Color)
+			parentPath := node["parentsPaths"].(map[string]Path)[parentID]
+			expectedPath := expectedPaths[nodeIdx][parentID]
+			if expectedPath.Color != parentPath.Color {
+				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath.Color, parentPath.Color)
 				t.Fail()
 			}
 		}
