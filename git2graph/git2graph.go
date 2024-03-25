@@ -350,13 +350,16 @@ func (s *stringSet) Remove(in string) {
 
 func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
-	nextColumn := 0
+	nextColumn := -1
+	incrCol := func() int {
+		nextColumn++
+		return nextColumn
+	}
 	for _, node := range nodes {
 		// Set column if not defined
 		if !node.columnDefined() {
-			node.Column = nextColumn
+			node.Column = incrCol()
 			node.Color = getColor(colors, node.Idx)
-			nextColumn++
 		}
 
 		// Cache the following node with child before the current node
@@ -455,11 +458,10 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				column := node.Column
 				color := node.Color
 				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx != node.Idx+1) {
-					column = nextColumn
+					column = incrCol()
 					color = getColor(colors, node.Idx)
 					node.noDupAppend(parent.ID, Point{column, node.Idx, FORK})
 					node.firstInRow = true
-					nextColumn++
 				}
 				parent.Column = column
 				parent.Color = color
