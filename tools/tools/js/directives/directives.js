@@ -285,10 +285,10 @@ app.directive('project', function() {
         out += 'func ' + testName + '(t *testing.T) {\n';
 
         out += '	// Initial input\n';
-        out += '	inputNodes := make([]map[string]interface{}, 0)\n';
+        out += '	inputNodes := make([]map[string]any, 0)\n';
         _.each($scope.tree, function(node) {
           var p = _.map(node.parents, function(el) { return '"' + el + '"'; }).join(', ');
-          out += '	inputNodes = append(inputNodes, map[string]interface{}{"id": "' + node.id + '", "parents": []string{' + p + '}})\n';
+          out += '	inputNodes = append(inputNodes, map[string]any{"id": "' + node.id + '", "parents": []string{' + p + '}})\n';
         });
 
         out += '\n	out, _ := BuildTree(inputNodes, customColors)\n\n';

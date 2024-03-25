@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func validateColumns(t *testing.T, expectedColumns []int, data []map[string]interface{}) {
+func validateColumns(t *testing.T, expectedColumns []int, data []map[string]any) {
 	for idx, row := range data {
 		if row["column"] != expectedColumns[idx] {
 			t.Fail()
@@ -13,7 +13,7 @@ func validateColumns(t *testing.T, expectedColumns []int, data []map[string]inte
 	}
 }
 
-func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []map[string]interface{}) {
+func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []map[string]any) {
 	for nodeIdx, node := range data {
 		for _, parentID := range node["parents"].([]string) {
 			if len(expectedPaths)-1 < nodeIdx {
@@ -36,7 +36,7 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []map[str
 	}
 }
 
-func validateColors(t *testing.T, expectedPaths []map[string]Path, data []map[string]interface{}) {
+func validateColors(t *testing.T, expectedPaths []map[string]Path, data []map[string]any) {
 	for nodeIdx, node := range data {
 		for _, parentID := range node["parents"].([]string) {
 			if len(expectedPaths)-1 < nodeIdx {
@@ -65,10 +65,10 @@ var customColors = []string{
 
 func TestDebug(t *testing.T) {
 	DebugMode = true
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
 	out, _ := BuildTree(inputNodes, customColors)
 	// Ensure nodes have debug property
 	if len(out[0]["debug"].([]string)) <= 0 {
@@ -81,11 +81,11 @@ func TestNotEnoughColors(t *testing.T) {
 		"color1",
 		"color2",
 	}
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
 	out, _ := BuildTree(inputNodes, colors)
 	if out[2]["color"] != "#000" {
 		t.Fail()
@@ -126,10 +126,10 @@ func TestGetInputNodesFromJsonWithBadJson(t *testing.T) {
 // 3
 func Test1(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -157,10 +157,10 @@ func Test1(t *testing.T) {
 // 3
 func Test2(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -189,10 +189,10 @@ func Test2(t *testing.T) {
 // 3
 func Test3(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -227,12 +227,12 @@ func Test3(t *testing.T) {
 // 5
 func Test4(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -273,13 +273,13 @@ func Test4(t *testing.T) {
 // 6
 func Test5(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -320,12 +320,12 @@ func Test5(t *testing.T) {
 // 5
 func Test6(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -367,13 +367,13 @@ func Test6(t *testing.T) {
 // 6
 func Test7(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -419,13 +419,13 @@ func Test7(t *testing.T) {
 // 6
 func Test8(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -477,15 +477,15 @@ func Test8(t *testing.T) {
 // 8
 func Test9(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -544,15 +544,15 @@ func Test9(t *testing.T) {
 // 8
 func Test10(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5", "3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"8", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5", "3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"8", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"7", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -602,13 +602,13 @@ func Test10(t *testing.T) {
 // 6
 func Test11(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -655,14 +655,14 @@ func Test11(t *testing.T) {
 // 7
 func Test12(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -702,17 +702,17 @@ func Test12(t *testing.T) {
 // 10
 func Test13(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4", "2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5", "9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"7", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6", "8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4", "2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5", "9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"7", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6", "8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -749,15 +749,15 @@ func Test13(t *testing.T) {
 // 8
 func Test14(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"6", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"8", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -810,15 +810,15 @@ func Test14(t *testing.T) {
 // 8
 func Test15(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"6", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"6", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"8", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -867,14 +867,14 @@ func Test15(t *testing.T) {
 // 7
 func Test16(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -910,14 +910,14 @@ func Test16(t *testing.T) {
 
 func Test17(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -953,14 +953,14 @@ func Test17(t *testing.T) {
 
 func Test18(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -996,20 +996,20 @@ func Test18(t *testing.T) {
 
 func Test19(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"11", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"11", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1065,13 +1065,13 @@ func Test19(t *testing.T) {
 
 func Test20(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1104,15 +1104,15 @@ func Test20(t *testing.T) {
 
 func Test21(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"6", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1152,16 +1152,16 @@ func Test21(t *testing.T) {
 
 func Test22(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"7", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"7", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1204,16 +1204,16 @@ func Test22(t *testing.T) {
 
 func Test23(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1256,19 +1256,19 @@ func Test23(t *testing.T) {
 
 func Test24(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"7", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10", "8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"11", "8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"7", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"10", "8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"11", "8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1322,20 +1322,20 @@ func Test24(t *testing.T) {
 
 func Test25(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"9", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"9", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"12", "9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"11", "10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"9", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"9", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"12", "9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"11", "10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1394,16 +1394,16 @@ func Test25(t *testing.T) {
 
 func Test26(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"8", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"7", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"8", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"7", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1447,25 +1447,25 @@ func Test26(t *testing.T) {
 
 func Test27(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"15", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"15"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"9", "13"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"14", "10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"16"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"17"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"17"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"15", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"15"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"9", "13"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"14", "10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "13", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "14", "parents": []string{"16"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "15", "parents": []string{"17"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "16", "parents": []string{"17"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "17", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1538,14 +1538,14 @@ func Test27(t *testing.T) {
 
 func Test28(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"2", "1"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6", "5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"2", "1"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6", "5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1583,35 +1583,35 @@ func Test28(t *testing.T) {
 
 func Test29(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"15"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"17"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"18"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"20"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"9", "10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"9", "11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"13", "14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"21"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"13"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"16", "15"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"19"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"26"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"27"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{"25"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "18", "parents": []string{"24"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "19", "parents": []string{"23"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "20", "parents": []string{"22"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "21", "parents": []string{"22"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{"25"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "25", "parents": []string{"26"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "26", "parents": []string{"27"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "27", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"15"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"17"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"18"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"20"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"9", "10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"9", "11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"13", "14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"21"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "13", "parents": []string{"16", "15"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "14", "parents": []string{"19"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "15", "parents": []string{"26"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "16", "parents": []string{"27"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "17", "parents": []string{"25"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "18", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "19", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "20", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "21", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "22", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "23", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "24", "parents": []string{"25"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "25", "parents": []string{"26"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "26", "parents": []string{"27"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "27", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1714,32 +1714,32 @@ func Test29(t *testing.T) {
 
 func Test30(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"15"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"14"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"22"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5", "10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6", "7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"16", "8"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"16"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"18"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"13", "16"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"21"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"18"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"23"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"18", "17"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{"18"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "18", "parents": []string{"20", "19"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "19", "parents": []string{"20"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "20", "parents": []string{"24"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "21", "parents": []string{"22"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"15"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"14"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5", "10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6", "7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"16", "8"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"16"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"18"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{"13", "16"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "13", "parents": []string{"21"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "14", "parents": []string{"18"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "15", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "16", "parents": []string{"18", "17"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "17", "parents": []string{"18"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "18", "parents": []string{"20", "19"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "19", "parents": []string{"20"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "20", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "21", "parents": []string{"22"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "22", "parents": []string{"23"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "23", "parents": []string{"24"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "24", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1835,14 +1835,14 @@ func Test30(t *testing.T) {
 
 func Test31(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"5", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"5", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1879,14 +1879,14 @@ func Test31(t *testing.T) {
 
 func Test32(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"2"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5", "3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"3", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"2"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"5", "3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -1924,21 +1924,21 @@ func Test32(t *testing.T) {
 
 func Test33(t *testing.T) {
 	// Initial input
-	inputNodes := make([]map[string]interface{}, 0)
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"5"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"7"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"9", "4"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"9"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"8", "6"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"10"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"13"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"12", "11"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"13"}})
-	inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{}})
+	inputNodes := make([]map[string]any, 0)
+	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"5"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"7"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"9", "4"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"9"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"8", "6"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"10"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"12", "11"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"12"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{"13"}})
+	inputNodes = append(inputNodes, map[string]any{"id": "13", "parents": []string{}})
 
 	out, _ := BuildTree(inputNodes, customColors)
 
@@ -2031,32 +2031,32 @@ func TestPathHeight1(t *testing.T) {
 
 func BenchmarkTest1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		inputNodes := make([]map[string]interface{}, 0)
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "0", "parents": []string{"4"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "1", "parents": []string{"15"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "2", "parents": []string{"14"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "3", "parents": []string{"22"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "4", "parents": []string{"5", "10"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "5", "parents": []string{"6", "7"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "6", "parents": []string{"16", "8"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "7", "parents": []string{"9"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "8", "parents": []string{"11"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "9", "parents": []string{"16"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "10", "parents": []string{"18"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "11", "parents": []string{"12"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "12", "parents": []string{"13", "16"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "13", "parents": []string{"21"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "14", "parents": []string{"18"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "15", "parents": []string{"23"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "16", "parents": []string{"18", "17"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "17", "parents": []string{"18"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "18", "parents": []string{"20", "19"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "19", "parents": []string{"20"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "20", "parents": []string{"24"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "21", "parents": []string{"22"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "22", "parents": []string{"23"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "23", "parents": []string{"24"}})
-		inputNodes = append(inputNodes, map[string]interface{}{"id": "24", "parents": []string{}})
+		inputNodes := make([]map[string]any, 0)
+		inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"4"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"15"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"14"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{"22"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "4", "parents": []string{"5", "10"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "5", "parents": []string{"6", "7"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "6", "parents": []string{"16", "8"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "7", "parents": []string{"9"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "8", "parents": []string{"11"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "9", "parents": []string{"16"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "10", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "11", "parents": []string{"12"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "12", "parents": []string{"13", "16"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "13", "parents": []string{"21"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "14", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "15", "parents": []string{"23"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "16", "parents": []string{"18", "17"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "17", "parents": []string{"18"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "18", "parents": []string{"20", "19"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "19", "parents": []string{"20"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "20", "parents": []string{"24"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "21", "parents": []string{"22"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "22", "parents": []string{"23"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "23", "parents": []string{"24"}})
+		inputNodes = append(inputNodes, map[string]any{"id": "24", "parents": []string{}})
 		if _, err := BuildTree(inputNodes, customColors); err != nil {
 			b.Logf("Failed to build tree")
 		}

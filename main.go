@@ -9,7 +9,7 @@ import (
 )
 
 func bootstrap(c *cli.Context) error {
-	var nodes []map[string]interface{}
+	var nodes []map[string]any
 	var err error
 	fromFlag := c.Int("from")
 	sizeFlag := c.Int("size")
@@ -54,7 +54,7 @@ func bootstrap(c *cli.Context) error {
 		delete(node, "parentsPaths")
 	}
 
-	var tmp []map[string]interface{}
+	var tmp []map[string]any
 	if fromFlag >= 0 && sizeFlag >= 1 {
 		// TODO: include context (nodes before "from" that have parents inside or after the range)
 		if contextFlag {

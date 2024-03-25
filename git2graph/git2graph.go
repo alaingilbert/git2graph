@@ -97,14 +97,14 @@ type Path struct {
 
 // OutputNode TODO
 type OutputNode struct {
-	ID                string                 `json:"id"`
-	Parents           []string               `json:"parents"`
-	Column            int                    `json:"column"`
-	FinalParentsPaths []Path                 `json:"parents_paths"`
-	Idx               int                    `json:"idx"`
-	Color             string                 `json:"color"`
-	Debug             []string               `json:"debug,omitempty"`
-	InitialNode       map[string]interface{} `json:"initial_node"`
+	ID                string         `json:"id"`
+	Parents           []string       `json:"parents"`
+	Column            int            `json:"column"`
+	FinalParentsPaths []Path         `json:"parents_paths"`
+	Idx               int            `json:"idx"`
+	Color             string         `json:"color"`
+	Debug             []string       `json:"debug,omitempty"`
+	InitialNode       map[string]any `json:"initial_node"`
 	parentsPaths      map[string]Path
 	children          []string
 	firstInRow        bool
@@ -245,7 +245,7 @@ func (node *OutputNode) pathLength(parentID string) int {
 }
 
 // SerializeOutput Json encode object
-func SerializeOutput(out []map[string]interface{}) {
+func SerializeOutput(out []map[string]any) {
 	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
 		if err := enc.Encode(out); err != nil {
@@ -255,7 +255,7 @@ func SerializeOutput(out []map[string]interface{}) {
 }
 
 // GetInputNodesFromJSON Get nodes from json object
-func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]any, err error) {
 	dec := json.NewDecoder(bytes.NewReader(inputJSON))
 	err = dec.Decode(&nodes)
 	if err != nil {
@@ -267,7 +267,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]interface{}, er
 		if !ok {
 			log.Fatal("malformed json input, node missing parents property")
 		}
-		for _, parent := range nodeParents.([]interface{}) {
+		for _, parent := range nodeParents.([]any) {
 			parents = append(parents, parent.(string))
 		}
 		node["parents"] = parents
@@ -275,7 +275,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]interface{}, er
 	return
 }
 
-func initNodes(inputNodes []map[string]interface{}) []*OutputNode {
+func initNodes(inputNodes []map[string]any) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
 		id, ok := node["id"].(string)
@@ -528,7 +528,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 }
 
 // Get TODO
-func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) {
+func Get(inputNodes []map[string]any) ([]map[string]any, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
@@ -538,7 +538,7 @@ func Get(inputNodes []map[string]interface{}) ([]map[string]interface{}, error) 
 }
 
 // GetPaginated TODO
-func GetPaginated(inputNodes []map[string]interface{}, from, size int) ([]map[string]interface{}, error) {
+func GetPaginated(inputNodes []map[string]any, from, size int) ([]map[string]any, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
@@ -548,7 +548,7 @@ func GetPaginated(inputNodes []map[string]interface{}, from, size int) ([]map[st
 }
 
 // BuildTree TODO
-func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[string]interface{}, error) {
+func BuildTree(inputNodes []map[string]any, myColors []string) ([]map[string]any, error) {
 	colors := make([]Color, 0)
 	for _, colorStr := range myColors {
 		colors = append(colors, Color{ReleaseIdx: -2, color: colorStr, InUse: false})
@@ -565,9 +565,9 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[st
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentID, path.Path, path.Color})
 		}
 	}
-	finalStruct := make([]map[string]interface{}, 0)
+	finalStruct := make([]map[string]any, 0)
 	for _, node := range nodes {
-		finalNode := map[string]interface{}{}
+		finalNode := map[string]any{}
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
@@ -588,7 +588,7 @@ func BuildTree(inputNodes []map[string]interface{}, myColors []string) ([]map[st
 }
 
 // GetInputNodesFromFile TODO
-func GetInputNodesFromFile(filePath string) (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromFile(filePath string) (nodes []map[string]any, err error) {
 	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return
@@ -611,7 +611,7 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo TODO
-func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]interface{}, err error) {
+func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]any, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -637,7 +637,7 @@ func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]interface{}, err err
 		//tree := lines[i+6]
 		//subject := lines[i+7]
 		i += 8
-		node := map[string]interface{}{}
+		node := map[string]any{}
 		if seqIds {
 			id := strconv.Itoa(ids)
 			shaMap[sha] = id
