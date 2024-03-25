@@ -83,7 +83,6 @@ const (
 type pointType uint8
 
 func (p pointType) IsMergeTo() bool { return p == MERGE_TO }
-func (p pointType) IsFork() bool    { return p == FORK }
 
 // Point TODO
 type Point struct {
@@ -493,9 +492,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 				for _, childID := range parent.children {
 					child := index.Get(childID)
 					if idxRemove := child.pathLength(parent.ID) - 1; idxRemove > 0 {
-						if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
-							child.remove(parent.ID, idxRemove)
-						}
+						child.remove(parent.ID, idxRemove)
 						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, idxRemove-1).X, parent.Idx, MERGE_BACK})
 						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
 					}
