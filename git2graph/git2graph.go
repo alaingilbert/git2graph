@@ -468,36 +468,34 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					node.firstInRow = true
 					nextColumn++
 				}
-			} else if parent.columnDefined() {
-				if node.Column < parent.Column && parentIdx == 0 {
-					for _, childID := range parent.children {
-						child := index[childID]
-						idxRemove := child.pathLength(parent.ID) - 1
-						if idxRemove > 0 {
-							if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
-								child.remove(parent.ID, idxRemove)
-							}
-							pos := child.pathLength(parent.ID) - 1
-							child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, pos).X, parent.Idx, MERGE_BACK})
-							child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
+			} else if node.Column < parent.Column && parentIdx == 0 {
+				for _, childID := range parent.children {
+					child := index[childID]
+					idxRemove := child.pathLength(parent.ID) - 1
+					if idxRemove > 0 {
+						if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
+							child.remove(parent.ID, idxRemove)
 						}
+						pos := child.pathLength(parent.ID) - 1
+						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, pos).X, parent.Idx, MERGE_BACK})
+						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
 					}
-					parent.Column = node.Column
-					parent.Color = node.Color
-					node.setPathColor(parent.ID, node.Color)
-				} else if node.Column < parent.Column && parentIdx > 0 {
-					node.setPathSubBranch(parent.ID)
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
-					node.setPathColor(parent.ID, parent.Color)
-				} else if node.Column > parent.Column {
-					if len(node.Parents) > 1 {
-						if node.hasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) || (parentIdx == 0 && node.firstInBranch(index)) {
-							node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
-							node.setPathColor(parent.ID, node.Color)
-						} else {
-							node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
-							node.setPathColor(parent.ID, parent.Color)
-						}
+				}
+				parent.Column = node.Column
+				parent.Color = node.Color
+				node.setPathColor(parent.ID, node.Color)
+			} else if node.Column < parent.Column && parentIdx > 0 {
+				node.setPathSubBranch(parent.ID)
+				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
+				node.setPathColor(parent.ID, parent.Color)
+			} else if node.Column > parent.Column {
+				if len(node.Parents) > 1 {
+					if node.hasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) || (parentIdx == 0 && node.firstInBranch(index)) {
+						node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
+						node.setPathColor(parent.ID, node.Color)
+					} else {
+						node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
+						node.setPathColor(parent.ID, parent.Color)
 					}
 				}
 			}
