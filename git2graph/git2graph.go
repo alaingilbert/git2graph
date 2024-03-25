@@ -400,7 +400,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 							// Index to delete is the one before last
 							idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
-							if idxRemove < 0 {
+							if idxRemove < 0 || processedNodes[followingNode.ID][followingNodeChild.ID] {
 								continue
 							}
 							// Remove second before last node has same Y, remove the before last node
@@ -426,9 +426,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 								}
 							}
 
-							if processedNodes[followingNode.ID][followingNodeChild.ID] {
-								continue
-							}
 							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
 							followingNodeChild.remove(followingNode.ID, idxRemove)
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
