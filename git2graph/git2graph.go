@@ -433,15 +433,12 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 					// Following nodes that have a child before the current node
 					for _, followingNodeChildID := range followingNode.children {
 						followingNodeChild := index.Get(followingNodeChildID)
+						// Index to delete is the one before last
+						idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
 						// Following node child has a path that is higher than the current path being merged
 						if followingNodeChild.Idx < node.Idx &&
-							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X {
-
-							// Index to delete is the one before last
-							idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
-							if idxRemove < 0 || processedNodes[followingNode.ID][followingNodeChild.ID] {
-								continue
-							}
+							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X &&
+							idxRemove >= 0 && !processedNodes[followingNode.ID][followingNodeChild.ID] {
 							// Remove second before last node has same Y, remove the before last node
 							for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
 								followingNodeChild.remove(followingNode.ID, idxRemove-1)
