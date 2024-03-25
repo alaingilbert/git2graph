@@ -253,13 +253,12 @@ func (node *OutputNode) nbNodesMergingBack(index *nodesCache, targetColumn int) 
 	for _, childID := range node.children {
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(node.ID)
-		childHasOlderParent := child.hasOlderParent(index, node.Idx)
 		secondToLastPoint := child.getPathPoint(node.ID, -2)
 		secondPoint := child.getPathPoint(node.ID, 1)
 		if node.Column < secondToLastPoint.X &&
 			secondToLastPoint.X < targetColumn &&
 			!childIsSubBranch &&
-			!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
+			!secondPoint.Type.IsMergeTo() {
 			nbNodesMergingBack++
 		}
 	}
@@ -414,12 +413,11 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 			if node.Column < secondToLastPoint.X {
 				secondPoint := child.getPathPoint(node.ID, 1)
 				childIsSubBranch := child.isPathSubBranch(node.ID)
-				childHasOlderParent := child.hasOlderParent(index, node.Idx)
-				if !childIsSubBranch &&
-					!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
+				if !childIsSubBranch && !secondPoint.Type.IsMergeTo() {
 					nextColumn--
 				}
 
+				childHasOlderParent := child.hasOlderParent(index, node.Idx)
 				if !child.firstInRow && !childIsSubBranch && !childHasOlderParent {
 					child.setPathColor(node.ID, child.Color)
 				}
