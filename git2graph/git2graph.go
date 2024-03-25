@@ -459,18 +459,18 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 			if !parent.columnDefined() {
 				firstParent := index[node.Parents[0]]
-				if parentIdx == 0 || (parentIdx == 1 && firstParent.Column < node.Column && firstParent.Idx == node.Idx+1) {
-					parent.Column = node.Column
-					parent.Color = node.Color
-					node.setPathColor(parent.ID, parent.Color)
-				} else {
-					parent.Column = nextColumn
-					parent.Color = getColor(colors, node.Idx)
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
-					node.setPathColor(parent.ID, parent.Color)
+				column := node.Column
+				color := node.Color
+				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx != node.Idx+1) {
+					column = nextColumn
+					color = getColor(colors, node.Idx)
+					node.noDupAppend(parent.ID, Point{column, node.Idx, FORK})
 					node.firstInRow = true
 					nextColumn++
 				}
+				parent.Column = column
+				parent.Color = color
+				node.setPathColor(parent.ID, parent.Color)
 			} else if node.Column < parent.Column && parentIdx == 0 {
 				for _, childID := range parent.children {
 					child := index[childID]
