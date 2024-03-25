@@ -354,11 +354,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 			node.addDebug(fmt.Sprintf("Column set to %d", nextColumn))
 			node.Color = getColor(colors, node.Idx)
 			nextColumn++
-			log.WithFields(log.Fields{
-				"nextColumn": nextColumn,
-				"operator":   "++",
-				"created":    node.ID,
-			}).Debug("new node ++")
 		}
 
 		// Cache the following node with child before the current node
@@ -375,13 +370,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				if !child.isPathSubBranch(node.ID) &&
 					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 					nextColumn--
-					log.WithFields(log.Fields{
-						"nextColumn": nextColumn,
-						"operator":   "--",
-						"merging":    child.ID,
-						"into":       node.ID,
-						"sub":        child.isPathSubBranch(node.ID),
-					}).Debug("node merging --")
 					releaseColor(colors, child.getPathColor(node.ID), node.Idx)
 				}
 
@@ -480,13 +468,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					node.setPathColor(parent.ID, parent.Color)
 					node.firstInRow = true
 					nextColumn++
-					log.WithFields(log.Fields{
-						"nextColumn": nextColumn,
-						"operator":   "++",
-						"node":       node.ID,
-						"parent":     parent.ID,
-					}).Debug("new parent undefined column++")
-
 				}
 			} else if parent.columnDefined() {
 				if node.Column < parent.Column && parentIdx == 0 {
