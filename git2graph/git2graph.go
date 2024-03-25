@@ -3,7 +3,6 @@ package git2graph
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -351,7 +350,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = nextColumn
-			node.addDebug(fmt.Sprintf("Column set to %d", nextColumn))
 			node.Color = getColor(colors, node.Idx)
 			nextColumn++
 		}
@@ -432,7 +430,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 										} else {
 											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
-										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.ID, child.ID, followingNode.Column, nbNodesMergingBack))
 									} else {
 										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
 										followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
@@ -457,12 +454,10 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 			if !parent.columnDefined() {
 				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
 					parent.Column = node.Column
-					parent.addDebug(fmt.Sprintf("1- Column set to %d", node.Column))
 					parent.Color = node.Color
 					node.setPathColor(parent.ID, parent.Color)
 				} else {
 					parent.Column = nextColumn
-					parent.addDebug(fmt.Sprintf("2- Column set to %d", nextColumn))
 					parent.Color = getColor(colors, node.Idx)
 					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
 					node.setPathColor(parent.ID, parent.Color)
@@ -484,7 +479,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 						}
 					}
 					parent.Column = node.Column
-					parent.addDebug(fmt.Sprintf("Column reset to %d", node.Column))
 					parent.Color = node.Color
 					node.setPathColor(parent.ID, node.Color)
 				} else if node.Column < parent.Column && parentIdx > 0 {
