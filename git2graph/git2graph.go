@@ -404,8 +404,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 								continue
 							}
 							// Remove second before last node has same Y, remove the before last node
-							for followingNodeChild.pathLength(followingNode.ID) > idxRemove &&
-								followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
+							for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
 								followingNodeChild.remove(followingNode.ID, idxRemove-1)
 								idxRemove--
 							}
