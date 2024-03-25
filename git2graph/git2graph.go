@@ -452,7 +452,8 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, PIPE})
 
 			if !parent.columnDefined() {
-				if parentIdx == 0 || (parentIdx == 1 && index[node.Parents[0]].Column < node.Column && index[node.Parents[0]].Idx == node.Idx+1) {
+				firstParent := index[node.Parents[0]]
+				if parentIdx == 0 || (parentIdx == 1 && firstParent.Column < node.Column && firstParent.Idx == node.Idx+1) {
 					parent.Column = node.Column
 					parent.Color = node.Color
 					node.setPathColor(parent.ID, parent.Color)
