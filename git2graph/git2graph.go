@@ -457,7 +457,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				firstParent := index[node.Parents[0]]
 				column := node.Column
 				color := node.Color
-				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx != node.Idx+1) {
+				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx > node.Idx+1) {
 					column = incrCol()
 					color = getColor(colors, node.Idx)
 					node.noDupAppend(parent.ID, Point{column, node.Idx, FORK})
@@ -473,8 +473,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 						if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
 							child.remove(parent.ID, idxRemove)
 						}
-						pos := idxRemove - 1
-						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, pos).X, parent.Idx, MERGE_BACK})
+						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, idxRemove-1).X, parent.Idx, MERGE_BACK})
 						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
 					}
 				}
