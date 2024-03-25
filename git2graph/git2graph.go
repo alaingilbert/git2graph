@@ -427,17 +427,12 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									followingNodeChild.remove(followingNode.ID, idxRemove)
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, node.Idx, PIPE})
-									if followingNode.Column > child.getPathPoint(node.ID, -2).X {
-										if processedNodes[followingNode.ID] == nil {
-											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column - nbNodesMergingBack, followingNode.Idx, PIPE})
-											followingNode.Column -= nbNodesMergingBack
-										} else {
-											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
-										}
-									} else {
+									if followingNode.Column <= child.getPathPoint(node.ID, -2).X {
 										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
-										followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
+									} else if processedNodes[followingNode.ID] == nil {
+										followingNode.Column -= nbNodesMergingBack
 									}
+									followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 									if processedNodes[followingNode.ID] == nil {
 										processedNodes[followingNode.ID] = make(map[string]bool)
 									}
