@@ -71,10 +71,11 @@ var customColors = []string{
 
 func TestDebug(t *testing.T) {
 	DebugMode = true
-	inputNodes := make([]map[string]any, 0)
-	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"2"}})
-	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
+	inputNodes := []map[string]any{
+		{"id": "1", "parents": []string{"2"}},
+		{"id": "2", "parents": []string{"3"}},
+		{"id": "3", "parents": []string{}},
+	}
 	out, _ := BuildTree(inputNodes, customColors)
 	// Ensure nodes have debug property
 	if len(out[0]["debug"].([]string)) <= 0 {
@@ -87,11 +88,12 @@ func TestNotEnoughColors(t *testing.T) {
 		"color1",
 		"color2",
 	}
-	inputNodes := make([]map[string]any, 0)
-	inputNodes = append(inputNodes, map[string]any{"id": "0", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]any{"id": "1", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]any{"id": "2", "parents": []string{"3"}})
-	inputNodes = append(inputNodes, map[string]any{"id": "3", "parents": []string{}})
+	inputNodes := []map[string]any{
+		{"id": "0", "parents": []string{"3"}},
+		{"id": "1", "parents": []string{"3"}},
+		{"id": "2", "parents": []string{"3"}},
+		{"id": "3", "parents": []string{}},
+	}
 	out, _ := BuildTree(inputNodes, colors)
 	if out[2]["color"] != "#000" {
 		t.Fail()
