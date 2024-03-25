@@ -420,7 +420,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 										}
 									}
 
-									if processedNodes[followingNode.ID] != nil && processedNodes[followingNode.ID][followingNodeChild.ID] {
+									if processedNodes[followingNode.ID][followingNodeChild.ID] {
 										continue
 									}
 									tmp := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
