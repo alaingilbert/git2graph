@@ -19,7 +19,7 @@ var DebugMode = false
 // NoOutput No output
 var NoOutput = false
 
-// Color color structure
+// Color structure
 type Color struct {
 	ReleaseIdx int
 	color      string
@@ -50,7 +50,7 @@ var DefaultColors = []string{
 func getColor(colors []Color, nodeIdx int) string {
 	colorToTakeIdx := -1
 	for idx, color := range colors {
-		if nodeIdx >= color.ReleaseIdx+2 && !color.InUse {
+		if nodeIdx >= color.ReleaseIdx && !color.InUse {
 			colorToTakeIdx = idx
 			break
 		}
@@ -66,7 +66,7 @@ func getColor(colors []Color, nodeIdx int) string {
 func releaseColor(colors []Color, color string, idx int) {
 	for colorIdx, colorObj := range colors {
 		if color == colorObj.color {
-			colors[colorIdx].ReleaseIdx = idx
+			colors[colorIdx].ReleaseIdx = idx + 2
 			colors[colorIdx].InUse = false
 			break
 		}
@@ -561,7 +561,7 @@ func GetPaginated(inputNodes []map[string]any, from, size int) ([]map[string]any
 func BuildTree(inputNodes []map[string]any, myColors []string) ([]map[string]any, error) {
 	colors := make([]Color, 0)
 	for _, colorStr := range myColors {
-		colors = append(colors, Color{ReleaseIdx: -2, color: colorStr, InUse: false})
+		colors = append(colors, Color{color: colorStr})
 	}
 
 	nodes := initNodes(inputNodes)
