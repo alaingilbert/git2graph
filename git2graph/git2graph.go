@@ -74,17 +74,22 @@ func releaseColor(colors []Color, color string, idx int) {
 
 // Types
 const (
-	PIPE       = iota // 0: |
-	MERGE_BACK        // 1: ┘
-	FORK              // 2: ┐
-	MERGE_TO          // 3: ┌
+	PIPE       pointType = iota // 0: |
+	MERGE_BACK                  // 1: ┘
+	FORK                        // 2: ┐
+	MERGE_TO                    // 3: ┌
 )
+
+type pointType uint8
+
+func (p pointType) IsMergeTo() bool { return p == MERGE_TO }
+func (p pointType) IsFork() bool    { return p == FORK }
 
 // Point TODO
 type Point struct {
-	X    int `json:"x"`
-	Y    int `json:"y"`
-	Type int `json:"type"`
+	X    int       `json:"x"`
+	Y    int       `json:"y"`
+	Type pointType `json:"type"`
 }
 
 // Path TODO
@@ -366,7 +371,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 			child := index[childID]
 			if node.Column < child.getPathPoint(node.ID, -2).X {
 				if !child.isPathSubBranch(node.ID) &&
-					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
+					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type.IsMergeTo()) {
 					nextColumn--
 				}
 
@@ -410,7 +415,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 										if node.Column < child.getPathPoint(node.ID, -2).X &&
 											child.getPathPoint(node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) &&
 											!child.isPathSubBranch(node.ID) &&
-											!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
+											!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type.IsMergeTo()) {
 											nbNodesMergingBack++
 										}
 									}
@@ -469,7 +474,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 						child := index[childID]
 						idxRemove := child.pathLength(parent.ID) - 1
 						if idxRemove > 0 {
-							if child.getPathPoint(parent.ID, idxRemove).Type != FORK {
+							if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
 								child.remove(parent.ID, idxRemove)
 							}
 							pos := child.pathLength(parent.ID) - 1
