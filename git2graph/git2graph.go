@@ -211,27 +211,30 @@ func (node *OutputNode) isPathSubBranch(parentID string) bool {
 	return node.subBranch[parentID]
 }
 
-func (node *OutputNode) getPathPoint(index map[string]*OutputNode, parentID string, idx int) Point {
+func (node *OutputNode) getPathPoint(index map[string]*OutputNode, parentID string, idx int) (out Point) {
+	path := node.parentsPaths[parentID].Path
+	pathLen := len(path)
 	if idx < 0 {
-		if len(node.parentsPaths[parentID].Path)+idx < 0 {
+		rotatedIdx := pathLen + idx
+		if rotatedIdx < 0 {
 			if index[parentID].Idx < index[node.ID].Idx {
 				log.WithFields(log.Fields{
 					"idx":       idx,
 					"node id":   node.ID,
 					"parent id": parentID,
 				}).Error("Error in repo structure. parent idx < node idx")
-				return Point{}
+				return
 			}
 			log.WithFields(log.Fields{
 				"idx":       idx,
 				"node id":   node.ID,
 				"parent id": parentID,
 			}).Error("1- Weird, need to investigate")
-			return Point{}
+			return
 		}
-		return node.parentsPaths[parentID].Path[len(node.parentsPaths[parentID].Path)+idx]
+		idx = rotatedIdx
 	}
-	return node.parentsPaths[parentID].Path[idx]
+	return path[idx]
 }
 
 // GetPathHeightAtIdx Get the path X at Idx
