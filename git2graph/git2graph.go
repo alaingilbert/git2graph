@@ -171,6 +171,16 @@ func (node *OutputNode) hasBiggerParentDefined(index map[string]*OutputNode) boo
 	return found
 }
 
+func (node *OutputNode) firstInBranch(index map[string]*OutputNode) bool {
+	for _, parentNodeID := range node.Parents {
+		parentNode := index[parentNodeID]
+		if !parentNode.columnDefined() || parentNode.Column == node.Column {
+			return false
+		}
+	}
+	return true
+}
+
 func (node *OutputNode) hasOlderParent(index map[string]*OutputNode, idx int) bool {
 	found := false
 	for _, parentNodeID := range node.Parents {
@@ -510,7 +520,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 					node.setPathColor(parent.ID, parent.Color)
 				} else if node.Column > parent.Column {
 					if len(node.Parents) > 1 {
-						if node.hasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) {
+						if node.hasBiggerParentDefined(index) || (parentIdx == 0 && parent.Idx > node.Idx+1) || (parentIdx == 0 && node.firstInBranch(index)) {
 							node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
 							node.setPathColor(parent.ID, node.Color)
 						} else {
