@@ -369,7 +369,8 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		processedNodes := make(map[string]map[string]bool)
 		for _, childID := range node.children {
 			child := index[childID]
-			if node.Column < child.getPathPoint(node.ID, -2).X {
+			secondToLastPoint := child.getPathPoint(node.ID, -2)
+			if node.Column < secondToLastPoint.X {
 				if !child.isPathSubBranch(node.ID) &&
 					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type.IsMergeTo()) {
 					nextColumn--
@@ -382,7 +383,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
-				point := Point{child.getPathPoint(node.ID, -2).X, node.Idx, MERGE_BACK}
+				point := Point{secondToLastPoint.X, node.Idx, MERGE_BACK}
 				child.noDupInsert(node.ID, pos, point)
 
 				// Nodes that are following the current node
@@ -394,7 +395,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 							followingNodeChild := index[followingNodeChildID]
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
-								if followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) > child.getPathPoint(node.ID, -2).X {
+								if followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) > secondToLastPoint.X {
 
 									// Index to delete is the one before last
 									idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
@@ -427,7 +428,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									followingNodeChild.remove(followingNode.ID, idxRemove)
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, node.Idx, PIPE})
-									if followingNode.Column <= child.getPathPoint(node.ID, -2).X {
+									if followingNode.Column <= secondToLastPoint.X {
 										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
 									} else if processedNodes[followingNode.ID] == nil {
 										followingNode.Column -= nbNodesMergingBack
