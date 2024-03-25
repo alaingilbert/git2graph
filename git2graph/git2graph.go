@@ -211,25 +211,14 @@ func (node *OutputNode) isPathSubBranch(parentID string) bool {
 	return node.subBranch[parentID]
 }
 
-func (node *OutputNode) getPathPoint(index map[string]*OutputNode, parentID string, idx int) (out Point) {
+func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 	path := node.parentsPaths[parentID].Path
 	pathLen := len(path)
 	if idx < 0 {
 		rotatedIdx := pathLen + idx
 		if rotatedIdx < 0 {
-			if index[parentID].Idx < index[node.ID].Idx {
-				log.WithFields(log.Fields{
-					"idx":       idx,
-					"node id":   node.ID,
-					"parent id": parentID,
-				}).Error("Error in repo structure. parent idx < node idx")
-				return
-			}
-			log.WithFields(log.Fields{
-				"idx":       idx,
-				"node id":   node.ID,
-				"parent id": parentID,
-			}).Error("1- Weird, need to investigate")
+			fields := log.Fields{"idx": idx, "node id": node.ID, "parent id": parentID}
+			log.WithFields(fields).Error("Weird, need to investigate")
 			return
 		}
 		idx = rotatedIdx
@@ -240,8 +229,8 @@ func (node *OutputNode) getPathPoint(index map[string]*OutputNode, parentID stri
 // GetPathHeightAtIdx Get the path X at Idx
 func (node *OutputNode) GetPathHeightAtIdx(index map[string]*OutputNode, parentID string, lookupIdx int) (height int) {
 	height = -1
-	firstPoint := node.getPathPoint(index, parentID, 0)
-	lastPoint := node.getPathPoint(index, parentID, -1)
+	firstPoint := node.getPathPoint(parentID, 0)
+	lastPoint := node.getPathPoint(parentID, -1)
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
@@ -382,9 +371,9 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		processedNodes := make(map[string]map[string]bool)
 		for _, childID := range node.children {
 			child := index[childID]
-			if node.Column < child.getPathPoint(index, node.ID, -2).X {
+			if node.Column < child.getPathPoint(node.ID, -2).X {
 				if !child.isPathSubBranch(node.ID) &&
-					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(index, node.ID, 1).Type == MERGE_TO) {
+					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 					nextColumn--
 					log.WithFields(log.Fields{
 						"nextColumn": nextColumn,
@@ -403,7 +392,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
-				point := Point{child.getPathPoint(index, node.ID, -2).X, node.Idx, MERGE_BACK}
+				point := Point{child.getPathPoint(node.ID, -2).X, node.Idx, MERGE_BACK}
 				child.noDupInsert(node.ID, pos, point)
 
 				// Nodes that are following the current node
@@ -415,7 +404,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 							followingNodeChild := index[followingNodeChildID]
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
-								if followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) > child.getPathPoint(index, node.ID, -2).X {
+								if followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) > child.getPathPoint(node.ID, -2).X {
 
 									// Index to delete is the one before last
 									idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
@@ -424,7 +413,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									}
 									// Remove second before last node has same Y, remove the before last node
 									for followingNodeChild.pathLength(followingNode.ID) > idxRemove &&
-										followingNodeChild.getPathPoint(index, followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(index, followingNode.ID, idxRemove-1).Y {
+										followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
 										followingNodeChild.remove(followingNode.ID, idxRemove-1)
 										idxRemove--
 									}
@@ -433,10 +422,10 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									nbNodesMergingBack := 0
 									for _, childID := range node.children {
 										child := index[childID]
-										if node.Column < child.getPathPoint(index, node.ID, -2).X &&
-											child.getPathPoint(index, node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) &&
+										if node.Column < child.getPathPoint(node.ID, -2).X &&
+											child.getPathPoint(node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) &&
 											!child.isPathSubBranch(node.ID) &&
-											!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(index, node.ID, 1).Type == MERGE_TO) {
+											!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 											nbNodesMergingBack++
 										}
 									}
@@ -444,11 +433,11 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									if processedNodes[followingNode.ID] != nil && processedNodes[followingNode.ID][followingNodeChild.ID] {
 										continue
 									}
-									tmp := followingNodeChild.getPathPoint(index, followingNode.ID, idxRemove-1).X
+									tmp := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
 									followingNodeChild.remove(followingNode.ID, idxRemove)
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, node.Idx, PIPE})
-									if followingNode.Column > child.getPathPoint(index, node.ID, -2).X {
+									if followingNode.Column > child.getPathPoint(node.ID, -2).X {
 										if processedNodes[followingNode.ID] == nil {
 											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column - nbNodesMergingBack, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
@@ -505,11 +494,11 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 						child := index[childID]
 						idxRemove := child.pathLength(parent.ID) - 1
 						if idxRemove > 0 {
-							if child.getPathPoint(index, parent.ID, idxRemove).Type != FORK {
+							if child.getPathPoint(parent.ID, idxRemove).Type != FORK {
 								child.remove(parent.ID, idxRemove)
 							}
 							pos := child.pathLength(parent.ID) - 1
-							child.noDupAppend(parent.ID, Point{child.getPathPoint(index, parent.ID, pos).X, parent.Idx, MERGE_BACK})
+							child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, pos).X, parent.Idx, MERGE_BACK})
 							child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
 						}
 					}
