@@ -163,10 +163,10 @@ func (node *OutputNode) columnDefined() bool {
 	return node.Column != -1
 }
 
-func (node *OutputNode) hasBiggerParentDefined(index map[string]*OutputNode) bool {
+func (node *OutputNode) hasBiggerParentDefined(index *nodesCache) bool {
 	found := false
 	for _, parentNodeID := range node.Parents {
-		parentNode := index[parentNodeID]
+		parentNode := index.Get(parentNodeID)
 		if parentNode.Column > node.Column {
 			found = true
 			break
@@ -175,9 +175,9 @@ func (node *OutputNode) hasBiggerParentDefined(index map[string]*OutputNode) boo
 	return found
 }
 
-func (node *OutputNode) firstInBranch(index map[string]*OutputNode) bool {
+func (node *OutputNode) firstInBranch(index *nodesCache) bool {
 	for _, parentNodeID := range node.Parents {
-		parentNode := index[parentNodeID]
+		parentNode := index.Get(parentNodeID)
 		if !parentNode.columnDefined() || parentNode.Column == node.Column {
 			return false
 		}
@@ -185,10 +185,10 @@ func (node *OutputNode) firstInBranch(index map[string]*OutputNode) bool {
 	return true
 }
 
-func (node *OutputNode) hasOlderParent(index map[string]*OutputNode, idx int) bool {
+func (node *OutputNode) hasOlderParent(index *nodesCache, idx int) bool {
 	found := false
 	for _, parentNodeID := range node.Parents {
-		parentNode := index[parentNodeID]
+		parentNode := index.Get(parentNodeID)
 		if parentNode.Idx > idx {
 			found = true
 			break
@@ -308,24 +308,25 @@ func initNodes(inputNodes []map[string]any) []*OutputNode {
 	return out
 }
 
-func initIndex(nodes []*OutputNode) map[string]*OutputNode {
-	index := make(map[string]*OutputNode)
+func initIndex(nodes []*OutputNode) *nodesCache {
+	index := newNodesCache()
 	for _, node := range nodes {
 		// Remove bad parents (parents that are before children)
 		for idx := len(node.Parents) - 1; idx >= 0; idx-- {
-			if index[node.Parents[idx]] != nil {
+			if index.Has(node.Parents[idx]) {
 				node.Parents = append(node.Parents[:idx], node.Parents[idx+1:]...)
 			}
 		}
-		index[node.ID] = node
+		index.Set(node.ID, node)
 	}
 	return index
 }
 
-func initChildren(index map[string]*OutputNode, nodes []*OutputNode) {
+func initChildren(index *nodesCache, nodes []*OutputNode) {
 	for _, node := range nodes {
 		for _, parentID := range node.Parents {
-			index[parentID].children = append(index[parentID].children, node.ID)
+			n := index.Get(parentID)
+			n.children = append(n.children, node.ID)
 		}
 	}
 }
@@ -348,7 +349,28 @@ func (s *stringSet) Remove(in string) {
 	delete(s.Items, in)
 }
 
-func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNode) {
+type nodesCache struct {
+	m map[string]*OutputNode
+}
+
+func newNodesCache() *nodesCache {
+	return &nodesCache{m: make(map[string]*OutputNode)}
+}
+
+func (n *nodesCache) Get(key string) *OutputNode {
+	return n.m[key]
+}
+
+func (n *nodesCache) Set(key string, node *OutputNode) {
+	n.m[key] = node
+}
+
+func (n *nodesCache) Has(key string) bool {
+	_, ok := n.m[key]
+	return ok
+}
+
+func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
 	incrCol := func() int {
@@ -371,7 +393,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		// Each child that are merging
 		processedNodes := make(map[string]map[string]bool)
 		for _, childID := range node.children {
-			child := index[childID]
+			child := index.Get(childID)
 			secondToLastPoint := child.getPathPoint(node.ID, -2)
 			if node.Column < secondToLastPoint.X {
 				secondPoint := child.getPathPoint(node.ID, 1)
@@ -393,10 +415,10 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
-					followingNode := index[followingNodeID]
+					followingNode := index.Get(followingNodeID)
 					// Following nodes that have a child before the current node
 					for _, followingNodeChildID := range followingNode.children {
-						followingNodeChild := index[followingNodeChildID]
+						followingNodeChild := index.Get(followingNodeChildID)
 						// Following node child has a path that is higher than the current path being merged
 						if followingNodeChild.Idx < node.Idx &&
 							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X {
@@ -415,7 +437,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 							// Calculate nb of merging nodes
 							nbNodesMergingBack := 0
 							for _, childID := range node.children {
-								child := index[childID]
+								child := index.Get(childID)
 								childIsSubBranch := child.isPathSubBranch(node.ID)
 								childHasOlderParent := child.hasOlderParent(index, node.Idx)
 								secondToLastPoint := child.getPathPoint(node.ID, -2)
@@ -449,12 +471,12 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		}
 
 		for parentIdx, parentID := range node.Parents {
-			parent := index[parentID]
+			parent := index.Get(parentID)
 
 			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, PIPE})
 
 			if !parent.columnDefined() {
-				firstParent := index[node.Parents[0]]
+				firstParent := index.Get(node.Parents[0])
 				column := node.Column
 				color := node.Color
 				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx > node.Idx+1) {
@@ -468,7 +490,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				node.setPathColor(parent.ID, parent.Color)
 			} else if node.Column < parent.Column && parentIdx == 0 {
 				for _, childID := range parent.children {
-					child := index[childID]
+					child := index.Get(childID)
 					if idxRemove := child.pathLength(parent.ID) - 1; idxRemove > 0 {
 						if !child.getPathPoint(parent.ID, idxRemove).Type.IsFork() {
 							child.remove(parent.ID, idxRemove)
