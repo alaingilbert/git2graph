@@ -231,7 +231,7 @@ func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 }
 
 // GetPathHeightAtIdx Get the path X at Idx
-func (node *OutputNode) GetPathHeightAtIdx(index map[string]*OutputNode, parentID string, lookupIdx int) (height int) {
+func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
 	firstPoint := node.getPathPoint(parentID, 0)
 	lastPoint := node.getPathPoint(parentID, -1)
@@ -395,7 +395,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 							followingNodeChild := index[followingNodeChildID]
 							if followingNodeChild.Idx < node.Idx {
 								// Following node child has a path that is higher than the current path being merged
-								if followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) > secondToLastPoint.X {
+								if followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X {
 
 									// Index to delete is the one before last
 									idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
@@ -414,7 +414,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									for _, childID := range node.children {
 										child := index[childID]
 										if node.Column < child.getPathPoint(node.ID, -2).X &&
-											child.getPathPoint(node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(index, followingNode.ID, node.Idx) &&
+											child.getPathPoint(node.ID, -2).X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
 											!child.isPathSubBranch(node.ID) &&
 											!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type.IsMergeTo()) {
 											nbNodesMergingBack++

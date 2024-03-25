@@ -2088,7 +2088,6 @@ func Test34(t *testing.T) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	index := make(map[string]*OutputNode)
 	out := OutputNode{parentsPaths: map[string]Path{"1": {Path: []Point{
 		{X: 0, Y: 2, Type: 0},
 		{X: 3, Y: 2, Type: 2},
@@ -2097,25 +2096,25 @@ func TestPathHeight1(t *testing.T) {
 		{X: 2, Y: 11, Type: 1},
 		{X: 1, Y: 11, Type: 0},
 	}}}}
-	if out.GetPathHeightAtIdx(index, "1", 1) != -1 {
+	if out.GetPathHeightAtIdx("1", 1) != -1 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 2) != 3 {
+	if out.GetPathHeightAtIdx("1", 2) != 3 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 3) != 3 {
+	if out.GetPathHeightAtIdx("1", 3) != 3 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 9) != 2 {
+	if out.GetPathHeightAtIdx("1", 9) != 2 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 10) != 2 {
+	if out.GetPathHeightAtIdx("1", 10) != 2 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 11) != 1 {
+	if out.GetPathHeightAtIdx("1", 11) != 1 {
 		t.Fail()
 	}
-	if out.GetPathHeightAtIdx(index, "1", 1000) != -1 {
+	if out.GetPathHeightAtIdx("1", 1000) != -1 {
 		t.Fail()
 	}
 }
