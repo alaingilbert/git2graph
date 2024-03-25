@@ -435,6 +435,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 							}
 
 							// Calculate nb of merging nodes
+							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							nbNodesMergingBack := 0
 							for _, childID := range node.children {
 								child := index.Get(childID)
@@ -443,7 +444,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 								secondToLastPoint := child.getPathPoint(node.ID, -2)
 								secondPoint := child.getPathPoint(node.ID, 1)
 								if node.Column < secondToLastPoint.X &&
-									secondToLastPoint.X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
+									secondToLastPoint.X < targetColumn &&
 									!childIsSubBranch &&
 									!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
 									nbNodesMergingBack++
