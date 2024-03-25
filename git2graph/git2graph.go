@@ -249,6 +249,23 @@ func (node *OutputNode) pathLength(parentID string) int {
 	return len(node.parentsPaths[parentID].Path)
 }
 
+func (node *OutputNode) nbNodesMergingBack(index *nodesCache, targetColumn int) (nbNodesMergingBack int) {
+	for _, childID := range node.children {
+		child := index.Get(childID)
+		childIsSubBranch := child.isPathSubBranch(node.ID)
+		childHasOlderParent := child.hasOlderParent(index, node.Idx)
+		secondToLastPoint := child.getPathPoint(node.ID, -2)
+		secondPoint := child.getPathPoint(node.ID, 1)
+		if node.Column < secondToLastPoint.X &&
+			secondToLastPoint.X < targetColumn &&
+			!childIsSubBranch &&
+			!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
+			nbNodesMergingBack++
+		}
+	}
+	return
+}
+
 // SerializeOutput Json encode object
 func SerializeOutput(out []map[string]any) {
 	if !NoOutput {
@@ -435,20 +452,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 
 							// Calculate nb of merging nodes
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
-							nbNodesMergingBack := 0
-							for _, childID := range node.children {
-								child := index.Get(childID)
-								childIsSubBranch := child.isPathSubBranch(node.ID)
-								childHasOlderParent := child.hasOlderParent(index, node.Idx)
-								secondToLastPoint := child.getPathPoint(node.ID, -2)
-								secondPoint := child.getPathPoint(node.ID, 1)
-								if node.Column < secondToLastPoint.X &&
-									secondToLastPoint.X < targetColumn &&
-									!childIsSubBranch &&
-									!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
-									nbNodesMergingBack++
-								}
-							}
+							nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
 
 							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
 							followingNodeChild.remove(followingNode.ID, idxRemove)
