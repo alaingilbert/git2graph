@@ -133,7 +133,7 @@ func (node *OutputNode) noDupAppend(parentID string, point Point) {
 // insert a point to a parent path if it is not a duplicate
 func (node *OutputNode) noDupInsert(parentID string, idx int, point Point) {
 	parentPath := node.parentsPaths[parentID]
-	if parentPath.Path[idx-1] == point || parentPath.Path[idx] == point {
+	if parentPath.Path[idx-1] == point {
 		return
 	}
 	node.insert(parentID, idx, point)
