@@ -123,8 +123,8 @@ func (node *OutputNode) addDebug(msg string) {
 
 // append a point to a parent path if it is not a duplicate
 func (node *OutputNode) noDupAppend(parentID string, point Point) {
-	tmp := node.parentsPaths[parentID]
-	if len(tmp.Path) > 0 && tmp.Path[len(tmp.Path)-1] == point {
+	parentPath := node.parentsPaths[parentID]
+	if len(parentPath.Path) > 0 && parentPath.Path[len(parentPath.Path)-1] == point {
 		return
 	}
 	node.append(parentID, point)
@@ -132,31 +132,31 @@ func (node *OutputNode) noDupAppend(parentID string, point Point) {
 
 // insert a point to a parent path if it is not a duplicate
 func (node *OutputNode) noDupInsert(parentID string, idx int, point Point) {
-	tmp := node.parentsPaths[parentID]
-	if tmp.Path[idx-1] == point || tmp.Path[idx] == point {
+	parentPath := node.parentsPaths[parentID]
+	if parentPath.Path[idx-1] == point || parentPath.Path[idx] == point {
 		return
 	}
 	node.insert(parentID, idx, point)
 }
 
 func (node *OutputNode) append(parentID string, point Point) {
-	tmp := node.parentsPaths[parentID]
-	tmp.Path = append(tmp.Path, point)
-	node.parentsPaths[parentID] = tmp
+	parentPath := node.parentsPaths[parentID]
+	parentPath.Path = append(parentPath.Path, point)
+	node.parentsPaths[parentID] = parentPath
 }
 
 func (node *OutputNode) remove(parentID string, idx int) {
-	tmp := node.parentsPaths[parentID]
-	tmp.Path = append(tmp.Path[:idx], tmp.Path[idx+1:]...)
-	node.parentsPaths[parentID] = tmp
+	parentPath := node.parentsPaths[parentID]
+	parentPath.Path = append(parentPath.Path[:idx], parentPath.Path[idx+1:]...)
+	node.parentsPaths[parentID] = parentPath
 }
 
 func (node *OutputNode) insert(parentID string, idx int, point Point) {
-	tmp := node.parentsPaths[parentID]
-	tmp.Path = append(tmp.Path, Point{})
-	copy(tmp.Path[idx+1:], tmp.Path[idx:])
-	tmp.Path[idx] = point
-	node.parentsPaths[parentID] = tmp
+	parentPath := node.parentsPaths[parentID]
+	parentPath.Path = append(parentPath.Path, Point{})
+	copy(parentPath.Path[idx+1:], parentPath.Path[idx:])
+	parentPath.Path[idx] = point
+	node.parentsPaths[parentID] = parentPath
 }
 
 func (node *OutputNode) columnDefined() bool {
@@ -198,9 +198,9 @@ func (node *OutputNode) hasOlderParent(index map[string]*OutputNode, idx int) bo
 }
 
 func (node *OutputNode) setPathColor(parentID, color string) {
-	tmp := node.parentsPaths[parentID]
-	tmp.Color = color
-	node.parentsPaths[parentID] = tmp
+	parentPath := node.parentsPaths[parentID]
+	parentPath.Color = color
+	node.parentsPaths[parentID] = parentPath
 }
 
 func (node *OutputNode) getPathColor(parentID string) string {
@@ -430,12 +430,12 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									if processedNodes[followingNode.ID][followingNodeChild.ID] {
 										continue
 									}
-									tmp := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
+									pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
 									followingNodeChild.remove(followingNode.ID, idxRemove)
-									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, node.Idx, PIPE})
+									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
+									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
 									if followingNode.Column <= secondToLastPoint.X {
-										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
+										followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
 									} else if processedNodes[followingNode.ID] == nil {
 										followingNode.Column -= nbNodesMergingBack
 									}
