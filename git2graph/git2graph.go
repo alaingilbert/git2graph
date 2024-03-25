@@ -416,12 +416,14 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									nbNodesMergingBack := 0
 									for _, childID := range node.children {
 										child := index[childID]
+										childIsSubBranch := child.isPathSubBranch(node.ID)
+										childHasOlderParent := child.hasOlderParent(index, node.Idx)
 										secondToLastPoint := child.getPathPoint(node.ID, -2)
 										secondPoint := child.getPathPoint(node.ID, 1)
 										if node.Column < secondToLastPoint.X &&
 											secondToLastPoint.X < followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) &&
-											!child.isPathSubBranch(node.ID) &&
-											!(child.hasOlderParent(index, node.Idx) && secondPoint.Type.IsMergeTo()) {
+											!childIsSubBranch &&
+											!(childHasOlderParent && secondPoint.Type.IsMergeTo()) {
 											nbNodesMergingBack++
 										}
 									}
