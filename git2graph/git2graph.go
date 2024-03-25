@@ -444,17 +444,17 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 									tmp := followingNodeChild.getPathPoint(index, followingNode.ID, idxRemove-1).X
 									followingNodeChild.remove(followingNode.ID, idxRemove)
 									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp, node.Idx, MERGE_BACK})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), node.Idx, PIPE})
+									followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, node.Idx, PIPE})
 									if followingNode.Column > child.getPathPoint(index, node.ID, -2).X {
 										if processedNodes[followingNode.ID] == nil {
-											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column - (nbNodesMergingBack - 1) - 1, followingNode.Idx, PIPE})
+											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column - nbNodesMergingBack, followingNode.Idx, PIPE})
 											followingNode.Column -= nbNodesMergingBack
 										} else {
 											followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 										}
 										followingNode.addDebug(fmt.Sprintf("Column minus %s, %s, %d, %d", followingNode.ID, child.ID, followingNode.Column, nbNodesMergingBack))
 									} else {
-										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - 1 - (nbNodesMergingBack - 1), followingNode.Idx, MERGE_BACK})
+										followingNodeChild.noDupAppend(followingNode.ID, Point{tmp - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
 										followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
 									}
 									if processedNodes[followingNode.ID] == nil {
