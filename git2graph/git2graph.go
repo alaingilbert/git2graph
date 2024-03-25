@@ -368,7 +368,6 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 				if !child.isPathSubBranch(node.ID) &&
 					!(child.hasOlderParent(index, node.Idx) && child.getPathPoint(node.ID, 1).Type == MERGE_TO) {
 					nextColumn--
-					releaseColor(colors, child.getPathColor(node.ID), node.Idx)
 				}
 
 				if !child.firstInRow && !child.isPathSubBranch(node.ID) && !child.hasOlderParent(index, node.Idx) {
