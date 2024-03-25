@@ -365,7 +365,7 @@ func setColumns(index map[string]*OutputNode, colors []Color, nodes []*OutputNod
 		}
 		followingNodesWithChildrenBeforeIdx.Remove(node.ID)
 
-		// Each children that are merging
+		// Each child that are merging
 		processedNodes := make(map[string]map[string]bool)
 		for _, childID := range node.children {
 			child := index[childID]
