@@ -129,9 +129,14 @@ type Path struct {
 	ColorIdx int
 }
 
+// Return the current length of the path
+func (p Path) len() int {
+	return len(p.Points)
+}
+
 // Return either or not a path is valid (has at least 2 points)
 func (p Path) isValid() bool {
-	return len(p.Points) >= 2
+	return p.len() >= 2
 }
 
 // Return either or not the path is of type "Fork"
@@ -188,7 +193,8 @@ func (n *internalNode) pathTo(parentID string) *Path {
 // append a point to a parent path if it is not a duplicate
 func (n *internalNode) noDupAppend(parentID string, point Point) {
 	parentPath := n.pathTo(parentID)
-	if len(parentPath.Points) > 0 && parentPath.Points[len(parentPath.Points)-1] == point {
+	parentPathLen := parentPath.len()
+	if parentPathLen > 0 && parentPath.Points[parentPathLen-1] == point {
 		return
 	}
 	n.append(parentID, point)
@@ -196,9 +202,9 @@ func (n *internalNode) noDupAppend(parentID string, point Point) {
 
 // insert a point to a parent path if it is not a duplicate
 func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
-	parentPath := n.parentsPaths[parentID]
+	parentPath := n.pathTo(parentID)
 	if idx < 0 {
-		idx = len(parentPath.Points) + idx
+		idx = parentPath.len() + idx
 	}
 	if parentPath.Points[idx-1] == point {
 		return
@@ -212,17 +218,15 @@ func (n *internalNode) append(parentID string, point Point) {
 }
 
 func (n *internalNode) remove(parentID string, idx int) {
-	parentPath := n.parentsPaths[parentID]
+	parentPath := n.pathTo(parentID)
 	parentPath.Points = append(parentPath.Points[:idx], parentPath.Points[idx+1:]...)
-	n.parentsPaths[parentID] = parentPath
 }
 
 func (n *internalNode) insert(parentID string, idx int, point Point) {
-	parentPath := n.parentsPaths[parentID]
+	parentPath := n.pathTo(parentID)
 	parentPath.Points = append(parentPath.Points, Point{})
 	copy(parentPath.Points[idx+1:], parentPath.Points[idx:])
 	parentPath.Points[idx] = point
-	n.parentsPaths[parentID] = parentPath
 }
 
 func (n *internalNode) columnDefined() bool {
@@ -261,24 +265,22 @@ func (n *internalNode) hasOlderParent(index *nodesCache, idx int) bool {
 }
 
 func (n *internalNode) setPathColor(parentID string, color int) {
-	parentPath := n.parentsPaths[parentID]
-	parentPath.ColorIdx = color
-	n.parentsPaths[parentID] = parentPath
+	n.pathTo(parentID).ColorIdx = color
 }
 
 func (n *internalNode) getPathColor(parentID string) int {
-	return n.parentsPaths[parentID].ColorIdx
+	return n.pathTo(parentID).ColorIdx
 }
 
 // Return either or not the path to a parent is of type "MergeTo"
 func (n *internalNode) isMergeTo(parentID string) bool {
-	return n.parentsPaths[parentID].isMergeTo()
+	return n.pathTo(parentID).isMergeTo()
 }
 
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
 func (n *internalNode) isPathSubBranch(parentID string) bool {
-	return n.parentsPaths[parentID].isFork() && !n.isFirstOfBranch()
+	return n.pathTo(parentID).isFork() && !n.isFirstOfBranch()
 }
 
 const (
@@ -301,7 +303,7 @@ const (
 // -1 return the last point
 // -2 return the second to last point
 func (n *internalNode) getPathPoint(parentID string, idx int) (out Point) {
-	path := n.parentsPaths[parentID].Points
+	path := n.pathTo(parentID).Points
 	pathLen := len(path)
 	if idx < 0 {
 		rotatedIdx := pathLen + idx
@@ -328,7 +330,7 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
-	for _, point := range n.parentsPaths[parentID].Points {
+	for _, point := range n.pathTo(parentID).Points {
 		if point.Y <= lookupIdx {
 			height = point.X
 		}
