@@ -385,6 +385,29 @@ func (n *nodesCache) Has(key string) bool {
 	return ok
 }
 
+type processedNodes struct {
+	m map[string]map[string]bool
+}
+
+func newProcessedNodes() *processedNodes {
+	return &processedNodes{m: make(map[string]map[string]bool)}
+}
+
+func (p *processedNodes) HasNode(nodeID string) bool {
+	return p.m[nodeID] != nil
+}
+
+func (p *processedNodes) HasChild(nodeID, childID string) bool {
+	return p.m[nodeID][childID]
+}
+
+func (p *processedNodes) Set(nodeID, childID string) {
+	if p.m[nodeID] == nil {
+		p.m[nodeID] = make(map[string]bool)
+	}
+	p.m[nodeID][childID] = true
+}
+
 func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
@@ -406,7 +429,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 		followingNodesWithChildrenBeforeIdx.Remove(node.ID)
 
 		// Each child that are merging
-		processedNodes := make(map[string]map[string]bool)
+		processedNodesInst := newProcessedNodes()
 		for _, childID := range node.children {
 			child := index.Get(childID)
 			secondToLastPoint := child.getPathPoint(node.ID, -2)
@@ -438,7 +461,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 						// Following node child has a path that is higher than the current path being merged
 						if followingNodeChild.Idx < node.Idx &&
 							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X &&
-							idxRemove >= 0 && !processedNodes[followingNode.ID][followingNodeChild.ID] {
+							idxRemove >= 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							// Remove second before last node has same Y, remove the before last node
 							for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
@@ -456,14 +479,11 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
 							if followingNode.Column <= secondToLastPoint.X {
 								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
-							} else if processedNodes[followingNode.ID] == nil {
+							} else if !processedNodesInst.HasNode(followingNode.ID) {
 								followingNode.Column -= nbNodesMergingBack
 							}
 							followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
-							if processedNodes[followingNode.ID] == nil {
-								processedNodes[followingNode.ID] = make(map[string]bool)
-							}
-							processedNodes[followingNode.ID][followingNodeChild.ID] = true
+							processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 						}
 					}
 				}
