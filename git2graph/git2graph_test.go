@@ -21,19 +21,19 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
-			expectedPath := expectedPaths[nodeIdx][parentID].Path
+			expectedPath := expectedPaths[nodeIdx][parentID].Points
 			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
-			if len(parentPath.Path) != len(expectedPath) {
+			if len(parentPath.Points) != len(expectedPath) {
 				t.Fail()
-				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPath), len(parentPath.Path))
+				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPath), len(parentPath.Points))
 				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath)
 				return
 			}
-			for pathIdx, pathNode := range parentPath.Path {
+			for pathIdx, pathNode := range parentPath.Points {
 				if pathNode != expectedPath[pathIdx] {
 					t.Fail()
 					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPath[pathIdx], pathNode)
-					t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath.Path)
+					t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath.Points)
 				}
 			}
 		}
@@ -2074,7 +2074,7 @@ func Test34(t *testing.T) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	out := internalNode{parentsPaths: map[string]*Path{"1": {Path: []Point{
+	out := internalNode{parentsPaths: map[string]*Path{"1": {Points: []Point{
 		{X: 0, Y: 2, Type: 0},
 		{X: 3, Y: 2, Type: 2},
 		{X: 3, Y: 9, Type: 1},

@@ -125,23 +125,23 @@ type Node map[string]any
 
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
-	Path     []Point
+	Points   []Point
 	ColorIdx int
 }
 
 // Return either or not a path is valid (has at least 2 points)
 func (p Path) isValid() bool {
-	return len(p.Path) >= 2
+	return len(p.Points) >= 2
 }
 
 // Return either or not the path is of type "Fork"
 func (p Path) isFork() bool {
-	return p.isValid() && p.Path[SecondPt].Type.IsFork()
+	return p.isValid() && p.Points[SecondPt].Type.IsFork()
 }
 
 // Return either or not the path is of type "MergeTo"
 func (p Path) isMergeTo() bool {
-	return p.isValid() && p.Path[SecondPt].Type.IsMergeTo()
+	return p.isValid() && p.Points[SecondPt].Type.IsMergeTo()
 }
 
 // Point is one part of a path
@@ -188,7 +188,7 @@ func (n *internalNode) pathTo(parentID string) *Path {
 // append a point to a parent path if it is not a duplicate
 func (n *internalNode) noDupAppend(parentID string, point Point) {
 	parentPath := n.pathTo(parentID)
-	if len(parentPath.Path) > 0 && parentPath.Path[len(parentPath.Path)-1] == point {
+	if len(parentPath.Points) > 0 && parentPath.Points[len(parentPath.Points)-1] == point {
 		return
 	}
 	n.append(parentID, point)
@@ -198,9 +198,9 @@ func (n *internalNode) noDupAppend(parentID string, point Point) {
 func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
 	parentPath := n.parentsPaths[parentID]
 	if idx < 0 {
-		idx = len(parentPath.Path) + idx
+		idx = len(parentPath.Points) + idx
 	}
-	if parentPath.Path[idx-1] == point {
+	if parentPath.Points[idx-1] == point {
 		return
 	}
 	n.insert(parentID, idx, point)
@@ -208,20 +208,20 @@ func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
 
 func (n *internalNode) append(parentID string, point Point) {
 	parentPath := n.pathTo(parentID)
-	parentPath.Path = append(parentPath.Path, point)
+	parentPath.Points = append(parentPath.Points, point)
 }
 
 func (n *internalNode) remove(parentID string, idx int) {
 	parentPath := n.parentsPaths[parentID]
-	parentPath.Path = append(parentPath.Path[:idx], parentPath.Path[idx+1:]...)
+	parentPath.Points = append(parentPath.Points[:idx], parentPath.Points[idx+1:]...)
 	n.parentsPaths[parentID] = parentPath
 }
 
 func (n *internalNode) insert(parentID string, idx int, point Point) {
 	parentPath := n.parentsPaths[parentID]
-	parentPath.Path = append(parentPath.Path, Point{})
-	copy(parentPath.Path[idx+1:], parentPath.Path[idx:])
-	parentPath.Path[idx] = point
+	parentPath.Points = append(parentPath.Points, Point{})
+	copy(parentPath.Points[idx+1:], parentPath.Points[idx:])
+	parentPath.Points[idx] = point
 	n.parentsPaths[parentID] = parentPath
 }
 
@@ -301,7 +301,7 @@ const (
 // -1 return the last point
 // -2 return the second to last point
 func (n *internalNode) getPathPoint(parentID string, idx int) (out Point) {
-	path := n.parentsPaths[parentID].Path
+	path := n.parentsPaths[parentID].Points
 	pathLen := len(path)
 	if idx < 0 {
 		rotatedIdx := pathLen + idx
@@ -328,7 +328,7 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
-	for _, point := range n.parentsPaths[parentID].Path {
+	for _, point := range n.parentsPaths[parentID].Points {
 		if point.Y <= lookupIdx {
 			height = point.X
 		}
@@ -338,7 +338,7 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 
 func (n *internalNode) pathLength(parentID string) int {
 	parentPath := n.pathTo(parentID)
-	return len(parentPath.Path)
+	return len(parentPath.Points)
 }
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
@@ -661,8 +661,8 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 		finalParentsPaths := make([]any, len(node.parentsPaths))
 		i := 0
 		for _, n := range node.parentsPaths {
-			path := make([][]any, len(n.Path))
-			for pointIdx, point := range n.Path {
+			path := make([][]any, len(n.Points))
+			for pointIdx, point := range n.Points {
 				path[pointIdx] = []any{point.X, point.Y, point.Type}
 			}
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.ColorIdx), path}
