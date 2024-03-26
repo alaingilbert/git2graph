@@ -307,12 +307,13 @@ const (
 // GetPathHeightAtIdx Get the path X at Idx
 func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
-	firstPoint := n.pathTo(parentID).first()
-	lastPoint := n.pathTo(parentID).last()
+	parentPath := n.pathTo(parentID)
+	firstPoint := parentPath.first()
+	lastPoint := parentPath.last()
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
-	for _, point := range n.pathTo(parentID).Points {
+	for _, point := range parentPath.Points {
 		if point.Y <= lookupIdx {
 			height = point.X
 		}
