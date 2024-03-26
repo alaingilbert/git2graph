@@ -140,15 +140,15 @@ type Point struct {
 // children are the nodes above the current node
 // A node only ever have at most 2 parents.
 type internalNode struct {
-	ID            string
-	Parents       []string
-	Column        int
-	Idx           int
-	Color         string
 	InitialNode   Node
-	parentsPaths  map[string]Path
-	children      []string
+	ID            string
+	Idx           int
+	Column        int
+	Color         string
 	firstOfBranch bool
+	Parents       []string
+	children      []string
+	parentsPaths  map[string]Path
 }
 
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
