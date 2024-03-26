@@ -304,11 +304,6 @@ const (
 	parentsPathsTestKey = "parentsPaths"
 )
 
-// Return either or not the path to the parent is a MergeTo
-func (n *internalNode) pathIsMergeTo(parentID string) bool {
-	return n.pathTo(parentID).second().Type.IsMergeTo()
-}
-
 // GetPathHeightAtIdx Get the path X at Idx
 func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
@@ -334,7 +329,7 @@ func (n *internalNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesM
 		secondToLastPoint := child.pathTo(nodeID).secondToLast()
 		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
-			!child.pathIsMergeTo(nodeID) {
+			!child.pathTo(nodeID).isMergeTo() {
 			nbNodesMergingBack++
 		}
 	}
