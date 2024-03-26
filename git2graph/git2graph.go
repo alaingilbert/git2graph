@@ -49,12 +49,14 @@ type IColorGenerator interface {
 	GetColor(idx int) string
 }
 
-func NewSimpleColorGen(colors []string) *SimpleColorGen {
-	return &SimpleColorGen{colors: colors}
-}
-
+// SimpleColorGen is a color generator that take a static colors array, or return black when running out of colors
 type SimpleColorGen struct {
 	colors []string
+}
+
+// NewSimpleColorGen creates a new SimpleColorGen
+func NewSimpleColorGen(colors []string) *SimpleColorGen {
+	return &SimpleColorGen{colors: colors}
 }
 
 func (c *SimpleColorGen) GetColor(idx int) string {
