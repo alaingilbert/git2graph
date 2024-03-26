@@ -73,7 +73,7 @@ func newColorsManager(colorGen IColorGenerator) *colorsManager {
 	return &colorsManager{g: colorGen, m: make(map[int]*Color)}
 }
 
-func getColor(colorsManager *colorsManager, nodeIdx int) string {
+func getColor(colorsManager *colorsManager, nodeIdx int) int {
 	var color *Color
 	i := 0
 	for {
@@ -90,13 +90,13 @@ func getColor(colorsManager *colorsManager, nodeIdx int) string {
 		i++
 	}
 	color.inUse = true
-	return color.color
+	return i
 }
 
-func releaseColor(colorsMan *colorsManager, colorStr string, idx int) {
-	for colorIdx, colorObj := range colorsMan.m {
-		if colorObj.color == colorStr {
-			color := colorsMan.m[colorIdx]
+func releaseColor(colorsMan *colorsManager, colorIdx int, idx int) {
+	for i := range colorsMan.m {
+		if i == colorIdx {
+			color := colorsMan.m[i]
 			color.releaseIdx = idx + 2
 			color.inUse = false
 			break
@@ -124,9 +124,9 @@ type Node map[string]any
 
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
-	ID    string  `json:"id"`
-	Path  []Point `json:"path"`
-	Color string  `json:"color"`
+	ID       string
+	Path     []Point
+	ColorIdx int
 }
 
 // Point is one part of a path
@@ -144,7 +144,7 @@ type internalNode struct {
 	ID            string
 	Idx           int
 	Column        int
-	Color         string
+	ColorIdx      int
 	firstOfBranch bool
 	Parents       []string
 	children      []string
@@ -237,14 +237,14 @@ func (n *internalNode) hasOlderParent(index *nodesCache, idx int) bool {
 	return false
 }
 
-func (n *internalNode) setPathColor(parentID, color string) {
+func (n *internalNode) setPathColor(parentID string, color int) {
 	parentPath := n.parentsPaths[parentID]
-	parentPath.Color = color
+	parentPath.ColorIdx = color
 	n.parentsPaths[parentID] = parentPath
 }
 
-func (n *internalNode) getPathColor(parentID string) string {
-	return n.parentsPaths[parentID].Color
+func (n *internalNode) getPathColor(parentID string) int {
+	return n.parentsPaths[parentID].ColorIdx
 }
 
 // A subbranch, is when the child node is in the middle of another branch
@@ -262,11 +262,7 @@ const (
 
 const (
 	idKey               = "id"
-	idxKey              = "idx"
 	parentsKey          = "parents"
-	columnKey           = "column"
-	colorKey            = "color"
-	parentsPathsKey     = "parents_paths"
 	parentsPathsTestKey = "parentsPaths"
 )
 
@@ -482,7 +478,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = incrCol()
-			node.Color = getColor(colorsMan, node.Idx)
+			node.ColorIdx = getColor(colorsMan, node.Idx)
 		}
 
 		// Cache the following node with child before the current node
@@ -505,7 +501,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 
 				childHasOlderParent := child.hasOlderParent(index, node.Idx)
 				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
-					child.setPathColor(node.ID, child.Color)
+					child.setPathColor(node.ID, child.ColorIdx)
 				}
 				releaseColor(colorsMan, child.getPathColor(node.ID), node.Idx)
 
@@ -558,7 +554,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			if !parent.columnDefined() {
 				firstParent := index.Get(node.Parents[0])
 				column := node.Column
-				color := node.Color
+				color := node.ColorIdx
 				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx > node.Idx+1) {
 					column = incrCol()
 					color = getColor(colorsMan, node.Idx)
@@ -566,8 +562,8 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					node.setFirstOfBranch()
 				}
 				parent.Column = column
-				parent.Color = color
-				node.setPathColor(parent.ID, parent.Color)
+				parent.ColorIdx = color
+				node.setPathColor(parent.ID, parent.ColorIdx)
 			} else if node.Column < parent.Column && parentIdx == 0 {
 				for _, childID := range parent.children {
 					child := index.Get(childID)
@@ -578,18 +574,18 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					}
 				}
 				parent.Column = node.Column
-				parent.Color = node.Color
-				node.setPathColor(parent.ID, node.Color)
+				parent.ColorIdx = node.ColorIdx
+				node.setPathColor(parent.ID, node.ColorIdx)
 			} else if node.Column < parent.Column {
 				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
-				node.setPathColor(parent.ID, parent.Color)
+				node.setPathColor(parent.ID, parent.ColorIdx)
 			} else if node.Column > parent.Column {
 				if node.hasBiggerParentDefined(index) || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch(index))) {
 					node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MergeBack})
-					node.setPathColor(parent.ID, node.Color)
+					node.setPathColor(parent.ID, node.ColorIdx)
 				} else {
 					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MergeTo})
-					node.setPathColor(parent.ID, parent.Color)
+					node.setPathColor(parent.ID, parent.ColorIdx)
 				}
 			}
 			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, Pipe})
@@ -626,24 +622,25 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 	initChildren(index, nodes)
 	setColumns(index, colorsMan, nodes)
 
-	finalStruct := make([]Node, 0)
-	for _, node := range nodes {
+	finalStruct := make([]Node, len(nodes))
+	for nodeIdx, node := range nodes {
 		finalNode := map[string]any{}
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
-		finalParentsPaths := make([]Path, 0)
-		for parentID, path := range node.parentsPaths {
-			finalParentsPaths = append(finalParentsPaths, Path{parentID, path.Path, path.Color})
+		finalParentsPaths := make([]any, len(node.parentsPaths))
+		i := 0
+		for _, n := range node.parentsPaths {
+			path := make([][]any, len(n.Path))
+			for pointIdx, point := range n.Path {
+				path[pointIdx] = []any{point.X, point.Y, point.Type}
+			}
+			finalParentsPaths[i] = []any{colorGen.GetColor(n.ColorIdx), path}
+			i++
 		}
 		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests
-		finalNode[idKey] = node.ID
-		finalNode[parentsKey] = node.Parents
-		finalNode[columnKey] = node.Column
-		finalNode[parentsPathsKey] = finalParentsPaths
-		finalNode[idxKey] = node.Idx
-		finalNode[colorKey] = node.Color
-		finalStruct = append(finalStruct, finalNode)
+		finalNode["g"] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
+		finalStruct[nodeIdx] = finalNode
 	}
 
 	return finalStruct, nil

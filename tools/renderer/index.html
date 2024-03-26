@@ -70,7 +70,7 @@
         var shaMargin = 60;
 
         var svg = d3.select($('#tree')[0]);
-        svg.style('height', (_.max(tree, 'idx').idx+1)* yGap + 2 * radius + 'px');
+        svg.style('height', tree.length * yGap + 2 * radius + 'px');
         svg.selectAll('*').remove();
         var sg = svg.append('g').attr('transform', 'translate(0, ' + radius + ')' )
 
@@ -85,14 +85,17 @@
           .append('g');
 
         commitGroup.selectAll('lines')
-          .data(function(d) { return d.parents_paths; })
+          .data(function(d) { return d.g[3]; })
           .enter()
           .append('path')
           .attr('d', function(path) {
             var d = [];
-            _.each(path.path, function(node) {
-              var point = {x: 5 + node.x * xGap + shaMargin, y: 5 + node.y * yGap};
-              switch (node.type) {
+            _.each(path[1], function(node) {
+              var x = node[0];
+              var y = node[1];
+              var typ = node[2];
+              var point = {x: 5 + x * xGap + shaMargin, y: 5 + y * yGap};
+              switch (typ) {
                 case 1:
                   point.y -= gap;
                   break;
@@ -107,24 +110,17 @@
           })
           .attr('stroke-width', 2)
           .attr('fill', 'none')
-          .attr('stroke', function(path) {
-            return path.color || '#5aa1be';
-          });
+          .attr('stroke', function(path) { return path[0] || '#5aa1be'; });
 
         sg.selectAll('commit')
           .data(tree)
           .enter()
           .append('circle')
             .attr('r', radius)
-            .attr('fill', function(commit) {
-              return commit.color || '#5aa1be';
-            })
             .attr('stroke', 'black')
-            .attr('cx', function(commit) { return 5 + commit.column * xGap + shaMargin; })
-            .attr('cy', function(commit, idx) { return 5 + commit.idx * yGap; })
-            .on('mouseover', function(commit) {
-              console.log(commit.debug);
-            });
+            .attr('fill', function(commit)      { return commit.g[2] || '#5aa1be'; })
+            .attr('cx',   function(commit)      { return commit.g[1] * xGap + shaMargin + 5; })
+            .attr('cy',   function(commit, idx) { return commit.g[0] * yGap + 5; });
 
         sg.selectAll('sha')
           .data(tree)
@@ -132,7 +128,7 @@
           .append('text')
           .attr('font-size', 12)
           .attr('x', function(commit) { return 0; })
-          .attr('y', function(commit, idx) { return 5 + commit.idx * yGap; })
+          .attr('y', function(commit, idx) { return 5 + commit.g[0] * yGap; })
           .attr('alignment-baseline', 'middle')
           .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
           .text(function(commit) {
