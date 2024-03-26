@@ -226,6 +226,17 @@ const (
 	SecondToLastPt = -2
 )
 
+const (
+	idKey               = "id"
+	idxKey              = "idx"
+	parentsKey          = "parents"
+	columnKey           = "column"
+	colorKey            = "color"
+	parentsPathsKey     = "parents_paths"
+	parentsPathsTestKey = "parentsPaths"
+	debugKey            = "debug"
+)
+
 // Return the point at idx in the path to parentID
 // 0 return the first point
 // 1 return the second point
@@ -300,14 +311,14 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
 	}
 	for _, node := range nodes {
 		parents := make([]string, 0)
-		nodeParents, ok := node["parents"]
+		nodeParents, ok := node[parentsKey]
 		if !ok {
 			log.Fatal("malformed json input, node missing parents property")
 		}
 		for _, parent := range nodeParents.([]any) {
 			parents = append(parents, parent.(string))
 		}
-		node["parents"] = parents
+		node[parentsKey] = parents
 	}
 	return
 }
@@ -315,11 +326,11 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
 func initNodes(inputNodes []Node) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
-		id, ok := node["id"].(string)
+		id, ok := node[idKey].(string)
 		if !ok {
 			log.Fatal("id property must be a string")
 		}
-		parents, ok := node["parents"].([]string)
+		parents, ok := node[parentsKey].([]string)
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
@@ -558,7 +569,7 @@ func Get(inputNodes []Node) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
-		delete(node, "parentsPaths")
+		delete(node, parentsPathsTestKey)
 	}
 	return nodes, err
 }
@@ -568,7 +579,7 @@ func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
-		delete(node, "parentsPaths")
+		delete(node, parentsPathsTestKey)
 	}
 	return nodes[from : from+size], err
 }
@@ -597,15 +608,15 @@ func BuildTree(inputNodes []Node, myColors []string) ([]Node, error) {
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
-		finalNode["parentsPaths"] = node.parentsPaths // Kept for tests
-		finalNode["id"] = node.ID
-		finalNode["parents"] = node.Parents
-		finalNode["column"] = node.Column
-		finalNode["parents_paths"] = node.FinalParentsPaths
-		finalNode["idx"] = node.Idx
-		finalNode["color"] = node.Color
+		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests
+		finalNode[idKey] = node.ID
+		finalNode[parentsKey] = node.Parents
+		finalNode[columnKey] = node.Column
+		finalNode[parentsPathsKey] = node.FinalParentsPaths
+		finalNode[idxKey] = node.Idx
+		finalNode[colorKey] = node.Color
 		if DebugMode {
-			finalNode["debug"] = node.Debug
+			finalNode[debugKey] = node.Debug
 		}
 		finalStruct = append(finalStruct, finalNode)
 	}
@@ -663,15 +674,16 @@ func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
 		//tree := lines[i+6]
 		//subject := lines[i+7]
 		i += 8
-		node := map[string]any{}
+		var id string
 		if seqIds {
-			id := strconv.Itoa(ids)
+			id = strconv.Itoa(ids)
 			shaMap[sha] = id
-			node["id"] = id
 		} else {
-			node["id"] = sha
+			id = sha
 		}
-		node["parents"] = parents
+		node := Node{}
+		node[idKey] = id
+		node[parentsKey] = parents
 		nodes = append(nodes, node)
 		ids++
 		if lines[i] != startOfCommit {
@@ -681,10 +693,10 @@ func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
 	if seqIds {
 		for _, node := range nodes {
 			mappedParents := make([]string, 0)
-			for _, parentSha := range node["parents"].([]string) {
+			for _, parentSha := range node[parentsKey].([]string) {
 				mappedParents = append(mappedParents, shaMap[parentSha])
 			}
-			node["parents"] = mappedParents
+			node[parentsKey] = mappedParents
 		}
 	}
 	return
