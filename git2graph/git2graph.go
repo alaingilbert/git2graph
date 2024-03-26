@@ -129,6 +129,21 @@ type Path struct {
 	ColorIdx int
 }
 
+// Return either or not a path is valid (has at least 2 points)
+func (p Path) isValid() bool {
+	return len(p.Path) >= 2
+}
+
+// Return either or not the path is of type "Fork"
+func (p Path) isFork() bool {
+	return p.isValid() && p.Path[SecondPt].Type == Fork
+}
+
+// Return either or not the path is of type "MergeTo"
+func (p Path) isMergeTo() bool {
+	return p.isValid() && p.Path[SecondPt].Type == MergeTo
+}
+
 // Point is one part of a path
 type Point struct {
 	X    int       `json:"x"`
@@ -249,17 +264,13 @@ func (n *internalNode) getPathColor(parentID string) int {
 
 // Return either or not the path to a parent is of type "MergeTo"
 func (n *internalNode) isMergeTo(parentID string) bool {
-	parentPath := n.parentsPaths[parentID].Path
-	if len(parentPath) < 2 {
-		return false
-	}
-	return parentPath[SecondPt].Type == MergeTo
+	return n.parentsPaths[parentID].isMergeTo()
 }
 
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
 func (n *internalNode) isPathSubBranch(parentID string) bool {
-	return n.parentsPaths[parentID].Path[SecondPt].Type == Fork && !n.isFirstOfBranch()
+	return n.parentsPaths[parentID].isFork() && !n.isFirstOfBranch()
 }
 
 const (
