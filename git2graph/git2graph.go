@@ -189,16 +189,15 @@ func (node *OutputNode) firstInBranch(index *nodesCache) bool {
 	return true
 }
 
+// Return either or not the node has a parent that has higher "Idx" than the one in parameter
 func (node *OutputNode) hasOlderParent(index *nodesCache, idx int) bool {
-	found := false
 	for _, parentNodeID := range node.Parents {
 		parentNode := index.Get(parentNodeID)
 		if parentNode.Idx > idx {
-			found = true
-			break
+			return true
 		}
 	}
-	return found
+	return false
 }
 
 func (node *OutputNode) setPathColor(parentID, color string) {
