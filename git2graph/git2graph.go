@@ -166,18 +166,6 @@ func (node *OutputNode) columnDefined() bool {
 	return node.Column != -1
 }
 
-func (node *OutputNode) hasBiggerParentDefined(index *nodesCache) bool {
-	found := false
-	for _, parentNodeID := range node.Parents {
-		parentNode := index.Get(parentNodeID)
-		if parentNode.Column > node.Column {
-			found = true
-			break
-		}
-	}
-	return found
-}
-
 func (node *OutputNode) firstInBranch(index *nodesCache) bool {
 	for _, parentNodeID := range node.Parents {
 		parentNode := index.Get(parentNodeID)
@@ -186,6 +174,16 @@ func (node *OutputNode) firstInBranch(index *nodesCache) bool {
 		}
 	}
 	return true
+}
+
+func (node *OutputNode) hasBiggerParentDefined(index *nodesCache) bool {
+	for _, parentNodeID := range node.Parents {
+		parentNode := index.Get(parentNodeID)
+		if parentNode.Column > node.Column {
+			return true
+		}
+	}
+	return false
 }
 
 // Return either or not the node has a parent that has higher "Idx" than the one in parameter
