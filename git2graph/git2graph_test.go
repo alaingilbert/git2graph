@@ -56,7 +56,7 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []Node) 
 	}
 }
 
-var customColors = []string{
+var customColors = NewSimpleColorGen([]string{
 	"color1",
 	"color2",
 	"color3",
@@ -67,7 +67,7 @@ var customColors = []string{
 	"color8",
 	"color9",
 	"color10",
-}
+})
 
 //func TestDebug(t *testing.T) {
 //	DebugMode = true
@@ -84,10 +84,10 @@ var customColors = []string{
 //}
 
 func TestNotEnoughColors(t *testing.T) {
-	var colors = []string{
+	var colors = NewSimpleColorGen([]string{
 		"color1",
 		"color2",
-	}
+	})
 	inputNodes := []Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"3"}},

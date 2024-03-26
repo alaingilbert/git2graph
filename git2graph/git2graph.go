@@ -45,27 +45,57 @@ var DefaultColors = []string{
 	"#adfb82",
 }
 
-func getColor(colors []Color, nodeIdx int) string {
-	colorToTakeIdx := -1
-	for idx, color := range colors {
-		if nodeIdx >= color.ReleaseIdx && !color.InUse {
-			colorToTakeIdx = idx
-			break
-		}
-	}
-	if colorToTakeIdx == -1 {
+type IColorGenerator interface {
+	GetColor(idx int) string
+}
+
+func NewSimpleColorGen(colors []string) *SimpleColorGen {
+	return &SimpleColorGen{colors: colors}
+}
+
+type SimpleColorGen struct {
+	colors []string
+}
+
+func (c *SimpleColorGen) GetColor(idx int) string {
+	if idx >= len(c.colors) {
 		log.Error("Not enough colors")
 		return "#000"
 	}
-	colors[colorToTakeIdx].InUse = true
-	return colors[colorToTakeIdx].color
+	return c.colors[idx]
 }
 
-func releaseColor(colors []Color, color string, idx int) {
-	for colorIdx, colorObj := range colors {
-		if color == colorObj.color {
-			colors[colorIdx].ReleaseIdx = idx + 2
-			colors[colorIdx].InUse = false
+type colorsManager struct {
+	g IColorGenerator
+	m map[int]*Color
+}
+
+func getColor(colorsManager colorsManager, nodeIdx int) string {
+	var color *Color
+	i := 0
+	for {
+		var ok bool
+		color, ok = colorsManager.m[i]
+		if !ok {
+			color = &Color{color: colorsManager.g.GetColor(i), ReleaseIdx: -1}
+			colorsManager.m[i] = color
+			break
+		}
+		if nodeIdx >= color.ReleaseIdx && !color.InUse {
+			break
+		}
+		i++
+	}
+	color.InUse = true
+	return color.color
+}
+
+func releaseColor(colorsMan colorsManager, colorStr string, idx int) {
+	for colorIdx, colorObj := range colorsMan.m {
+		if colorObj.color == colorStr {
+			color := colorsMan.m[colorIdx]
+			color.ReleaseIdx = idx + 2
+			color.InUse = false
 			break
 		}
 	}
@@ -455,7 +485,7 @@ func (p *processedNodes) Set(nodeID, childID string) {
 	p.m[nodeID][childID] = true
 }
 
-func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
+func setColumns(index *nodesCache, colorsMan colorsManager, nodes []*internalNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
 	incrCol := func() int {
@@ -466,7 +496,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = incrCol()
-			node.Color = getColor(colors, node.Idx)
+			node.Color = getColor(colorsMan, node.Idx)
 		}
 
 		// Cache the following node with child before the current node
@@ -491,7 +521,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
 					child.setPathColor(node.ID, child.Color)
 				}
-				releaseColor(colors, child.getPathColor(node.ID), node.Idx)
+				releaseColor(colorsMan, child.getPathColor(node.ID), node.Idx)
 
 				// Insert before the last element
 				child.noDupInsert(node.ID, -1, Point{secondToLastPoint.X, node.Idx, MergeBack})
@@ -545,7 +575,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 				color := node.Color
 				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx > node.Idx+1) {
 					column = incrCol()
-					color = getColor(colors, node.Idx)
+					color = getColor(colorsMan, node.Idx)
 					node.noDupAppend(parent.ID, Point{column, node.Idx, Fork})
 					node.setFirstOfBranch()
 				}
@@ -584,8 +614,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 
 // Get generates the props to turn the input into a graph drawable
 func Get(inputNodes []Node) ([]Node, error) {
-	myColors := DefaultColors
-	nodes, err := BuildTree(inputNodes, myColors)
+	nodes, err := BuildTree(inputNodes, NewSimpleColorGen(DefaultColors))
 	for _, node := range nodes {
 		delete(node, parentsPathsTestKey)
 	}
@@ -594,8 +623,7 @@ func Get(inputNodes []Node) ([]Node, error) {
 
 // GetPaginated same as Get but only return the nodes for the asked page
 func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
-	myColors := DefaultColors
-	nodes, err := BuildTree(inputNodes, myColors)
+	nodes, err := BuildTree(inputNodes, NewSimpleColorGen(DefaultColors))
 	for _, node := range nodes {
 		delete(node, parentsPathsTestKey)
 	}
@@ -604,17 +632,17 @@ func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 
 // BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
-func BuildTree(inputNodes []Node, myColors []string) ([]Node, error) {
-	colors := make([]Color, 0)
-	for _, colorStr := range myColors {
-		colors = append(colors, Color{color: colorStr})
+func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
+	colorsMan := colorsManager{
+		g: colorGen,
+		m: make(map[int]*Color),
 	}
 
 	nodes := initNodes(inputNodes)
 	index := initIndex(nodes)
 
 	initChildren(index, nodes)
-	setColumns(index, colors, nodes)
+	setColumns(index, colorsMan, nodes)
 
 	for _, node := range nodes {
 		for parentID, path := range node.parentsPaths {
