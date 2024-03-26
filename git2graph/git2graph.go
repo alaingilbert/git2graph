@@ -439,18 +439,19 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 						if followingNodeChild.Idx < node.Idx &&
 							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X &&
 							idxRemove >= 0 && !processedNodes[followingNode.ID][followingNodeChild.ID] {
+							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							// Remove second before last node has same Y, remove the before last node
 							for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
 								followingNodeChild.remove(followingNode.ID, idxRemove-1)
 								idxRemove--
 							}
+							followingNodeChild.remove(followingNode.ID, idxRemove)
+							idxRemove--
 
 							// Calculate nb of merging nodes
-							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
 
-							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).X
-							followingNodeChild.remove(followingNode.ID, idxRemove)
+							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
 							if followingNode.Column <= secondToLastPoint.X {
