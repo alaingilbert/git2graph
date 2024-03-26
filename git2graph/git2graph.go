@@ -491,29 +491,30 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 						followingNodeChild := index.Get(followingNodeChildID)
 						// Index to delete is the one before last
 						idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
-						// Following node child has a path that is higher than the current path being merged
 						if followingNodeChild.Idx < node.Idx &&
-							followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx) > secondToLastPoint.X &&
 							idxRemove >= 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
+							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
-							// Remove second before last node has same Y, remove the before last node
-							for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
-								followingNodeChild.remove(followingNode.ID, idxRemove-1)
+							if targetColumn > secondToLastPoint.X {
+								// Remove second before last node has same Y, remove the before last node
+								for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
+									followingNodeChild.remove(followingNode.ID, idxRemove-1)
+									idxRemove--
+								}
+								followingNodeChild.remove(followingNode.ID, idxRemove)
 								idxRemove--
-							}
-							followingNodeChild.remove(followingNode.ID, idxRemove)
-							idxRemove--
 
-							// Calculate nb of merging nodes
-							nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
-							if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
-								followingNode.Column -= nbNodesMergingBack
+								// Calculate nb of merging nodes
+								nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
+								if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
+									followingNode.Column -= nbNodesMergingBack
+								}
+								pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
+								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 							}
-							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
-							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
-							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
-							followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
-							processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 						}
 					}
 				}
