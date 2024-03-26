@@ -35,8 +35,7 @@ func bootstrap(c *cli.Context) error {
 	} else if fileFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromFile(fileFlag)
 	} else {
-		cli.ShowAppHelp(c)
-		return err
+		return cli.ShowAppHelp(c)
 	}
 	if err != nil {
 		log.Error(err)
@@ -168,5 +167,7 @@ func main() {
 		},
 	}
 	app.Action = bootstrap
-	app.Run(os.Args)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
