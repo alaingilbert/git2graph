@@ -58,17 +58,19 @@ func bootstrap(c *cli.Context) error {
 		// TODO: include context (nodes before "from" that have parents inside or after the range)
 		if contextFlag {
 			for _, node := range out {
+				nodeIdx := node["idx"].(int)
+				parentsPaths := node["parents_paths"].([]git2graph.Path)
 				hasParentsInContext := false
-				for _, nodeParent := range node["parents_paths"].([]git2graph.Path) {
+				for _, nodeParent := range parentsPaths {
 					if nodeParent.Path[len(nodeParent.Path)-1].Y >= fromFlag {
 						hasParentsInContext = true
 					}
 				}
 				if hasParentsInContext ||
-					node["idx"].(int) >= fromFlag && node["idx"].(int) < fromFlag+sizeFlag {
+					nodeIdx >= fromFlag && nodeIdx < fromFlag+sizeFlag {
 					tmp = append(tmp, node)
 				}
-				if node["idx"].(int) >= fromFlag+sizeFlag-1 {
+				if nodeIdx >= fromFlag+sizeFlag-1 {
 					break
 				}
 			}
