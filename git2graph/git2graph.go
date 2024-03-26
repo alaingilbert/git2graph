@@ -116,8 +116,18 @@ type internalNode struct {
 	InitialNode       map[string]any `json:"initial_node"`
 	parentsPaths      map[string]Path
 	children          []string
-	firstInRow        bool
+	firstOfBranch     bool
 	subBranch         map[string]bool
+}
+
+// A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
+// and the commit is the first commit in that new branch.
+func (n *internalNode) isFirstOfBranch() bool {
+	return n.firstOfBranch
+}
+
+func (n *internalNode) setFirstOfBranch() {
+	n.firstOfBranch = true
 }
 
 func (n *internalNode) addDebug(msg string) {
@@ -477,7 +487,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 				}
 
 				childHasOlderParent := child.hasOlderParent(index, node.Idx)
-				if !child.firstInRow && !childIsSubBranch && !childHasOlderParent {
+				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
 					child.setPathColor(node.ID, child.Color)
 				}
 				releaseColor(colors, child.getPathColor(node.ID), node.Idx)
@@ -536,7 +546,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 					column = incrCol()
 					color = getColor(colors, node.Idx)
 					node.noDupAppend(parent.ID, Point{column, node.Idx, Fork})
-					node.firstInRow = true
+					node.setFirstOfBranch()
 				}
 				parent.Column = column
 				parent.Color = color
