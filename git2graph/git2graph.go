@@ -146,9 +146,9 @@ func (p Path) isMergeTo() bool {
 
 // Point is one part of a path
 type Point struct {
-	X    int       `json:"x"`
-	Y    int       `json:"y"`
-	Type pointType `json:"type"`
+	X    int
+	Y    int
+	Type pointType
 }
 
 // parents are the node below the current node
