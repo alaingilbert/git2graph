@@ -17,25 +17,12 @@ and returns a structure that represent a git graph:
 
 ```json
 [
-  {"id":"1",
-   "parents":["3"],
-   "column":0,
-   "parents_paths":[{"id":"3","path":[{"x":0,"y":0,"type":0},{"x":0,"y":2,"type":0}],"color":"#5aa1be"}],
-   "idx":0,
-   "color":"#5aa1be",
-   "non_related_attr": "non_related_value"},
-  {"id":"2",
-   "parents":["3"],
-   "column":1,
-   "parents_paths":[{"id":"3","path":[{"x":1,"y":1,"type":0},{"x":1,"y":2,"type":1},{"x":0,"y":2,"type":0}],"color":"#c065b8"}],
-   "idx":1,
-   "color":"#c065b8"},
-  {"id":"3",
-  "parents":[],
-  "column":0,
-  "parents_paths":[],
-  "idx":2,
-  "color":"#5aa1be"}
+  {"id": "1", "parents": ["3"], "non_related_attr": "non_related_value",
+   "g": [0,0,"#5aa1be",[["#5aa1be",[[0,0,0],[0,2,0]]]]]},
+  {"id": "2", "parents": ["3"],
+   "g": [1,1,"#c065b8",[["#c065b8",[[1,1,0],[1,2,1],[0,2,0]]]]]},
+  {"id": "3", "parents": [],
+   "g": [2,0,"#5aa1be",[]]}
 ]
 ```
 
