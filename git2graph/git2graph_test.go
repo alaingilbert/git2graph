@@ -22,7 +22,7 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
 				continue
 			}
 			expectedPath := expectedPaths[nodeIdx][parentID].Path
-			parentPath := node[parentsPathsTestKey].(map[string]Path)[parentID]
+			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
 			if len(parentPath.Path) != len(expectedPath) {
 				t.Fail()
 				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPath), len(parentPath.Path))
@@ -46,7 +46,7 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []Node) 
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
-			parentPath := node[parentsPathsTestKey].(map[string]Path)[parentID]
+			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
 			expectedPath := expectedPaths[nodeIdx][parentID]
 			if expectedPath.ColorIdx != parentPath.ColorIdx {
 				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath.ColorIdx, parentPath.ColorIdx)
@@ -2074,7 +2074,7 @@ func Test34(t *testing.T) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	out := internalNode{parentsPaths: map[string]Path{"1": {Path: []Point{
+	out := internalNode{parentsPaths: map[string]*Path{"1": {Path: []Point{
 		{X: 0, Y: 2, Type: 0},
 		{X: 3, Y: 2, Type: 2},
 		{X: 3, Y: 9, Type: 1},

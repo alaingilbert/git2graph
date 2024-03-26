@@ -163,7 +163,7 @@ type internalNode struct {
 	firstOfBranch bool
 	Parents       []string
 	children      []string
-	parentsPaths  map[string]Path
+	parentsPaths  map[string]*Path
 }
 
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
@@ -176,9 +176,18 @@ func (n *internalNode) setFirstOfBranch() {
 	n.firstOfBranch = true
 }
 
+func (n *internalNode) pathTo(parentID string) *Path {
+	parentPath, ok := n.parentsPaths[parentID]
+	if !ok {
+		parentPath = &Path{}
+		n.parentsPaths[parentID] = parentPath
+	}
+	return parentPath
+}
+
 // append a point to a parent path if it is not a duplicate
 func (n *internalNode) noDupAppend(parentID string, point Point) {
-	parentPath := n.parentsPaths[parentID]
+	parentPath := n.pathTo(parentID)
 	if len(parentPath.Path) > 0 && parentPath.Path[len(parentPath.Path)-1] == point {
 		return
 	}
@@ -198,9 +207,8 @@ func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
 }
 
 func (n *internalNode) append(parentID string, point Point) {
-	parentPath := n.parentsPaths[parentID]
+	parentPath := n.pathTo(parentID)
 	parentPath.Path = append(parentPath.Path, point)
-	n.parentsPaths[parentID] = parentPath
 }
 
 func (n *internalNode) remove(parentID string, idx int) {
@@ -329,7 +337,8 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 }
 
 func (n *internalNode) pathLength(parentID string) int {
-	return len(n.parentsPaths[parentID].Path)
+	parentPath := n.pathTo(parentID)
+	return len(parentPath.Path)
 }
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
@@ -396,7 +405,7 @@ func initNodes(inputNodes []Node) []*internalNode {
 		newNode.Idx = idx
 		newNode.Column = -1
 		newNode.Parents = parents
-		newNode.parentsPaths = make(map[string]Path)
+		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]string, 0)
 		out = append(out, &newNode)
 	}
