@@ -220,6 +220,13 @@ func (node *OutputNode) isPathSubBranch(parentID string) bool {
 	return node.subBranch[parentID]
 }
 
+const (
+	FirstPt        = 0
+	SecondPt       = 1
+	LastPt         = -1
+	SecondToLastPt = -2
+)
+
 // Return the point at idx in the path to parentID
 // 0 return the first point
 // 1 return the second point
@@ -243,8 +250,8 @@ func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 // GetPathHeightAtIdx Get the path X at Idx
 func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
-	firstPoint := node.getPathPoint(parentID, 0)
-	lastPoint := node.getPathPoint(parentID, -1)
+	firstPoint := node.getPathPoint(parentID, FirstPt)
+	lastPoint := node.getPathPoint(parentID, LastPt)
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
@@ -264,8 +271,8 @@ func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodes
 	for _, childID := range node.children {
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(node.ID)
-		secondToLastPoint := child.getPathPoint(node.ID, -2)
-		secondPoint := child.getPathPoint(node.ID, 1)
+		secondToLastPoint := child.getPathPoint(node.ID, SecondToLastPt)
+		secondPoint := child.getPathPoint(node.ID, SecondPt)
 		if node.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
 			!secondPoint.Type.IsMergeTo() {
@@ -442,9 +449,9 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 		processedNodesInst := newProcessedNodes()
 		for _, childID := range node.children {
 			child := index.Get(childID)
-			secondToLastPoint := child.getPathPoint(node.ID, -2)
+			secondToLastPoint := child.getPathPoint(node.ID, SecondToLastPt)
 			if node.Column < secondToLastPoint.X {
-				secondPoint := child.getPathPoint(node.ID, 1)
+				secondPoint := child.getPathPoint(node.ID, SecondPt)
 				childIsSubBranch := child.isPathSubBranch(node.ID)
 				if !childIsSubBranch && !secondPoint.Type.IsMergeTo() {
 					nextColumn--
