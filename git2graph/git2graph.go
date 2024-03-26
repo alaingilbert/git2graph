@@ -257,6 +257,11 @@ func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 	return path[idx]
 }
 
+// Return either or not the path to the parent is a MergeTo
+func (node *OutputNode) pathIsMergeTo(parentID string) bool {
+	return node.getPathPoint(parentID, SecondPt).Type.IsMergeTo()
+}
+
 // GetPathHeightAtIdx Get the path X at Idx
 func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
@@ -283,10 +288,9 @@ func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodes
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(node.ID)
 		secondToLastPoint := child.getPathPoint(node.ID, SecondToLastPt)
-		secondPoint := child.getPathPoint(node.ID, SecondPt)
 		if node.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
-			!secondPoint.Type.IsMergeTo() {
+			!child.pathIsMergeTo(node.ID) {
 			nbNodesMergingBack++
 		}
 	}
