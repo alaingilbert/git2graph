@@ -102,6 +102,8 @@ type Path struct {
 }
 
 // OutputNode TODO
+// parents are the node below the current node
+// children are the nodes above the current node
 type OutputNode struct {
 	ID                string         `json:"id"`
 	Parents           []string       `json:"parents"`
