@@ -473,15 +473,12 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 
 							// Calculate nb of merging nodes
 							nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
-
+							if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
+								followingNode.Column -= nbNodesMergingBack
+							}
 							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
 							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
-							if followingNode.Column <= secondToLastPoint.X {
-								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MergeBack})
-							} else if !processedNodesInst.HasNode(followingNode.ID) {
-								followingNode.Column -= nbNodesMergingBack
-							}
 							followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
 							processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 						}
