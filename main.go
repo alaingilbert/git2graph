@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func bootstrap(c *cli.Context) error {
+func startAction(c *cli.Context) error {
 	var nodes []git2graph.Node
 	var err error
 	fromFlag := c.Int("from")
@@ -42,9 +42,7 @@ func bootstrap(c *cli.Context) error {
 		return err
 	}
 
-	myColors := git2graph.DefaultColors
-
-	out, err := git2graph.BuildTree(nodes, myColors)
+	out, err := git2graph.Get(nodes)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -168,7 +166,7 @@ func main() {
 			Usage: "Include context",
 		},
 	}
-	app.Action = bootstrap
+	app.Action = startAction
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}

@@ -568,7 +568,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 	}
 }
 
-// Get TODO
+// Get generates the props to turn the input into a graph drawable
 func Get(inputNodes []Node) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
@@ -578,7 +578,7 @@ func Get(inputNodes []Node) ([]Node, error) {
 	return nodes, err
 }
 
-// GetPaginated TODO
+// GetPaginated same as Get but only return the nodes for the asked page
 func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
@@ -588,7 +588,8 @@ func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 	return nodes[from : from+size], err
 }
 
-// BuildTree TODO
+// BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
+// to make it drawable as a graph.
 func BuildTree(inputNodes []Node, myColors []string) ([]Node, error) {
 	colors := make([]Color, 0)
 	for _, colorStr := range myColors {
@@ -628,7 +629,7 @@ func BuildTree(inputNodes []Node, myColors []string) ([]Node, error) {
 	return finalStruct, nil
 }
 
-// GetInputNodesFromFile TODO
+// GetInputNodesFromFile creates an array of Node from json contained in a file
 func GetInputNodesFromFile(filePath string) (nodes []Node, err error) {
 	fileBytes, err := os.ReadFile(filePath)
 	if err != nil {
@@ -651,7 +652,7 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
-// GetInputNodesFromRepo TODO
+// GetInputNodesFromRepo creates an array of Node from a repository
 func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
