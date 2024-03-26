@@ -277,6 +277,7 @@ func (node *OutputNode) pathLength(parentID string) int {
 	return len(node.parentsPaths[parentID].Path)
 }
 
+// A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
 func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
 	for _, childID := range node.children {
 		child := index.Get(childID)
