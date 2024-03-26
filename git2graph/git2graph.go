@@ -337,14 +337,14 @@ func initNodes(inputNodes []Node) []*OutputNode {
 		newNode := OutputNode{}
 		newNode.InitialNode = node
 		newNode.ID = id
-		newNode.Parents = parents
+		newNode.Idx = idx
 		newNode.Column = -1
+		newNode.Parents = parents
 		newNode.parentsPaths = make(map[string]Path)
 		newNode.FinalParentsPaths = make([]Path, 0)
-		newNode.Idx = idx
 		newNode.children = make([]string, 0)
-		newNode.Debug = make([]string, 0)
 		newNode.subBranch = make(map[string]bool)
+		newNode.Debug = make([]string, 0)
 		out = append(out, &newNode)
 	}
 	return out
