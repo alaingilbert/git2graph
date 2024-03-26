@@ -220,6 +220,11 @@ func (node *OutputNode) isPathSubBranch(parentID string) bool {
 	return node.subBranch[parentID]
 }
 
+// Return the point at idx in the path to parentID
+// 0 return the first point
+// 1 return the second point
+// -1 return the last point
+// -2 return the second to last point
 func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 	path := node.parentsPaths[parentID].Path
 	pathLen := len(path)
