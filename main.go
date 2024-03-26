@@ -16,7 +16,6 @@ func startAction(c *cli.Context) error {
 	contextFlag := c.Bool("context")
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
-	git2graph.DebugMode = c.Bool("debug")
 	repoFlag := c.Bool("repo")
 	git2graph.NoOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
@@ -129,10 +128,6 @@ func main() {
 		cli.StringFlag{
 			Name:  "L, log",
 			Usage: "Log level",
-		},
-		cli.BoolFlag{
-			Name:  "d, debug",
-			Usage: "Debug mode",
 		},
 		cli.BoolFlag{
 			Name:  "r, repo",

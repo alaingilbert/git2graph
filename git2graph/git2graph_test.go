@@ -69,20 +69,6 @@ var customColors = NewSimpleColorGen([]string{
 	"color10",
 })
 
-//func TestDebug(t *testing.T) {
-//	DebugMode = true
-//	inputNodes := []Node{
-//		{"id": "1", "parents": []string{"2"}},
-//		{"id": "2", "parents": []string{"3"}},
-//		{"id": "3", "parents": []string{}},
-//	}
-//	out, _ := BuildTree(inputNodes, customColors)
-//	// Ensure nodes have debug property
-//	if len(out[0]["debug"].([]string)) <= 0 {
-//		t.Fail()
-//	}
-//}
-
 func TestNotEnoughColors(t *testing.T) {
 	var colors = NewSimpleColorGen([]string{
 		"color1",

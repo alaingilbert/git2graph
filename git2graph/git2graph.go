@@ -11,9 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// DebugMode Debug mode
-var DebugMode = false
-
 // NoOutput No output
 var NoOutput = false
 
@@ -148,8 +145,7 @@ type internalNode struct {
 	Column        int
 	Idx           int
 	Color         string
-	Debug         []string
-	InitialNode   map[string]any
+	InitialNode   Node
 	parentsPaths  map[string]Path
 	children      []string
 	firstOfBranch bool
@@ -163,12 +159,6 @@ func (n *internalNode) isFirstOfBranch() bool {
 
 func (n *internalNode) setFirstOfBranch() {
 	n.firstOfBranch = true
-}
-
-func (n *internalNode) addDebug(msg string) {
-	if DebugMode {
-		n.Debug = append(n.Debug, msg)
-	}
 }
 
 // append a point to a parent path if it is not a duplicate
@@ -278,7 +268,6 @@ const (
 	colorKey            = "color"
 	parentsPathsKey     = "parents_paths"
 	parentsPathsTestKey = "parentsPaths"
-	debugKey            = "debug"
 )
 
 // Return the point at idx in the path to parentID
@@ -392,7 +381,6 @@ func initNodes(inputNodes []Node) []*internalNode {
 		newNode.Parents = parents
 		newNode.parentsPaths = make(map[string]Path)
 		newNode.children = make([]string, 0)
-		newNode.Debug = make([]string, 0)
 		out = append(out, &newNode)
 	}
 	return out
@@ -655,9 +643,6 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 		finalNode[parentsPathsKey] = finalParentsPaths
 		finalNode[idxKey] = node.Idx
 		finalNode[colorKey] = node.Color
-		if DebugMode {
-			finalNode[debugKey] = node.Debug
-		}
 		finalStruct = append(finalStruct, finalNode)
 	}
 
