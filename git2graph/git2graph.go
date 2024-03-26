@@ -19,9 +19,9 @@ var NoOutput = false
 
 // Color structure
 type Color struct {
-	ReleaseIdx int
+	releaseIdx int
 	color      string
-	InUse      bool
+	inUse      bool
 }
 
 // DefaultColors Default colors
@@ -83,16 +83,16 @@ func getColor(colorsManager *colorsManager, nodeIdx int) string {
 		var ok bool
 		color, ok = colorsManager.m[i]
 		if !ok {
-			color = &Color{color: colorsManager.g.GetColor(i), ReleaseIdx: -1}
+			color = &Color{color: colorsManager.g.GetColor(i), releaseIdx: -1}
 			colorsManager.m[i] = color
 			break
 		}
-		if nodeIdx >= color.ReleaseIdx && !color.InUse {
+		if nodeIdx >= color.releaseIdx && !color.inUse {
 			break
 		}
 		i++
 	}
-	color.InUse = true
+	color.inUse = true
 	return color.color
 }
 
@@ -100,8 +100,8 @@ func releaseColor(colorsMan *colorsManager, colorStr string, idx int) {
 	for colorIdx, colorObj := range colorsMan.m {
 		if colorObj.color == colorStr {
 			color := colorsMan.m[colorIdx]
-			color.ReleaseIdx = idx + 2
-			color.InUse = false
+			color.releaseIdx = idx + 2
+			color.inUse = false
 			break
 		}
 	}
