@@ -143,17 +143,16 @@ type Point struct {
 // children are the nodes above the current node
 // A node only ever have at most 2 parents.
 type internalNode struct {
-	ID                string         `json:"id"`
-	Parents           []string       `json:"parents"`
-	Column            int            `json:"column"`
-	FinalParentsPaths []Path         `json:"parents_paths"`
-	Idx               int            `json:"idx"`
-	Color             string         `json:"color"`
-	Debug             []string       `json:"debug,omitempty"`
-	InitialNode       map[string]any `json:"initial_node"`
-	parentsPaths      map[string]Path
-	children          []string
-	firstOfBranch     bool
+	ID            string
+	Parents       []string
+	Column        int
+	Idx           int
+	Color         string
+	Debug         []string
+	InitialNode   map[string]any
+	parentsPaths  map[string]Path
+	children      []string
+	firstOfBranch bool
 }
 
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
@@ -392,7 +391,6 @@ func initNodes(inputNodes []Node) []*internalNode {
 		newNode.Column = -1
 		newNode.Parents = parents
 		newNode.parentsPaths = make(map[string]Path)
-		newNode.FinalParentsPaths = make([]Path, 0)
 		newNode.children = make([]string, 0)
 		newNode.Debug = make([]string, 0)
 		out = append(out, &newNode)
@@ -640,22 +638,21 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 	initChildren(index, nodes)
 	setColumns(index, colorsMan, nodes)
 
-	for _, node := range nodes {
-		for parentID, path := range node.parentsPaths {
-			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentID, path.Path, path.Color})
-		}
-	}
 	finalStruct := make([]Node, 0)
 	for _, node := range nodes {
 		finalNode := map[string]any{}
 		for key, value := range node.InitialNode {
 			finalNode[key] = value
 		}
+		finalParentsPaths := make([]Path, 0)
+		for parentID, path := range node.parentsPaths {
+			finalParentsPaths = append(finalParentsPaths, Path{parentID, path.Path, path.Color})
+		}
 		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests
 		finalNode[idKey] = node.ID
 		finalNode[parentsKey] = node.Parents
 		finalNode[columnKey] = node.Column
-		finalNode[parentsPathsKey] = node.FinalParentsPaths
+		finalNode[parentsPathsKey] = finalParentsPaths
 		finalNode[idxKey] = node.Idx
 		finalNode[colorKey] = node.Color
 		if DebugMode {
