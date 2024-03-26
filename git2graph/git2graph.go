@@ -138,6 +138,9 @@ func (n *internalNode) noDupAppend(parentID string, point Point) {
 // insert a point to a parent path if it is not a duplicate
 func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
 	parentPath := n.parentsPaths[parentID]
+	if idx < 0 {
+		idx = len(parentPath.Path) + idx
+	}
 	if parentPath.Path[idx-1] == point {
 		return
 	}
@@ -480,8 +483,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 				releaseColor(colors, child.getPathColor(node.ID), node.Idx)
 
 				// Insert before the last element
-				pos := child.pathLength(node.ID) - 1
-				child.noDupInsert(node.ID, pos, Point{secondToLastPoint.X, node.Idx, MergeBack})
+				child.noDupInsert(node.ID, -1, Point{secondToLastPoint.X, node.Idx, MergeBack})
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
