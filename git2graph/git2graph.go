@@ -130,26 +130,26 @@ type Path struct {
 }
 
 // Return the current length of the path
-func (p Path) len() int {
+func (p *Path) len() int {
 	return len(p.Points)
 }
 
 // Return either or not a path is valid (has at least 2 points)
-func (p Path) isValid() bool {
+func (p *Path) isValid() bool {
 	return p.len() >= 2
 }
 
 // Return either or not the path is of type "Fork"
-func (p Path) isFork() bool {
+func (p *Path) isFork() bool {
 	return p.isValid() && p.second().Type.IsFork()
 }
 
 // Return either or not the path is of type "MergeTo"
-func (p Path) isMergeTo() bool {
+func (p *Path) isMergeTo() bool {
 	return p.isValid() && p.second().Type.IsMergeTo()
 }
 
-func (p Path) get(idx int) (out Point) {
+func (p *Path) get(idx int) (out Point) {
 	if idx < 0 {
 		idx = p.len() + idx
 		if idx < 0 {
@@ -158,10 +158,10 @@ func (p Path) get(idx int) (out Point) {
 	}
 	return p.Points[idx]
 }
-func (p Path) first() Point        { return p.get(0) }
-func (p Path) second() Point       { return p.get(1) }
-func (p Path) last() Point         { return p.get(-1) }
-func (p Path) secondToLast() Point { return p.get(-2) }
+func (p *Path) first() Point        { return p.get(0) }
+func (p *Path) second() Point       { return p.get(1) }
+func (p *Path) last() Point         { return p.get(-1) }
+func (p *Path) secondToLast() Point { return p.get(-2) }
 
 // Point is one part of a path
 type Point struct {
