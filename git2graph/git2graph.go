@@ -154,7 +154,6 @@ type internalNode struct {
 	parentsPaths      map[string]Path
 	children          []string
 	firstOfBranch     bool
-	subBranch         map[string]bool
 }
 
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
@@ -259,14 +258,10 @@ func (n *internalNode) getPathColor(parentID string) string {
 	return n.parentsPaths[parentID].Color
 }
 
-func (n *internalNode) setPathSubBranch(parentID string) {
-	n.subBranch[parentID] = true
-}
-
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
 func (n *internalNode) isPathSubBranch(parentID string) bool {
-	return n.subBranch[parentID]
+	return n.parentsPaths[parentID].Path[SecondPt].Type == Fork && !n.isFirstOfBranch()
 }
 
 const (
@@ -399,7 +394,6 @@ func initNodes(inputNodes []Node) []*internalNode {
 		newNode.parentsPaths = make(map[string]Path)
 		newNode.FinalParentsPaths = make([]Path, 0)
 		newNode.children = make([]string, 0)
-		newNode.subBranch = make(map[string]bool)
 		newNode.Debug = make([]string, 0)
 		out = append(out, &newNode)
 	}
@@ -601,7 +595,6 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 				parent.Color = node.Color
 				node.setPathColor(parent.ID, node.Color)
 			} else if node.Column < parent.Column {
-				node.setPathSubBranch(parent.ID)
 				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
 				node.setPathColor(parent.ID, parent.Color)
 			} else if node.Column > parent.Column {
