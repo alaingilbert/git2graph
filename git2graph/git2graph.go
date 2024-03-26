@@ -72,7 +72,11 @@ type colorsManager struct {
 	m map[int]*Color
 }
 
-func getColor(colorsManager colorsManager, nodeIdx int) string {
+func newColorsManager(colorGen IColorGenerator) *colorsManager {
+	return &colorsManager{g: colorGen, m: make(map[int]*Color)}
+}
+
+func getColor(colorsManager *colorsManager, nodeIdx int) string {
 	var color *Color
 	i := 0
 	for {
@@ -92,7 +96,7 @@ func getColor(colorsManager colorsManager, nodeIdx int) string {
 	return color.color
 }
 
-func releaseColor(colorsMan colorsManager, colorStr string, idx int) {
+func releaseColor(colorsMan *colorsManager, colorStr string, idx int) {
 	for colorIdx, colorObj := range colorsMan.m {
 		if colorObj.color == colorStr {
 			color := colorsMan.m[colorIdx]
@@ -487,7 +491,7 @@ func (p *processedNodes) Set(nodeID, childID string) {
 	p.m[nodeID][childID] = true
 }
 
-func setColumns(index *nodesCache, colorsMan colorsManager, nodes []*internalNode) {
+func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
 	incrCol := func() int {
@@ -635,10 +639,7 @@ func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 // BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
 func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
-	colorsMan := colorsManager{
-		g: colorGen,
-		m: make(map[int]*Color),
-	}
+	colorsMan := newColorsManager(colorGen)
 
 	nodes := initNodes(inputNodes)
 	index := initIndex(nodes)
