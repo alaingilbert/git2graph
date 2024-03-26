@@ -105,6 +105,7 @@ type Point struct {
 
 // parents are the node below the current node
 // children are the nodes above the current node
+// A node only ever have at most 2 parents.
 type internalNode struct {
 	ID                string         `json:"id"`
 	Parents           []string       `json:"parents"`
