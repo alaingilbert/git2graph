@@ -72,7 +72,10 @@ func releaseColor(colors []Color, color string, idx int) {
 	}
 }
 
-// Types
+// Types; to understand these constants, you need to read the graph from top to bottom.
+// Fork is when a node fork into two paths (top -> bottom)
+// MergeBack is when a branch merge back into a branch on its right
+// MergeTo is when a branch on the right merge into a branch on its left
 const (
 	Pipe      pointType = iota // 0: |
 	MergeBack                  // 1: ┘
