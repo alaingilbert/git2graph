@@ -118,6 +118,7 @@ const (
 type pointType uint8
 
 func (p pointType) IsMergeTo() bool { return p == MergeTo }
+func (p pointType) IsFork() bool    { return p == Fork }
 
 // Node is the raw information for a commit
 type Node map[string]any
@@ -135,12 +136,12 @@ func (p Path) isValid() bool {
 
 // Return either or not the path is of type "Fork"
 func (p Path) isFork() bool {
-	return p.isValid() && p.Path[SecondPt].Type == Fork
+	return p.isValid() && p.Path[SecondPt].Type.IsFork()
 }
 
 // Return either or not the path is of type "MergeTo"
 func (p Path) isMergeTo() bool {
-	return p.isValid() && p.Path[SecondPt].Type == MergeTo
+	return p.isValid() && p.Path[SecondPt].Type.IsMergeTo()
 }
 
 // Point is one part of a path
