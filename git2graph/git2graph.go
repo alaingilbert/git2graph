@@ -74,15 +74,15 @@ func releaseColor(colors []Color, color string, idx int) {
 
 // Types
 const (
-	PIPE       pointType = iota // 0: |
-	MERGE_BACK                  // 1: ┘
-	FORK                        // 2: ┐
-	MERGE_TO                    // 3: ┌
+	Pipe      pointType = iota // 0: |
+	MergeBack                  // 1: ┘
+	Fork                       // 2: ┐
+	MergeTo                    // 3: ┌
 )
 
 type pointType uint8
 
-func (p pointType) IsMergeTo() bool { return p == MERGE_TO }
+func (p pointType) IsMergeTo() bool { return p == MergeTo }
 
 // Point TODO
 type Point struct {
@@ -448,7 +448,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 
 				// Insert before the last element
 				pos := child.pathLength(node.ID) - 1
-				child.noDupInsert(node.ID, pos, Point{secondToLastPoint.X, node.Idx, MERGE_BACK})
+				child.noDupInsert(node.ID, pos, Point{secondToLastPoint.X, node.Idx, MergeBack})
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
@@ -475,14 +475,14 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 							nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
 
 							pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
-							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MERGE_BACK})
-							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, PIPE})
+							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
+							followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
 							if followingNode.Column <= secondToLastPoint.X {
-								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MERGE_BACK})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, followingNode.Idx, MergeBack})
 							} else if !processedNodesInst.HasNode(followingNode.ID) {
 								followingNode.Column -= nbNodesMergingBack
 							}
-							followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, PIPE})
+							followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
 							processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 						}
 					}
@@ -493,7 +493,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 		for parentIdx, parentID := range node.Parents {
 			parent := index.Get(parentID)
 
-			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, PIPE})
+			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, Pipe})
 
 			if !parent.columnDefined() {
 				firstParent := index.Get(node.Parents[0])
@@ -502,7 +502,7 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 				if parentIdx > 0 && (parentIdx > 1 || firstParent.Column >= node.Column || firstParent.Idx > node.Idx+1) {
 					column = incrCol()
 					color = getColor(colors, node.Idx)
-					node.noDupAppend(parent.ID, Point{column, node.Idx, FORK})
+					node.noDupAppend(parent.ID, Point{column, node.Idx, Fork})
 					node.firstInRow = true
 				}
 				parent.Column = column
@@ -513,8 +513,8 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 					child := index.Get(childID)
 					if idxRemove := child.pathLength(parent.ID) - 1; idxRemove > 0 {
 						child.remove(parent.ID, idxRemove)
-						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, idxRemove-1).X, parent.Idx, MERGE_BACK})
-						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, PIPE})
+						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, idxRemove-1).X, parent.Idx, MergeBack})
+						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, Pipe})
 					}
 				}
 				parent.Column = node.Column
@@ -522,18 +522,18 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 				node.setPathColor(parent.ID, node.Color)
 			} else if node.Column < parent.Column {
 				node.setPathSubBranch(parent.ID)
-				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, FORK})
+				node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
 				node.setPathColor(parent.ID, parent.Color)
 			} else if node.Column > parent.Column {
 				if node.hasBiggerParentDefined(index) || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch(index))) {
-					node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MERGE_BACK})
+					node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MergeBack})
 					node.setPathColor(parent.ID, node.Color)
 				} else {
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MERGE_TO})
+					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MergeTo})
 					node.setPathColor(parent.ID, parent.Color)
 				}
 			}
-			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, PIPE})
+			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, Pipe})
 		}
 	}
 }
