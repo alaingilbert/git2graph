@@ -502,9 +502,8 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			child := index.Get(childID)
 			secondToLastPoint := child.pathTo(node.ID).secondToLast()
 			if node.Column < secondToLastPoint.X {
-				secondPoint := child.pathTo(node.ID).second()
 				childIsSubBranch := child.isPathSubBranch(node.ID)
-				if !childIsSubBranch && !secondPoint.Type.IsMergeTo() {
+				if !childIsSubBranch && !child.pathTo(node.ID).isMergeTo() {
 					nextColumn--
 				}
 
