@@ -46,8 +46,8 @@
       });
 
       $('#examples').change(function() {
-        var val = $('#examples').val();
-        var text = '';
+        const val = $('#examples').val();
+        let text = '';
         if (examples[val]) {
           text = JSON.stringify(JSON.parse(examples[val]), null, 2);
         }
@@ -56,30 +56,31 @@
       });
 
       var render = function() {
-        var jsonText = $('#json').val();
+        const jsonText = $('#json').val();
+        let tree;
         try {
-          var tree = JSON.parse(jsonText);
+          tree = JSON.parse(jsonText);
           $("#json-group").removeClass("has-error");
         } catch(err) {
           $("#json-group").addClass("has-error");
         }
-        var xGap = 11;
-        var yGap = 20;
-        var gap = 2 / 5 * yGap;
-        var radius = 4;
-        var shaMargin = 60;
+        const xGap = 11;
+        const yGap = 20;
+        const gap = 2 / 5 * yGap;
+        const radius = 4;
+        const shaMargin = 60;
 
-        var svg = d3.select($('#tree')[0]);
+        const svg = d3.select($('#tree')[0]);
         svg.style('height', tree.length * yGap + 2 * radius + 'px');
         svg.selectAll('*').remove();
-        var sg = svg.append('g').attr('transform', 'translate(0, ' + radius + ')' )
+        const sg = svg.append('g').attr('transform', 'translate(0, ' + radius + ')' )
 
-        var lineFunction = d3.svg.line()
+        const lineFunction = d3.svg.line()
           .x(function(d) { return d.x; })
           .y(function(d) { return d.y; })
           .interpolate("linear");
 
-        var commitGroup = sg.selectAll('commitGroup')
+        const commitGroup = sg.selectAll('commitGroup')
           .data(tree)
           .enter()
           .append('g');
@@ -89,21 +90,14 @@
           .enter()
           .append('path')
           .attr('d', function(path) {
-            var d = [];
+            let d = [];
             _.each(path[1], function(node) {
-              var x = node[0];
-              var y = node[1];
-              var typ = node[2];
-              var point = {x: 5 + x * xGap + shaMargin, y: 5 + y * yGap};
-              switch (typ) {
-                case 1:
-                  point.y -= gap;
-                  break;
-                case 2:
-                case 3:
-                  point.y += gap;
-                  break;
-              }
+              const x = node[0];
+              const y = node[1];
+              const typ = node[2];
+              const point = {x: 5 + x * xGap + shaMargin, y: 5 + y * yGap};
+              if      (typ === 1)              { point.y -= gap; }
+              else if (typ === 2 || typ === 3) { point.y += gap; }
               d.push(point);
             });
             return lineFunction(d);
@@ -128,7 +122,7 @@
           .append('text')
           .attr('font-size', 12)
           .attr('x', function(commit) { return 0; })
-          .attr('y', function(commit, idx) { return 5 + commit.g[0] * yGap; })
+          .attr('y', function(commit, idx) { return commit.g[0] * yGap + 5; })
           .attr('alignment-baseline', 'middle')
           .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
           .text(function(commit) {
