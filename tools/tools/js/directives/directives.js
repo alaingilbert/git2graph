@@ -316,7 +316,7 @@ app.directive('project', function() {
             var prefix = "";
             _.each(_.range(maxParentLength - parentId.length), function() { prefix += " "; });
             var color = 'color' + (_.indexOf($scope.colors, node.parentsPaths[parentId].color) + 1);
-            out += '			"' + parentId + '":' + prefix + ' Path{"' + parentId + '", []Point{';
+            out += '			"' + parentId + '":' + prefix + ' {[]Point{';
             var points = [];
             _.each(node.parentsPaths[parentId].path, function(point) {
               points.push('{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');

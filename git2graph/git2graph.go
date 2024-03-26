@@ -124,7 +124,6 @@ type Node map[string]any
 
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
-	ID       string
 	Path     []Point
 	ColorIdx int
 }
