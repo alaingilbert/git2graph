@@ -149,10 +149,19 @@ func (p Path) isMergeTo() bool {
 	return p.isValid() && p.second().Type.IsMergeTo()
 }
 
-func (p Path) first() Point        { return p.Points[0] }
-func (p Path) second() Point       { return p.Points[1] }
-func (p Path) last() Point         { return p.Points[p.len()-1] }
-func (p Path) secondToLast() Point { return p.Points[p.len()-2] }
+func (p Path) get(idx int) (out Point) {
+	if idx < 0 {
+		idx = p.len() + idx
+		if idx < 0 {
+			log.Fatal("Weird, need to investigate")
+		}
+	}
+	return p.Points[idx]
+}
+func (p Path) first() Point        { return p.get(0) }
+func (p Path) second() Point       { return p.get(1) }
+func (p Path) last() Point         { return p.get(-1) }
+func (p Path) secondToLast() Point { return p.get(-2) }
 
 // Point is one part of a path
 type Point struct {
@@ -295,26 +304,6 @@ const (
 	parentsPathsTestKey = "parentsPaths"
 )
 
-// Return the point at idx in the path to parentID
-// 0 return the first point
-// 1 return the second point
-// -1 return the last point
-// -2 return the second to last point
-func (n *internalNode) getPathPoint(parentID string, idx int) (out Point) {
-	path := n.pathTo(parentID).Points
-	pathLen := len(path)
-	if idx < 0 {
-		rotatedIdx := pathLen + idx
-		if rotatedIdx < 0 {
-			fields := log.Fields{"idx": idx, "n id": n.ID, "parent id": parentID}
-			log.WithFields(fields).Error("Weird, need to investigate")
-			return
-		}
-		idx = rotatedIdx
-	}
-	return path[idx]
-}
-
 // Return either or not the path to the parent is a MergeTo
 func (n *internalNode) pathIsMergeTo(parentID string) bool {
 	return n.pathTo(parentID).second().Type.IsMergeTo()
@@ -334,11 +323,6 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 		}
 	}
 	return
-}
-
-func (n *internalNode) pathLength(parentID string) int {
-	parentPath := n.pathTo(parentID)
-	return len(parentPath.Points)
 }
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
@@ -545,14 +529,14 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					for _, followingNodeChildID := range followingNode.children {
 						followingNodeChild := index.Get(followingNodeChildID)
 						// Index to delete is the one before last
-						idxRemove := followingNodeChild.pathLength(followingNode.ID) - 1
+						idxRemove := followingNodeChild.pathTo(followingNode.ID).len() - 1
 						if followingNodeChild.Idx < node.Idx &&
 							idxRemove >= 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							if targetColumn > secondToLastPoint.X {
 								// Remove second before last node has same Y, remove the before last node
-								for followingNodeChild.getPathPoint(followingNode.ID, idxRemove).Y == followingNodeChild.getPathPoint(followingNode.ID, idxRemove-1).Y {
+								for followingNodeChild.pathTo(followingNode.ID).get(idxRemove).Y == followingNodeChild.pathTo(followingNode.ID).get(idxRemove-1).Y {
 									followingNodeChild.remove(followingNode.ID, idxRemove-1)
 									idxRemove--
 								}
@@ -564,7 +548,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
 									followingNode.Column -= nbNodesMergingBack
 								}
-								pathPointX := followingNodeChild.getPathPoint(followingNode.ID, idxRemove).X
+								pathPointX := followingNodeChild.pathTo(followingNode.ID).get(idxRemove).X
 								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
 								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
 								followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
@@ -597,9 +581,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			} else if parentIdx == 0 && node.Column < parent.Column {
 				for _, childID := range parent.children {
 					child := index.Get(childID)
-					if idxRemove := child.pathLength(parent.ID) - 1; idxRemove > 0 {
+					if idxRemove := child.pathTo(parent.ID).len() - 1; idxRemove > 0 {
 						child.remove(parent.ID, idxRemove)
-						child.noDupAppend(parent.ID, Point{child.getPathPoint(parent.ID, idxRemove-1).X, parent.Idx, MergeBack})
+						child.noDupAppend(parent.ID, Point{child.pathTo(parent.ID).get(idxRemove - 1).X, parent.Idx, MergeBack})
 						child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, Pipe})
 					}
 				}
