@@ -7,7 +7,7 @@ import (
 func validateColumns(t *testing.T, expectedColumns []int, data []Node) {
 	for idx, row := range data {
 		expectedColumn := expectedColumns[idx]
-		actualColumn := row["g"].([]any)[1]
+		actualColumn := row[gKey].([]any)[1]
 		if actualColumn != expectedColumn {
 			t.Fail()
 			t.Logf("ID: %s, Expected column: %d, Actual column: %d", row["id"], expectedColumn, actualColumn)
@@ -81,7 +81,7 @@ func TestNotEnoughColors(t *testing.T) {
 		{"id": "3", "parents": []string{}},
 	}
 	out, _ := BuildTree(inputNodes, colors)
-	if out[2]["g"].([]any)[2] != "#000" {
+	if out[2][gKey].([]any)[2] != "#000" {
 		t.Fail()
 	}
 }

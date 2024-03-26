@@ -263,6 +263,7 @@ const (
 const (
 	idKey               = "id"
 	parentsKey          = "parents"
+	gKey                = "g"
 	parentsPathsTestKey = "parentsPaths"
 )
 
@@ -639,7 +640,7 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 			i++
 		}
 		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests
-		finalNode["g"] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
+		finalNode[gKey] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
 	}
 
