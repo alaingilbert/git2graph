@@ -215,6 +215,8 @@ func (node *OutputNode) setPathSubBranch(parentID string) {
 	node.subBranch[parentID] = true
 }
 
+// A subbranch, is when the child node is in the middle of another branch
+// See test_022.png node #4 (zero-indexed)
 func (node *OutputNode) isPathSubBranch(parentID string) bool {
 	return node.subBranch[parentID]
 }
@@ -254,14 +256,13 @@ func (node *OutputNode) pathLength(parentID string) int {
 	return len(node.parentsPaths[parentID].Path)
 }
 
-func (node *OutputNode) nbNodesMergingBack(index *nodesCache, targetColumn int) (nbNodesMergingBack int) {
+func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
 	for _, childID := range node.children {
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(node.ID)
 		secondToLastPoint := child.getPathPoint(node.ID, -2)
 		secondPoint := child.getPathPoint(node.ID, 1)
-		if node.Column < secondToLastPoint.X &&
-			secondToLastPoint.X < targetColumn &&
+		if node.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
 			!secondPoint.Type.IsMergeTo() {
 			nbNodesMergingBack++
