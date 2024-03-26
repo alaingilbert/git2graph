@@ -284,13 +284,14 @@ func (node *OutputNode) pathLength(parentID string) int {
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
 func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
+	nodeID := node.ID
 	for _, childID := range node.children {
 		child := index.Get(childID)
-		childIsSubBranch := child.isPathSubBranch(node.ID)
-		secondToLastPoint := child.getPathPoint(node.ID, SecondToLastPt)
+		childIsSubBranch := child.isPathSubBranch(nodeID)
+		secondToLastPoint := child.getPathPoint(nodeID, SecondToLastPt)
 		if node.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
-			!child.pathIsMergeTo(node.ID) {
+			!child.pathIsMergeTo(nodeID) {
 			nbNodesMergingBack++
 		}
 	}
