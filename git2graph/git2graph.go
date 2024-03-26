@@ -86,24 +86,26 @@ type pointType uint8
 
 func (p pointType) IsMergeTo() bool { return p == MergeTo }
 
-// Point TODO
-type Point struct {
-	X    int       `json:"x"`
-	Y    int       `json:"y"`
-	Type pointType `json:"type"`
-}
+// Node is the raw information for a commit
+type Node map[string]any
 
-// Path TODO
+// Path defines how to draw a line in between a parent and child nodes
 type Path struct {
 	ID    string  `json:"id"`
 	Path  []Point `json:"path"`
 	Color string  `json:"color"`
 }
 
-// OutputNode TODO
+// Point is one part of a path
+type Point struct {
+	X    int       `json:"x"`
+	Y    int       `json:"y"`
+	Type pointType `json:"type"`
+}
+
 // parents are the node below the current node
 // children are the nodes above the current node
-type OutputNode struct {
+type internalNode struct {
 	ID                string         `json:"id"`
 	Parents           []string       `json:"parents"`
 	Column            int            `json:"column"`
@@ -118,68 +120,68 @@ type OutputNode struct {
 	subBranch         map[string]bool
 }
 
-func (node *OutputNode) addDebug(msg string) {
+func (n *internalNode) addDebug(msg string) {
 	if DebugMode {
-		node.Debug = append(node.Debug, msg)
+		n.Debug = append(n.Debug, msg)
 	}
 }
 
 // append a point to a parent path if it is not a duplicate
-func (node *OutputNode) noDupAppend(parentID string, point Point) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) noDupAppend(parentID string, point Point) {
+	parentPath := n.parentsPaths[parentID]
 	if len(parentPath.Path) > 0 && parentPath.Path[len(parentPath.Path)-1] == point {
 		return
 	}
-	node.append(parentID, point)
+	n.append(parentID, point)
 }
 
 // insert a point to a parent path if it is not a duplicate
-func (node *OutputNode) noDupInsert(parentID string, idx int, point Point) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
+	parentPath := n.parentsPaths[parentID]
 	if parentPath.Path[idx-1] == point {
 		return
 	}
-	node.insert(parentID, idx, point)
+	n.insert(parentID, idx, point)
 }
 
-func (node *OutputNode) append(parentID string, point Point) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) append(parentID string, point Point) {
+	parentPath := n.parentsPaths[parentID]
 	parentPath.Path = append(parentPath.Path, point)
-	node.parentsPaths[parentID] = parentPath
+	n.parentsPaths[parentID] = parentPath
 }
 
-func (node *OutputNode) remove(parentID string, idx int) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) remove(parentID string, idx int) {
+	parentPath := n.parentsPaths[parentID]
 	parentPath.Path = append(parentPath.Path[:idx], parentPath.Path[idx+1:]...)
-	node.parentsPaths[parentID] = parentPath
+	n.parentsPaths[parentID] = parentPath
 }
 
-func (node *OutputNode) insert(parentID string, idx int, point Point) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) insert(parentID string, idx int, point Point) {
+	parentPath := n.parentsPaths[parentID]
 	parentPath.Path = append(parentPath.Path, Point{})
 	copy(parentPath.Path[idx+1:], parentPath.Path[idx:])
 	parentPath.Path[idx] = point
-	node.parentsPaths[parentID] = parentPath
+	n.parentsPaths[parentID] = parentPath
 }
 
-func (node *OutputNode) columnDefined() bool {
-	return node.Column != -1
+func (n *internalNode) columnDefined() bool {
+	return n.Column != -1
 }
 
-func (node *OutputNode) firstInBranch(index *nodesCache) bool {
-	for _, parentNodeID := range node.Parents {
+func (n *internalNode) firstInBranch(index *nodesCache) bool {
+	for _, parentNodeID := range n.Parents {
 		parentNode := index.Get(parentNodeID)
-		if !parentNode.columnDefined() || parentNode.Column == node.Column {
+		if !parentNode.columnDefined() || parentNode.Column == n.Column {
 			return false
 		}
 	}
 	return true
 }
 
-func (node *OutputNode) hasBiggerParentDefined(index *nodesCache) bool {
-	for _, parentNodeID := range node.Parents {
+func (n *internalNode) hasBiggerParentDefined(index *nodesCache) bool {
+	for _, parentNodeID := range n.Parents {
 		parentNode := index.Get(parentNodeID)
-		if parentNode.Column > node.Column {
+		if parentNode.Column > n.Column {
 			return true
 		}
 	}
@@ -187,8 +189,8 @@ func (node *OutputNode) hasBiggerParentDefined(index *nodesCache) bool {
 }
 
 // Return either or not the node has a parent that has higher "Idx" than the one in parameter
-func (node *OutputNode) hasOlderParent(index *nodesCache, idx int) bool {
-	for _, parentNodeID := range node.Parents {
+func (n *internalNode) hasOlderParent(index *nodesCache, idx int) bool {
+	for _, parentNodeID := range n.Parents {
 		parentNode := index.Get(parentNodeID)
 		if parentNode.Idx > idx {
 			return true
@@ -197,24 +199,24 @@ func (node *OutputNode) hasOlderParent(index *nodesCache, idx int) bool {
 	return false
 }
 
-func (node *OutputNode) setPathColor(parentID, color string) {
-	parentPath := node.parentsPaths[parentID]
+func (n *internalNode) setPathColor(parentID, color string) {
+	parentPath := n.parentsPaths[parentID]
 	parentPath.Color = color
-	node.parentsPaths[parentID] = parentPath
+	n.parentsPaths[parentID] = parentPath
 }
 
-func (node *OutputNode) getPathColor(parentID string) string {
-	return node.parentsPaths[parentID].Color
+func (n *internalNode) getPathColor(parentID string) string {
+	return n.parentsPaths[parentID].Color
 }
 
-func (node *OutputNode) setPathSubBranch(parentID string) {
-	node.subBranch[parentID] = true
+func (n *internalNode) setPathSubBranch(parentID string) {
+	n.subBranch[parentID] = true
 }
 
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
-func (node *OutputNode) isPathSubBranch(parentID string) bool {
-	return node.subBranch[parentID]
+func (n *internalNode) isPathSubBranch(parentID string) bool {
+	return n.subBranch[parentID]
 }
 
 const (
@@ -240,13 +242,13 @@ const (
 // 1 return the second point
 // -1 return the last point
 // -2 return the second to last point
-func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
-	path := node.parentsPaths[parentID].Path
+func (n *internalNode) getPathPoint(parentID string, idx int) (out Point) {
+	path := n.parentsPaths[parentID].Path
 	pathLen := len(path)
 	if idx < 0 {
 		rotatedIdx := pathLen + idx
 		if rotatedIdx < 0 {
-			fields := log.Fields{"idx": idx, "node id": node.ID, "parent id": parentID}
+			fields := log.Fields{"idx": idx, "n id": n.ID, "parent id": parentID}
 			log.WithFields(fields).Error("Weird, need to investigate")
 			return
 		}
@@ -256,19 +258,19 @@ func (node *OutputNode) getPathPoint(parentID string, idx int) (out Point) {
 }
 
 // Return either or not the path to the parent is a MergeTo
-func (node *OutputNode) pathIsMergeTo(parentID string) bool {
-	return node.getPathPoint(parentID, SecondPt).Type.IsMergeTo()
+func (n *internalNode) pathIsMergeTo(parentID string) bool {
+	return n.getPathPoint(parentID, SecondPt).Type.IsMergeTo()
 }
 
 // GetPathHeightAtIdx Get the path X at Idx
-func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
+func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
-	firstPoint := node.getPathPoint(parentID, FirstPt)
-	lastPoint := node.getPathPoint(parentID, LastPt)
+	firstPoint := n.getPathPoint(parentID, FirstPt)
+	lastPoint := n.getPathPoint(parentID, LastPt)
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
-	for _, point := range node.parentsPaths[parentID].Path {
+	for _, point := range n.parentsPaths[parentID].Path {
 		if point.Y <= lookupIdx {
 			height = point.X
 		}
@@ -276,18 +278,18 @@ func (node *OutputNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heig
 	return
 }
 
-func (node *OutputNode) pathLength(parentID string) int {
-	return len(node.parentsPaths[parentID].Path)
+func (n *internalNode) pathLength(parentID string) int {
+	return len(n.parentsPaths[parentID].Path)
 }
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
-func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
-	nodeID := node.ID
-	for _, childID := range node.children {
+func (n *internalNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
+	nodeID := n.ID
+	for _, childID := range n.children {
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(nodeID)
 		secondToLastPoint := child.getPathPoint(nodeID, SecondToLastPt)
-		if node.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
+		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
 			!child.pathIsMergeTo(nodeID) {
 			nbNodesMergingBack++
@@ -327,8 +329,8 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
 	return
 }
 
-func initNodes(inputNodes []Node) []*OutputNode {
-	out := make([]*OutputNode, 0)
+func initNodes(inputNodes []Node) []*internalNode {
+	out := make([]*internalNode, 0)
 	for idx, node := range inputNodes {
 		id, ok := node[idKey].(string)
 		if !ok {
@@ -338,7 +340,7 @@ func initNodes(inputNodes []Node) []*OutputNode {
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
-		newNode := OutputNode{}
+		newNode := internalNode{}
 		newNode.InitialNode = node
 		newNode.ID = id
 		newNode.Idx = idx
@@ -354,7 +356,7 @@ func initNodes(inputNodes []Node) []*OutputNode {
 	return out
 }
 
-func initIndex(nodes []*OutputNode) *nodesCache {
+func initIndex(nodes []*internalNode) *nodesCache {
 	index := newNodesCache()
 	for _, node := range nodes {
 		// Remove bad parents (parents that are before children)
@@ -368,7 +370,7 @@ func initIndex(nodes []*OutputNode) *nodesCache {
 	return index
 }
 
-func initChildren(index *nodesCache, nodes []*OutputNode) {
+func initChildren(index *nodesCache, nodes []*internalNode) {
 	for _, node := range nodes {
 		for _, parentID := range node.Parents {
 			n := index.Get(parentID)
@@ -396,18 +398,18 @@ func (s *stringSet) Remove(in string) {
 }
 
 type nodesCache struct {
-	m map[string]*OutputNode
+	m map[string]*internalNode
 }
 
 func newNodesCache() *nodesCache {
-	return &nodesCache{m: make(map[string]*OutputNode)}
+	return &nodesCache{m: make(map[string]*internalNode)}
 }
 
-func (n *nodesCache) Get(key string) *OutputNode {
+func (n *nodesCache) Get(key string) *internalNode {
 	return n.m[key]
 }
 
-func (n *nodesCache) Set(key string, node *OutputNode) {
+func (n *nodesCache) Set(key string, node *internalNode) {
 	n.m[key] = node
 }
 
@@ -439,7 +441,7 @@ func (p *processedNodes) Set(nodeID, childID string) {
 	p.m[nodeID][childID] = true
 }
 
-func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
+func setColumns(index *nodesCache, colors []Color, nodes []*internalNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
 	incrCol := func() int {
@@ -565,8 +567,6 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 		}
 	}
 }
-
-type Node map[string]any
 
 // Get TODO
 func Get(inputNodes []Node) ([]Node, error) {
