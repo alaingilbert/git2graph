@@ -3,7 +3,6 @@ package git2graph
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strconv"
@@ -283,7 +282,7 @@ func (node *OutputNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodes
 }
 
 // SerializeOutput Json encode object
-func SerializeOutput(out []map[string]any) {
+func SerializeOutput(out []Node) {
 	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
 		if err := enc.Encode(out); err != nil {
@@ -293,7 +292,7 @@ func SerializeOutput(out []map[string]any) {
 }
 
 // GetInputNodesFromJSON Get nodes from json object
-func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]any, err error) {
+func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
 	dec := json.NewDecoder(bytes.NewReader(inputJSON))
 	err = dec.Decode(&nodes)
 	if err != nil {
@@ -313,7 +312,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []map[string]any, err error)
 	return
 }
 
-func initNodes(inputNodes []map[string]any) []*OutputNode {
+func initNodes(inputNodes []Node) []*OutputNode {
 	out := make([]*OutputNode, 0)
 	for idx, node := range inputNodes {
 		id, ok := node["id"].(string)
@@ -552,8 +551,10 @@ func setColumns(index *nodesCache, colors []Color, nodes []*OutputNode) {
 	}
 }
 
+type Node map[string]any
+
 // Get TODO
-func Get(inputNodes []map[string]any) ([]map[string]any, error) {
+func Get(inputNodes []Node) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
@@ -563,7 +564,7 @@ func Get(inputNodes []map[string]any) ([]map[string]any, error) {
 }
 
 // GetPaginated TODO
-func GetPaginated(inputNodes []map[string]any, from, size int) ([]map[string]any, error) {
+func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
 	myColors := DefaultColors
 	nodes, err := BuildTree(inputNodes, myColors)
 	for _, node := range nodes {
@@ -573,7 +574,7 @@ func GetPaginated(inputNodes []map[string]any, from, size int) ([]map[string]any
 }
 
 // BuildTree TODO
-func BuildTree(inputNodes []map[string]any, myColors []string) ([]map[string]any, error) {
+func BuildTree(inputNodes []Node, myColors []string) ([]Node, error) {
 	colors := make([]Color, 0)
 	for _, colorStr := range myColors {
 		colors = append(colors, Color{color: colorStr})
@@ -590,7 +591,7 @@ func BuildTree(inputNodes []map[string]any, myColors []string) ([]map[string]any
 			node.FinalParentsPaths = append(node.FinalParentsPaths, Path{parentID, path.Path, path.Color})
 		}
 	}
-	finalStruct := make([]map[string]any, 0)
+	finalStruct := make([]Node, 0)
 	for _, node := range nodes {
 		finalNode := map[string]any{}
 		for key, value := range node.InitialNode {
@@ -613,8 +614,8 @@ func BuildTree(inputNodes []map[string]any, myColors []string) ([]map[string]any
 }
 
 // GetInputNodesFromFile TODO
-func GetInputNodesFromFile(filePath string) (nodes []map[string]any, err error) {
-	fileBytes, err := ioutil.ReadFile(filePath)
+func GetInputNodesFromFile(filePath string) (nodes []Node, err error) {
+	fileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return
 	}
@@ -636,7 +637,7 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo TODO
-func GetInputNodesFromRepo(seqIds bool) (nodes []map[string]any, err error) {
+func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {

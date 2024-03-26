@@ -9,7 +9,7 @@ import (
 )
 
 func bootstrap(c *cli.Context) error {
-	var nodes []map[string]any
+	var nodes []git2graph.Node
 	var err error
 	fromFlag := c.Int("from")
 	sizeFlag := c.Int("size")
@@ -54,7 +54,7 @@ func bootstrap(c *cli.Context) error {
 		delete(node, "parentsPaths")
 	}
 
-	var tmp []map[string]any
+	var tmp []git2graph.Node
 	if fromFlag >= 0 && sizeFlag >= 1 {
 		// TODO: include context (nodes before "from" that have parents inside or after the range)
 		if contextFlag {
