@@ -126,7 +126,7 @@ type Node map[string]any
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
 	Points   []Point
-	ColorIdx int
+	colorIdx int
 }
 
 // Return the current length of the path
@@ -141,13 +141,18 @@ func (p Path) isValid() bool {
 
 // Return either or not the path is of type "Fork"
 func (p Path) isFork() bool {
-	return p.isValid() && p.Points[SecondPt].Type.IsFork()
+	return p.isValid() && p.second().Type.IsFork()
 }
 
 // Return either or not the path is of type "MergeTo"
 func (p Path) isMergeTo() bool {
-	return p.isValid() && p.Points[SecondPt].Type.IsMergeTo()
+	return p.isValid() && p.second().Type.IsMergeTo()
 }
+
+func (p Path) first() Point        { return p.Points[0] }
+func (p Path) second() Point       { return p.Points[1] }
+func (p Path) last() Point         { return p.Points[p.len()-1] }
+func (p Path) secondToLast() Point { return p.Points[p.len()-2] }
 
 // Point is one part of a path
 type Point struct {
@@ -265,11 +270,11 @@ func (n *internalNode) hasOlderParent(index *nodesCache, idx int) bool {
 }
 
 func (n *internalNode) setPathColor(parentID string, color int) {
-	n.pathTo(parentID).ColorIdx = color
+	n.pathTo(parentID).colorIdx = color
 }
 
 func (n *internalNode) getPathColor(parentID string) int {
-	return n.pathTo(parentID).ColorIdx
+	return n.pathTo(parentID).colorIdx
 }
 
 // Return either or not the path to a parent is of type "MergeTo"
@@ -282,13 +287,6 @@ func (n *internalNode) isMergeTo(parentID string) bool {
 func (n *internalNode) isPathSubBranch(parentID string) bool {
 	return n.pathTo(parentID).isFork() && !n.isFirstOfBranch()
 }
-
-const (
-	FirstPt        = 0
-	SecondPt       = 1
-	LastPt         = -1
-	SecondToLastPt = -2
-)
 
 const (
 	idKey               = "id"
@@ -319,14 +317,14 @@ func (n *internalNode) getPathPoint(parentID string, idx int) (out Point) {
 
 // Return either or not the path to the parent is a MergeTo
 func (n *internalNode) pathIsMergeTo(parentID string) bool {
-	return n.getPathPoint(parentID, SecondPt).Type.IsMergeTo()
+	return n.pathTo(parentID).second().Type.IsMergeTo()
 }
 
 // GetPathHeightAtIdx Get the path X at Idx
 func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (height int) {
 	height = -1
-	firstPoint := n.getPathPoint(parentID, FirstPt)
-	lastPoint := n.getPathPoint(parentID, LastPt)
+	firstPoint := n.pathTo(parentID).first()
+	lastPoint := n.pathTo(parentID).last()
 	if lookupIdx < firstPoint.Y || lookupIdx > lastPoint.Y {
 		return
 	}
@@ -349,7 +347,7 @@ func (n *internalNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesM
 	for _, childID := range n.children {
 		child := index.Get(childID)
 		childIsSubBranch := child.isPathSubBranch(nodeID)
-		secondToLastPoint := child.getPathPoint(nodeID, SecondToLastPt)
+		secondToLastPoint := child.pathTo(nodeID).secondToLast()
 		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
 			!child.pathIsMergeTo(nodeID) {
@@ -523,9 +521,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		processedNodesInst := newProcessedNodes()
 		for _, childID := range node.children {
 			child := index.Get(childID)
-			secondToLastPoint := child.getPathPoint(node.ID, SecondToLastPt)
+			secondToLastPoint := child.pathTo(node.ID).secondToLast()
 			if node.Column < secondToLastPoint.X {
-				secondPoint := child.getPathPoint(node.ID, SecondPt)
+				secondPoint := child.pathTo(node.ID).second()
 				childIsSubBranch := child.isPathSubBranch(node.ID)
 				if !childIsSubBranch && !secondPoint.Type.IsMergeTo() {
 					nextColumn--
@@ -667,7 +665,7 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 			for pointIdx, point := range n.Points {
 				path[pointIdx] = []any{point.X, point.Y, point.Type}
 			}
-			finalParentsPaths[i] = []any{colorGen.GetColor(n.ColorIdx), path}
+			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
 			i++
 		}
 		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests

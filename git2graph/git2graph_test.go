@@ -48,8 +48,8 @@ func validateColors(t *testing.T, expectedPaths []map[string]Path, data []Node) 
 			}
 			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
 			expectedPath := expectedPaths[nodeIdx][parentID]
-			if expectedPath.ColorIdx != parentPath.ColorIdx {
-				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath.ColorIdx, parentPath.ColorIdx)
+			if expectedPath.colorIdx != parentPath.colorIdx {
+				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath.colorIdx, parentPath.colorIdx)
 				t.Fail()
 			}
 		}
