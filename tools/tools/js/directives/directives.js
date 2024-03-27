@@ -315,14 +315,14 @@ app.directive('project', function() {
           _.each(node.parents, function(parentId) {
             var prefix = "";
             _.each(_.range(maxParentLength - parentId.length), function() { prefix += " "; });
-            var color = 'color' + (_.indexOf($scope.colors, node.parentsPaths[parentId].color) + 1);
+            var color = _.indexOf($scope.colors, node.parentsPaths[parentId].color);
             out += '			"' + parentId + '":' + prefix + ' {[]Point{';
             var points = [];
             _.each(node.parentsPaths[parentId].path, function(point) {
               points.push('{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');
             });
             out += points.join(', ');
-            out += '}, "' + color + '"},\n';
+            out += '}, ' + color + '},\n';
           });
           out += '		},\n';
         });
