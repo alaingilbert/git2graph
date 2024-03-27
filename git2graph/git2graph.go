@@ -549,7 +549,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
 									followingNode.Column -= nbNodesMergingBack
 								}
-								pathPointX := followingNodeChild.pathTo(followingNode.ID).get(idxRemove).X
+								pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
 								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, y, MergeBack})
 								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, y, Pipe})
 								followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
