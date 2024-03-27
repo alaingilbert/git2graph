@@ -493,6 +493,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		followingNodesWithChildrenBeforeIdx.Remove(node.ID)
 
 		// Each child that are merging
+		// For each node, we need to check each child.
+		// For each child that is merging back, we need to alter paths that are passing over
+		// and decrement their column.
 		processedNodesInst := newProcessedNodes()
 		for _, childID := range node.children {
 			child := index.Get(childID)
