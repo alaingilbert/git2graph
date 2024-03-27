@@ -500,7 +500,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		for _, childID := range node.children {
 			child := index.Get(childID)
 			secondToLastPoint := child.pathTo(node.ID).secondToLast()
-			if node.Column < secondToLastPoint.X {
+			if node.Column < secondToLastPoint.X || len(node.Parents) == 0 {
 				childIsSubBranch := child.isPathSubBranch(node.ID)
 				if !childIsSubBranch && !child.pathTo(node.ID).isMergeTo() {
 					nextColumn--
@@ -513,7 +513,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 				releaseColor(colorsMan, child.getPathColor(node.ID), node.Idx)
 
 				// Insert before the last element
-				child.noDupInsert(node.ID, -1, Point{secondToLastPoint.X, node.Idx, MergeBack})
+				if node.Column != child.Column {
+					child.noDupInsert(node.ID, -1, Point{secondToLastPoint.X, node.Idx, MergeBack})
+				}
 
 				// Nodes that are following the current node
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
@@ -537,13 +539,19 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								idxRemove--
 
 								// Calculate nb of merging nodes
-								nbNodesMergingBack := node.nbNodesMergingBack(index, targetColumn)
+								nbNodesMergingBack := 0
+								y := node.Idx
+								if len(node.Parents) == 0 {
+									y++
+									nbNodesMergingBack++
+								}
+								nbNodesMergingBack += nodes[y].nbNodesMergingBack(index, targetColumn)
 								if followingNode.Column > secondToLastPoint.X && !processedNodesInst.HasNode(followingNode.ID) {
 									followingNode.Column -= nbNodesMergingBack
 								}
 								pathPointX := followingNodeChild.pathTo(followingNode.ID).get(idxRemove).X
-								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, node.Idx, MergeBack})
-								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, node.Idx, Pipe})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, y, MergeBack})
+								followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, y, Pipe})
 								followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 							}
