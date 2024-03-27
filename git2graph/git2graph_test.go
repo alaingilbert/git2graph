@@ -2073,6 +2073,41 @@ func Test34(t *testing.T) {
 	validateColors(t, expectedPaths, out)
 }
 
+func Test35(t *testing.T) {
+	// Initial input
+	inputNodes := []Node{
+		{"id": "0", "parents": []string{"4", "1"}},
+		{"id": "1", "parents": []string{"2", "3"}},
+		{"id": "2", "parents": []string{}},
+		{"id": "3", "parents": []string{"4"}},
+		{"id": "4", "parents": []string{}},
+	}
+
+	out, _ := BuildTree(inputNodes, customColors)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 1, 1, 0}
+
+	expectedPaths := []map[string]Path{
+		{
+			"4": {[]Point{{0, 0, 0}, {0, 4, 0}}, 0},
+			"1": {[]Point{{0, 0, 0}, {1, 0, 2}, {1, 1, 0}}, 1},
+		},
+		{
+			"2": {[]Point{{1, 1, 0}, {1, 2, 0}}, 1},
+			"3": {[]Point{{1, 1, 0}, {2, 1, 2}, {2, 3, 1}, {1, 3, 0}}, 2},
+		},
+		{
+			"4": {[]Point{{1, 3, 0}, {1, 4, 1}, {0, 4, 0}}, 2},
+		},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
 func assertEq(t *testing.T, expected, actual any) {
 	if actual != expected {
 		t.Fail()
