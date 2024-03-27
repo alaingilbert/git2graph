@@ -286,11 +286,6 @@ func (n *internalNode) getPathColor(parentID string) int {
 	return n.pathTo(parentID).colorIdx
 }
 
-// Return either or not the path to a parent is of type "MergeTo"
-func (n *internalNode) isMergeTo(parentID string) bool {
-	return n.pathTo(parentID).isMergeTo()
-}
-
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
 func (n *internalNode) isPathSubBranch(parentID string) bool {
@@ -561,17 +556,15 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, Pipe})
 
 			if !parent.columnDefined() {
-				firstParent := index.Get(node.Parents[0])
-				column := node.Column
-				color := node.ColorIdx
-				if parentIdx > 0 && !node.isMergeTo(firstParent.ID) {
-					column = incrCol()
-					color = getColor(colorsMan, node.Idx)
-					node.noDupAppend(parent.ID, Point{column, node.Idx, Fork})
+				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
+					parent.Column = incrCol()
+					parent.ColorIdx = getColor(colorsMan, node.Idx)
+					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
 					node.setFirstOfBranch()
+				} else {
+					parent.Column = node.Column
+					parent.ColorIdx = node.ColorIdx
 				}
-				parent.Column = column
-				parent.ColorIdx = color
 				node.setPathColor(parent.ID, parent.ColorIdx)
 			} else if node.Column < parent.Column {
 				if parentIdx == 0 {
