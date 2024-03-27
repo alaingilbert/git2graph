@@ -552,9 +552,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 
 		for parentIdx, parentID := range node.Parents {
 			parent := index.Get(parentID)
-
 			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, Pipe})
-
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
 					parent.Column = incrCol()
