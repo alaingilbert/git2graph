@@ -411,17 +411,19 @@ func initChildren(index *nodesCache, nodes []*internalNode) {
 }
 
 type stringSet struct {
-	Items map[string]bool
+	Items map[string]struct{}
 }
 
 func newStringSet() stringSet {
 	s := stringSet{}
-	s.Items = make(map[string]bool)
+	s.Items = make(map[string]struct{})
 	return s
 }
 
-func (s *stringSet) Add(in string) {
-	s.Items[in] = true
+func (s *stringSet) Add(ins []string) {
+	for _, in := range ins {
+		s.Items[in] = struct{}{}
+	}
 }
 
 func (s *stringSet) Remove(in string) {
@@ -487,9 +489,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		}
 
 		// Cache the following node with child before the current node
-		for _, parentID := range node.Parents {
-			followingNodesWithChildrenBeforeIdx.Add(parentID)
-		}
+		followingNodesWithChildrenBeforeIdx.Add(node.Parents)
 		followingNodesWithChildrenBeforeIdx.Remove(node.ID)
 
 		// Each child that are merging
