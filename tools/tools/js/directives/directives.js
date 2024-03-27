@@ -285,7 +285,7 @@ app.directive('project', function() {
         out += 'func ' + testName + '(t *testing.T) {\n';
 
         out += '	// Initial input\n';
-        out += '	inputNodes := []map[string]any{\n';
+        out += '	inputNodes := []Node{\n';
         _.each($scope.tree, function(node) {
           var p = _.map(node.parents, function(el) { return '"' + el + '"'; }).join(', ');
           out += '		{"id": "' + node.id + '", "parents": []string{' + p + '}},\n';
