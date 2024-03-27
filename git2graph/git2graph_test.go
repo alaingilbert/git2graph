@@ -33,7 +33,7 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
 				if pathNode != expectedPath[pathIdx] {
 					t.Fail()
 					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPath[pathIdx], pathNode)
-					t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath, parentPath.Points)
+					t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", node["id"], expectedPath, parentPath.Points)
 				}
 			}
 		}
