@@ -62,11 +62,12 @@ import (
 )
 
 func main() {
-  in := []map[string]any{}
-  in = append(in, map[string]any{"id": "1", "parents": []string{"3"}})
-  in = append(in, map[string]any{"id": "2", "parents": []string{"3"}})
-  in = append(in, map[string]any{"id": "3", "parents": []string{}})
-  
+  in := []map[string]any{
+    {"id": "1", "parents": []string{"3"}},
+    {"id": "2", "parents": []string{"3"}},
+    {"id": "3", "parents": []string{}},
+  }
+
   out, err := git2graph.Get(in)
   fmt.Println(out, err)
 }
