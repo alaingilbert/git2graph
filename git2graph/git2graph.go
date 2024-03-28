@@ -610,8 +610,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			} else if node.Column < parent.Column {
 				if parentIdx == 0 {
 					for _, childID := range parent.children {
-						child := index.Get(childID)
-						pathToParent := child.pathTo(parent.ID)
+						pathToParent := index.Get(childID).pathTo(parent.ID)
 						if pathToParent.isValid() {
 							pathToParent.removeLast()
 							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.Idx, MergeBack})
