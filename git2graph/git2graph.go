@@ -609,9 +609,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					for _, childID := range parent.children {
 						child := index.Get(childID)
 						pathToParent := child.pathTo(parent.ID)
-						if idxRemove := pathToParent.len() - 1; idxRemove > 0 {
-							pathToParent.remove(idxRemove)
-							pathToParent.noDupAppend(&Point{pathToParent.get(idxRemove - 1).X, parent.Idx, MergeBack})
+						if pathToParent.len() > 1 {
+							pathToParent.removeLast()
+							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.Idx, MergeBack})
 							pathToParent.noDupAppend(&Point{node.Column, parent.Idx, Pipe})
 						}
 					}
