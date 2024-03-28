@@ -149,6 +149,10 @@ func (p *Path) len() int {
 	return len(p.Points)
 }
 
+func (p *Path) isEmpty() bool {
+	return p.len() == 0
+}
+
 // Return either or not a path is valid (has at least 2 points)
 func (p *Path) isValid() bool {
 	return p.len() >= 2
@@ -190,7 +194,7 @@ func (p *Path) remove(idx int) {
 
 // append a point to a path if it is not a duplicate
 func (p *Path) noDupAppend(point *Point) {
-	if p.len() == 0 || !p.last().Equal(point) {
+	if p.isEmpty() || !p.last().Equal(point) {
 		p.append(point)
 	}
 }
@@ -549,7 +553,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 						followingNodeChild := index.Get(followingNodeChildID)
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode.ID)
 						if followingNodeChild.Idx < node.Idx &&
-							pathToFollowingNode.len() > 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
+							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							if targetColumn > secondToLastPoint.X {
@@ -579,7 +583,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
 									for _, c := range followingNode.children {
 										path := index.Get(c).pathTo(followingNode.ID)
-										if path.len() > 0 {
+										if !path.isEmpty() {
 											path.last().X = followingNode.Column
 										}
 									}
@@ -613,7 +617,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					for _, childID := range parent.children {
 						child := index.Get(childID)
 						pathToParent := child.pathTo(parent.ID)
-						if pathToParent.len() > 1 {
+						if pathToParent.isValid() {
 							pathToParent.removeLast()
 							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.Idx, MergeBack})
 							pathToParent.noDupAppend(&Point{node.Column, parent.Idx, Pipe})
