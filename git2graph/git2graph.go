@@ -242,6 +242,10 @@ type internalNode struct {
 	parentsPaths  map[string]*Path
 }
 
+func (n *internalNode) isOrphan() bool {
+	return len(n.Parents) == 0
+}
+
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
 // and the commit is the first commit in that new branch.
 func (n *internalNode) isFirstOfBranch() bool {
@@ -520,7 +524,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 			child := index.Get(childID)
 			pathToNode := child.pathTo(node.ID)
 			secondToLastPoint := pathToNode.secondToLast()
-			if node.Column < secondToLastPoint.X || len(node.Parents) == 0 {
+			if node.Column < secondToLastPoint.X || node.isOrphan() {
 				childIsSubBranch := child.isPathSubBranch(node.ID)
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
@@ -558,7 +562,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								// Calculate nb of merging nodes
 								nbNodesMergingBack := 0
 								y := node.Idx
-								if len(node.Parents) == 0 {
+								if node.isOrphan() {
 									y++
 									nbNodesMergingBack++
 								}
