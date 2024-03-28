@@ -683,7 +683,7 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
+func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -706,6 +706,10 @@ func GetInputNodesFromRepo(seqIds bool) (nodes []Node, err error) {
 		//dateIso := lines[i+4]
 		parents := strings.Split(lines[i+5], " ")
 		parents = deleteEmpty(parents)
+		if parentsOf != "" && strings.HasPrefix(sha, parentsOf) {
+			log.Errorf("%v: %v", sha, parents)
+			os.Exit(0)
+		}
 		//tree := lines[i+6]
 		//subject := lines[i+7]
 		i += 8

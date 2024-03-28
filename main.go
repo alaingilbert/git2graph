@@ -21,12 +21,13 @@ func startAction(c *cli.Context) error {
 	repoLinearFlag := c.Bool("repo-linear")
 	seqIds := c.Bool("seq-ids")
 	logLevel := c.String("log")
+	parents := c.String("parents")
 	setLogLevel(logLevel)
 
 	if repoFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo(seqIds)
+		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents)
 	} else if repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo(seqIds)
+		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents)
 		git2graph.SerializeOutput(nodes)
 		return err
 	} else if jsonFlag != "" {
@@ -132,6 +133,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "r, repo",
 			Usage: "Repository",
+		},
+		cli.StringFlag{
+			Name:  "p, parents",
+			Usage: "Parents",
 		},
 		cli.BoolFlag{
 			Name:  "l, repo-linear",
