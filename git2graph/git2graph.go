@@ -64,6 +64,20 @@ func (c *SimpleColorGen) GetColor(idx int) string {
 	return c.colors[idx]
 }
 
+// CycleColorGen ...
+type CycleColorGen struct {
+	colors []string
+}
+
+// NewCycleColorGen creates a new CycleColorGen
+func NewCycleColorGen(colors []string) *CycleColorGen {
+	return &CycleColorGen{colors: colors}
+}
+
+func (c *CycleColorGen) GetColor(idx int) string {
+	return c.colors[idx%len(c.colors)]
+}
+
 type colorsManager struct {
 	g IColorGenerator
 	m map[int]*Color
@@ -624,7 +638,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 
 // Get generates the props to turn the input into a graph drawable
 func Get(inputNodes []Node) ([]Node, error) {
-	nodes, err := BuildTree(inputNodes, NewSimpleColorGen(DefaultColors))
+	nodes, err := BuildTree(inputNodes, NewCycleColorGen(DefaultColors))
 	for _, node := range nodes {
 		delete(node, parentsPathsTestKey)
 	}
@@ -633,7 +647,7 @@ func Get(inputNodes []Node) ([]Node, error) {
 
 // GetPaginated same as Get but only return the nodes for the asked page
 func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
-	nodes, err := BuildTree(inputNodes, NewSimpleColorGen(DefaultColors))
+	nodes, err := BuildTree(inputNodes, NewCycleColorGen(DefaultColors))
 	for _, node := range nodes {
 		delete(node, parentsPathsTestKey)
 	}
