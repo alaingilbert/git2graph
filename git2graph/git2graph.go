@@ -400,7 +400,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
-		newNode := internalNode{}
+		newNode := &internalNode{}
 		newNode.InitialNode = node
 		newNode.ID = id
 		newNode.Idx = idx
@@ -408,7 +408,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.Parents = parents
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]string, 0)
-		out = append(out, &newNode)
+		out = append(out, newNode)
 	}
 	return out
 }
