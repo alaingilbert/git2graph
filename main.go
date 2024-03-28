@@ -9,7 +9,7 @@ import (
 )
 
 func startAction(c *cli.Context) error {
-	var nodes []git2graph.Node
+	var nodes []*git2graph.Node
 	var err error
 	fromFlag := c.Int("from")
 	sizeFlag := c.Int("size")
@@ -48,16 +48,16 @@ func startAction(c *cli.Context) error {
 		return err
 	}
 	for _, node := range out {
-		delete(node, "parentsPaths")
+		delete(*node, "parentsPaths")
 	}
 
-	var tmp []git2graph.Node
+	var tmp []*git2graph.Node
 	if fromFlag >= 0 && sizeFlag >= 1 {
 		// TODO: include context (nodes before "from" that have parents inside or after the range)
 		if contextFlag {
 			for _, node := range out {
-				nodeIdx := node["idx"].(int)
-				parentsPaths := node["parents_paths"].([]git2graph.Path)
+				nodeIdx := (*node)["idx"].(int)
+				parentsPaths := (*node)["parents_paths"].([]git2graph.Path)
 				hasParentsInContext := false
 				for _, nodeParent := range parentsPaths {
 					if nodeParent.Points[len(nodeParent.Points)-1].Y >= fromFlag {

@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func validateColumns(t *testing.T, expectedColumns []int, data []Node) {
+func validateColumns(t *testing.T, expectedColumns []int, data []*Node) {
 	for idx, row := range data {
 		expectedColumn := expectedColumns[idx]
-		actualColumn := row[gKey].([]any)[1]
+		actualColumn := (*row)[gKey].([]any)[1]
 		if actualColumn != expectedColumn {
 			t.Fail()
-			t.Logf("ID: %s, Expected column: %d, Actual column: %d", row["id"], expectedColumn, actualColumn)
+			t.Logf("ID: %s, Expected column: %d, Actual column: %d", (*row)["id"], expectedColumn, actualColumn)
 		}
 	}
 }
@@ -24,41 +24,41 @@ func pprintPoints(points []*Point) string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
+func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []*Node) {
 	for nodeIdx, node := range data {
-		for _, parentID := range node[parentsKey].([]string) {
+		for _, parentID := range (*node)[parentsKey].([]string) {
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
 			expectedPath := expectedPaths[nodeIdx][parentID].Points
-			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
+			parentPath := (*node)[parentsPathsTestKey].(map[string]*Path)[parentID]
 			if len(parentPath.Points) != len(expectedPath) {
 				t.Fail()
-				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", node["id"], len(expectedPath), len(parentPath.Points))
-				t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", node["id"], pprintPoints(expectedPath), pprintPoints(parentPath.Points))
+				t.Logf("ID: %s, Expected nb paths: %d, Actual nb paths: %d", (*node)["id"], len(expectedPath), len(parentPath.Points))
+				t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", (*node)["id"], pprintPoints(expectedPath), pprintPoints(parentPath.Points))
 				return
 			}
 			for pathIdx, pathNode := range parentPath.Points {
 				if !pathNode.Equal(expectedPath[pathIdx]) {
 					t.Fail()
-					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPath[pathIdx], pathNode)
-					t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", node["id"], pprintPoints(expectedPath), pprintPoints(parentPath.Points))
+					t.Logf("ID: %s, Expected path: %d, Actual path: %d", (*node)["id"], expectedPath[pathIdx], pathNode)
+					t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", (*node)["id"], pprintPoints(expectedPath), pprintPoints(parentPath.Points))
 				}
 			}
 		}
 	}
 }
 
-func validateColors(t *testing.T, expectedPaths []map[string]Path, data []Node) {
+func validateColors(t *testing.T, expectedPaths []map[string]Path, data []*Node) {
 	for nodeIdx, node := range data {
-		for _, parentID := range node[parentsKey].([]string) {
+		for _, parentID := range (*node)[parentsKey].([]string) {
 			if len(expectedPaths)-1 < nodeIdx {
 				continue
 			}
-			parentPath := node[parentsPathsTestKey].(map[string]*Path)[parentID]
+			parentPath := (*node)[parentsPathsTestKey].(map[string]*Path)[parentID]
 			expectedPath := expectedPaths[nodeIdx][parentID]
 			if expectedPath.colorIdx != parentPath.colorIdx {
-				t.Logf("ID: %s, Expected: %v, Actual: %v", node["id"], expectedPath.colorIdx, parentPath.colorIdx)
+				t.Logf("ID: %s, Expected: %v, Actual: %v", (*node)["id"], expectedPath.colorIdx, parentPath.colorIdx)
 				t.Fail()
 			}
 		}
@@ -83,14 +83,14 @@ func TestNotEnoughColors(t *testing.T) {
 		"color1",
 		"color2",
 	})
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{}},
 	}
 	out, _ := BuildTree(inputNodes, colors)
-	if out[2][gKey].([]any)[2] != "#000" {
+	if (*out[2])[gKey].([]any)[2] != "#000" {
 		t.Fail()
 	}
 }
@@ -129,7 +129,7 @@ func TestGetInputNodesFromJsonWithBadJson(t *testing.T) {
 // 3
 func Test1(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"2"}},
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{}},
@@ -161,7 +161,7 @@ func Test1(t *testing.T) {
 // 3
 func Test2(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{}},
@@ -194,7 +194,7 @@ func Test2(t *testing.T) {
 // 3
 func Test3(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{}},
@@ -233,7 +233,7 @@ func Test3(t *testing.T) {
 // 5
 func Test4(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"5"}},
 		{"id": "3", "parents": []string{"5", "4"}},
@@ -280,7 +280,7 @@ func Test4(t *testing.T) {
 // 6
 func Test5(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"4"}},
 		{"id": "3", "parents": []string{"4"}},
@@ -328,7 +328,7 @@ func Test5(t *testing.T) {
 // 5
 func Test6(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"3", "4"}},
 		{"id": "3", "parents": []string{"5"}},
@@ -376,7 +376,7 @@ func Test6(t *testing.T) {
 // 6
 func Test7(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"4", "5"}},
 		{"id": "3", "parents": []string{"5"}},
@@ -429,7 +429,7 @@ func Test7(t *testing.T) {
 // 6
 func Test8(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"4"}},
 		{"id": "3", "parents": []string{"4", "5"}},
@@ -488,7 +488,7 @@ func Test8(t *testing.T) {
 // 8
 func Test9(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3", "2"}},
 		{"id": "2", "parents": []string{"5"}},
 		{"id": "3", "parents": []string{"4", "7"}},
@@ -556,7 +556,7 @@ func Test9(t *testing.T) {
 // 8
 func Test10(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"4", "2"}},
 		{"id": "2", "parents": []string{"5", "3"}},
 		{"id": "3", "parents": []string{"5"}},
@@ -615,7 +615,7 @@ func Test10(t *testing.T) {
 // 6
 func Test11(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"3", "4"}},
 		{"id": "3", "parents": []string{"5"}},
@@ -669,7 +669,7 @@ func Test11(t *testing.T) {
 // 7
 func Test12(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"3", "6"}},
 		{"id": "3", "parents": []string{"5", "4"}},
@@ -717,7 +717,7 @@ func Test12(t *testing.T) {
 // 10
 func Test13(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"4", "2"}},
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{"5", "9"}},
@@ -765,7 +765,7 @@ func Test13(t *testing.T) {
 // 8
 func Test14(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"5", "4"}},
 		{"id": "3", "parents": []string{"6", "4"}},
@@ -827,7 +827,7 @@ func Test14(t *testing.T) {
 // 8
 func Test15(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"6", "4"}},
 		{"id": "3", "parents": []string{"5", "4"}},
@@ -885,7 +885,7 @@ func Test15(t *testing.T) {
 // 7
 func Test16(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "1", "parents": []string{"5"}},
 		{"id": "2", "parents": []string{"6"}},
 		{"id": "3", "parents": []string{"5"}},
@@ -929,7 +929,7 @@ func Test16(t *testing.T) {
 
 func Test17(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"4"}},
@@ -973,7 +973,7 @@ func Test17(t *testing.T) {
 
 func Test18(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"5"}},
@@ -1017,7 +1017,7 @@ func Test18(t *testing.T) {
 
 func Test19(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"5"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"9"}},
@@ -1087,7 +1087,7 @@ func Test19(t *testing.T) {
 
 func Test20(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"5"}},
@@ -1127,7 +1127,7 @@ func Test20(t *testing.T) {
 
 func Test21(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"5"}},
@@ -1176,7 +1176,7 @@ func Test21(t *testing.T) {
 
 func Test22(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"5"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"6"}},
@@ -1229,7 +1229,7 @@ func Test22(t *testing.T) {
 
 func Test23(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"4"}},
@@ -1282,7 +1282,7 @@ func Test23(t *testing.T) {
 
 func Test24(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"5"}},
 		{"id": "2", "parents": []string{"9"}},
@@ -1349,7 +1349,7 @@ func Test24(t *testing.T) {
 
 func Test25(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"5"}},
 		{"id": "1", "parents": []string{"3"}},
 		{"id": "2", "parents": []string{"4"}},
@@ -1422,7 +1422,7 @@ func Test25(t *testing.T) {
 
 func Test26(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"5"}},
@@ -1476,7 +1476,7 @@ func Test26(t *testing.T) {
 
 func Test27(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"5"}},
 		{"id": "2", "parents": []string{"7"}},
@@ -1568,7 +1568,7 @@ func Test27(t *testing.T) {
 
 func Test28(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"2", "1"}},
 		{"id": "1", "parents": []string{"2"}},
 		{"id": "2", "parents": []string{"3"}},
@@ -1614,7 +1614,7 @@ func Test28(t *testing.T) {
 
 func Test29(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"7"}},
 		{"id": "1", "parents": []string{"15"}},
 		{"id": "2", "parents": []string{"17"}},
@@ -1746,7 +1746,7 @@ func Test29(t *testing.T) {
 
 func Test30(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4"}},
 		{"id": "1", "parents": []string{"15"}},
 		{"id": "2", "parents": []string{"14"}},
@@ -1868,7 +1868,7 @@ func Test30(t *testing.T) {
 
 func Test31(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"4"}},
 		{"id": "2", "parents": []string{"5", "4"}},
@@ -1913,7 +1913,7 @@ func Test31(t *testing.T) {
 
 func Test32(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"2"}},
 		{"id": "1", "parents": []string{"5", "3"}},
 		{"id": "2", "parents": []string{"3", "4"}},
@@ -1959,7 +1959,7 @@ func Test32(t *testing.T) {
 
 func Test33(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"3"}},
 		{"id": "1", "parents": []string{"5"}},
 		{"id": "2", "parents": []string{"7"}},
@@ -2034,7 +2034,7 @@ func Test33(t *testing.T) {
 
 func Test34(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"5"}},
 		{"id": "1", "parents": []string{"4", "2"}},
 		{"id": "2", "parents": []string{"3"}},
@@ -2084,7 +2084,7 @@ func Test34(t *testing.T) {
 
 func Test35(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4", "1"}},
 		{"id": "1", "parents": []string{"2", "3"}},
 		{"id": "2", "parents": []string{}},
@@ -2119,7 +2119,7 @@ func Test35(t *testing.T) {
 
 func Test36(t *testing.T) {
 	// Initial input
-	inputNodes := []Node{
+	inputNodes := []*Node{
 		{"id": "0", "parents": []string{"4", "1"}},
 		{"id": "1", "parents": []string{"4", "2"}},
 		{"id": "2", "parents": []string{"3", "5"}},
@@ -2187,7 +2187,7 @@ func TestPathHeight1(t *testing.T) {
 
 func BenchmarkTest1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		inputNodes := []Node{
+		inputNodes := []*Node{
 			{"id": "0", "parents": []string{"4"}},
 			{"id": "1", "parents": []string{"15"}},
 			{"id": "2", "parents": []string{"14"}},

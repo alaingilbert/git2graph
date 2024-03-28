@@ -235,7 +235,7 @@ func (p *Point) Equal(other *Point) bool {
 // children are the nodes above the current node
 // A node only ever have at most 2 parents.
 type internalNode struct {
-	InitialNode   Node
+	InitialNode   *Node
 	ID            string
 	Idx           int
 	Column        int
@@ -359,7 +359,7 @@ func (n *internalNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesM
 }
 
 // SerializeOutput Json encode object
-func SerializeOutput(out []Node) {
+func SerializeOutput(out []*Node) {
 	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
 		if err := enc.Encode(out); err != nil {
@@ -369,7 +369,7 @@ func SerializeOutput(out []Node) {
 }
 
 // GetInputNodesFromJSON Get nodes from json object
-func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
+func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 	dec := json.NewDecoder(bytes.NewReader(inputJSON))
 	err = dec.Decode(&nodes)
 	if err != nil {
@@ -377,26 +377,26 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []Node, err error) {
 	}
 	for _, node := range nodes {
 		parents := make([]string, 0)
-		nodeParents, ok := node[parentsKey]
+		nodeParents, ok := (*node)[parentsKey]
 		if !ok {
 			log.Fatal("malformed json input, node missing parents property")
 		}
 		for _, parent := range nodeParents.([]any) {
 			parents = append(parents, parent.(string))
 		}
-		node[parentsKey] = parents
+		(*node)[parentsKey] = parents
 	}
 	return
 }
 
-func initNodes(inputNodes []Node) []*internalNode {
+func initNodes(inputNodes []*Node) []*internalNode {
 	out := make([]*internalNode, 0)
 	for idx, node := range inputNodes {
-		id, ok := node[idKey].(string)
+		id, ok := (*node)[idKey].(string)
 		if !ok {
 			log.Fatal("id property must be a string")
 		}
-		parents, ok := node[parentsKey].([]string)
+		parents, ok := (*node)[parentsKey].([]string)
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
@@ -645,26 +645,26 @@ func fixPathsToNode(index *nodesCache, node *internalNode) {
 }
 
 // Get generates the props to turn the input into a graph drawable
-func Get(inputNodes []Node) ([]Node, error) {
+func Get(inputNodes []*Node) ([]*Node, error) {
 	nodes, err := BuildTree(inputNodes, NewCycleColorGen(DefaultColors))
 	for _, node := range nodes {
-		delete(node, parentsPathsTestKey)
+		delete(*node, parentsPathsTestKey)
 	}
 	return nodes, err
 }
 
 // GetPaginated same as Get but only return the nodes for the asked page
-func GetPaginated(inputNodes []Node, from, size int) ([]Node, error) {
+func GetPaginated(inputNodes []*Node, from, size int) ([]*Node, error) {
 	nodes, err := BuildTree(inputNodes, NewCycleColorGen(DefaultColors))
 	for _, node := range nodes {
-		delete(node, parentsPathsTestKey)
+		delete(*node, parentsPathsTestKey)
 	}
 	return nodes[from : from+size], err
 }
 
 // BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
-func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
+func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
 	colorsMan := newColorsManager(colorGen)
 
 	nodes := initNodes(inputNodes)
@@ -672,12 +672,9 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 
 	setColumns(index, colorsMan, nodes)
 
-	finalStruct := make([]Node, len(nodes))
+	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
-		finalNode := map[string]any{}
-		for key, value := range node.InitialNode {
-			finalNode[key] = value
-		}
+		finalNode := node.InitialNode
 		finalParentsPaths := make([]any, len(node.parentsPaths))
 		i := 0
 		for _, n := range node.parentsPaths {
@@ -688,8 +685,8 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
 			i++
 		}
-		finalNode[parentsPathsTestKey] = node.parentsPaths // Kept for tests
-		finalNode[gKey] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
+		(*finalNode)[parentsPathsTestKey] = node.parentsPaths // Kept for tests
+		(*finalNode)[gKey] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
 	}
 
@@ -697,7 +694,7 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 }
 
 // GetInputNodesFromFile creates an array of Node from json contained in a file
-func GetInputNodesFromFile(filePath string) (nodes []Node, err error) {
+func GetInputNodesFromFile(filePath string) (nodes []*Node, err error) {
 	fileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return
@@ -720,7 +717,7 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []Node, err error) {
+func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
 	if err != nil {
@@ -757,9 +754,9 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []Node, err err
 		} else {
 			id = sha
 		}
-		node := Node{}
-		node[idKey] = id
-		node[parentsKey] = parents
+		node := &Node{}
+		(*node)[idKey] = id
+		(*node)[parentsKey] = parents
 		nodes = append(nodes, node)
 		ids++
 		if lines[i] != startOfCommit {
@@ -769,10 +766,10 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []Node, err err
 	if seqIds {
 		for _, node := range nodes {
 			mappedParents := make([]string, 0)
-			for _, parentSha := range node[parentsKey].([]string) {
+			for _, parentSha := range (*node)[parentsKey].([]string) {
 				mappedParents = append(mappedParents, shaMap[parentSha])
 			}
-			node[parentsKey] = mappedParents
+			(*node)[parentsKey] = mappedParents
 		}
 	}
 	return
