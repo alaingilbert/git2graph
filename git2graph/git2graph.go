@@ -177,6 +177,11 @@ func (p *Path) first() *Point        { return p.get(0) }
 func (p *Path) second() *Point       { return p.get(1) }
 func (p *Path) last() *Point         { return p.get(-1) }
 func (p *Path) secondToLast() *Point { return p.get(-2) }
+func (p *Path) removeLast()          { p.remove(p.len() - 1) }
+func (p *Path) removeSecondToLast()  { p.remove(p.len() - 2) }
+func (p *Path) remove(idx int) {
+	p.Points = append(p.Points[:idx], p.Points[idx+1:]...)
+}
 
 // Point is one part of a path
 type Point struct {
@@ -252,11 +257,6 @@ func (n *internalNode) noDupInsert(parentID string, idx int, point *Point) {
 func (n *internalNode) append(parentID string, point *Point) {
 	parentPath := n.pathTo(parentID)
 	parentPath.Points = append(parentPath.Points, point)
-}
-
-func (n *internalNode) remove(parentID string, idx int) {
-	parentPath := n.pathTo(parentID)
-	parentPath.Points = append(parentPath.Points[:idx], parentPath.Points[idx+1:]...)
 }
 
 func (n *internalNode) insert(parentID string, idx int, point *Point) {
@@ -549,19 +549,16 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 					for _, followingNodeChildID := range followingNode.children {
 						followingNodeChild := index.Get(followingNodeChildID)
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode.ID)
-						// Index to delete is the one before last
-						idxRemove := pathToFollowingNode.len() - 1
 						if followingNodeChild.Idx < node.Idx &&
-							idxRemove >= 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
+							pathToFollowingNode.len() > 0 && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							if targetColumn > secondToLastPoint.X {
 								// Remove second before last node has same Y, remove the before last node
-								for pathToFollowingNode.get(idxRemove).Y == pathToFollowingNode.get(idxRemove-1).Y {
-									followingNodeChild.remove(followingNode.ID, idxRemove-1)
-									idxRemove--
+								for pathToFollowingNode.last().Y == pathToFollowingNode.secondToLast().Y {
+									pathToFollowingNode.removeSecondToLast()
 								}
-								followingNodeChild.remove(followingNode.ID, idxRemove)
+								pathToFollowingNode.removeLast()
 
 								// Calculate nb of merging nodes
 								nbNodesMergingBack := 0
@@ -617,7 +614,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 						child := index.Get(childID)
 						pathToParent := child.pathTo(parent.ID)
 						if idxRemove := pathToParent.len() - 1; idxRemove > 0 {
-							child.remove(parent.ID, idxRemove)
+							pathToParent.remove(idxRemove)
 							child.noDupAppend(parent.ID, &Point{pathToParent.get(idxRemove - 1).X, parent.Idx, MergeBack})
 							child.noDupAppend(parent.ID, &Point{node.Column, parent.Idx, Pipe})
 						}
