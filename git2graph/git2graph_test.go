@@ -22,7 +22,7 @@ func pprintPoints(points []*Point) string {
 	for _, p := range points {
 		s = append(s, fmt.Sprintf("{%d,%d,%d}", p.X, p.Y, p.Type))
 	}
-	return strings.Join(s, ", ")
+	return "[" + strings.Join(s, ",") + "]"
 }
 
 func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
@@ -43,7 +43,7 @@ func validatePaths(t *testing.T, expectedPaths []map[string]Path, data []Node) {
 				if !pathNode.Equal(expectedPath[pathIdx]) {
 					t.Fail()
 					t.Logf("ID: %s, Expected path: %d, Actual path: %d", node["id"], expectedPath[pathIdx], pathNode)
-					t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", node["id"], expectedPath, parentPath.Points)
+					t.Logf("ID: %s, Expected vs Actual:\n%v\n%v", node["id"], pprintPoints(expectedPath), pprintPoints(parentPath.Points))
 				}
 			}
 		}
