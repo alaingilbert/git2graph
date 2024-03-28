@@ -427,15 +427,6 @@ func initIndex(nodes []*internalNode) *nodesCache {
 	return index
 }
 
-func initChildren(index *nodesCache, nodes []*internalNode) {
-	for _, node := range nodes {
-		for _, parentID := range node.Parents {
-			n := index.Get(parentID)
-			n.children = append(n.children, node.ID)
-		}
-	}
-}
-
 type stringSet struct {
 	Items map[string]struct{}
 }
@@ -508,6 +499,12 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		return nextColumn
 	}
 	for _, node := range nodes {
+		// Add node as a child into parents
+		for _, parentID := range node.Parents {
+			parent := index.Get(parentID)
+			parent.children = append(parent.children, node.ID)
+		}
+
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = incrCol()
@@ -673,7 +670,6 @@ func BuildTree(inputNodes []Node, colorGen IColorGenerator) ([]Node, error) {
 	nodes := initNodes(inputNodes)
 	index := initIndex(nodes)
 
-	initChildren(index, nodes)
 	setColumns(index, colorsMan, nodes)
 
 	finalStruct := make([]Node, len(nodes))
