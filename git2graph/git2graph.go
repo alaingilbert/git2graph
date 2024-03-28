@@ -125,7 +125,7 @@ type Node map[string]any
 
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
-	Points   []Point
+	Points   []*Point
 	colorIdx int
 }
 
@@ -149,7 +149,7 @@ func (p *Path) isMergeTo() bool {
 	return p.isValid() && p.second().Type.IsMergeTo()
 }
 
-func (p *Path) get(idx int) (out Point) {
+func (p *Path) get(idx int) (out *Point) {
 	if idx < 0 {
 		idx = p.len() + idx
 		if idx < 0 {
@@ -158,16 +158,20 @@ func (p *Path) get(idx int) (out Point) {
 	}
 	return p.Points[idx]
 }
-func (p *Path) first() Point        { return p.get(0) }
-func (p *Path) second() Point       { return p.get(1) }
-func (p *Path) last() Point         { return p.get(-1) }
-func (p *Path) secondToLast() Point { return p.get(-2) }
+func (p *Path) first() *Point        { return p.get(0) }
+func (p *Path) second() *Point       { return p.get(1) }
+func (p *Path) last() *Point         { return p.get(-1) }
+func (p *Path) secondToLast() *Point { return p.get(-2) }
 
 // Point is one part of a path
 type Point struct {
 	X    int
 	Y    int
 	Type pointType
+}
+
+func (p *Point) Equal(other *Point) bool {
+	return p.X == other.X && p.Y == other.Y && p.Type == other.Type
 }
 
 // parents are the node below the current node
@@ -205,28 +209,28 @@ func (n *internalNode) pathTo(parentID string) *Path {
 }
 
 // append a point to a parent path if it is not a duplicate
-func (n *internalNode) noDupAppend(parentID string, point Point) {
+func (n *internalNode) noDupAppend(parentID string, point *Point) {
 	parentPath := n.pathTo(parentID)
 	parentPathLen := parentPath.len()
-	if parentPathLen > 0 && parentPath.Points[parentPathLen-1] == point {
+	if parentPathLen > 0 && parentPath.Points[parentPathLen-1].Equal(point) {
 		return
 	}
 	n.append(parentID, point)
 }
 
 // insert a point to a parent path if it is not a duplicate
-func (n *internalNode) noDupInsert(parentID string, idx int, point Point) {
+func (n *internalNode) noDupInsert(parentID string, idx int, point *Point) {
 	parentPath := n.pathTo(parentID)
 	if idx < 0 {
 		idx = parentPath.len() + idx
 	}
-	if parentPath.Points[idx-1] == point {
+	if parentPath.Points[idx-1].Equal(point) {
 		return
 	}
 	n.insert(parentID, idx, point)
 }
 
-func (n *internalNode) append(parentID string, point Point) {
+func (n *internalNode) append(parentID string, point *Point) {
 	parentPath := n.pathTo(parentID)
 	parentPath.Points = append(parentPath.Points, point)
 }
@@ -236,9 +240,9 @@ func (n *internalNode) remove(parentID string, idx int) {
 	parentPath.Points = append(parentPath.Points[:idx], parentPath.Points[idx+1:]...)
 }
 
-func (n *internalNode) insert(parentID string, idx int, point Point) {
+func (n *internalNode) insert(parentID string, idx int, point *Point) {
 	parentPath := n.pathTo(parentID)
-	parentPath.Points = append(parentPath.Points, Point{})
+	parentPath.Points = append(parentPath.Points, &Point{})
 	copy(parentPath.Points[idx+1:], parentPath.Points[idx:])
 	parentPath.Points[idx] = point
 }
@@ -515,7 +519,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 
 				// Insert before the last element
 				if node.Column != child.Column {
-					child.noDupInsert(node.ID, -1, Point{secondToLastPoint.X, node.Idx, MergeBack})
+					child.noDupInsert(node.ID, -1, &Point{secondToLastPoint.X, node.Idx, MergeBack})
 				}
 
 				// Nodes that are following the current node
@@ -550,9 +554,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								if followingNode.Column > secondToLastPoint.X && !processedNodesInst1.HasNode(followingNode.ID) {
 									followingNode.Column -= nbNodesMergingBack
 									pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, y, MergeBack})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, y, Pipe})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX, y, MergeBack})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX - nbNodesMergingBack, y, Pipe})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{followingNode.Column, followingNode.Idx, Pipe})
 									for _, c := range followingNode.children {
 										cc := index.Get(c)
 										path := cc.pathTo(followingNode.ID)
@@ -560,17 +564,14 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 										if pathLen == 0 {
 											continue
 										}
-										last := path.last()
-										last.X = followingNode.Column
-										cc.remove(followingNode.ID, pathLen-1)
-										cc.noDupAppend(followingNode.ID, last)
+										path.last().X = followingNode.Column
 									}
 									processedNodesInst1.Set(followingNode.ID, followingNodeChild.ID)
 								} else {
 									pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX, y, MergeBack})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{pathPointX - nbNodesMergingBack, y, Pipe})
-									followingNodeChild.noDupAppend(followingNode.ID, Point{followingNode.Column, followingNode.Idx, Pipe})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX, y, MergeBack})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX - nbNodesMergingBack, y, Pipe})
+									followingNodeChild.noDupAppend(followingNode.ID, &Point{followingNode.Column, followingNode.Idx, Pipe})
 								}
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 							}
@@ -582,12 +583,12 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 
 		for parentIdx, parentID := range node.Parents {
 			parent := index.Get(parentID)
-			node.noDupAppend(parent.ID, Point{node.Column, node.Idx, Pipe})
+			node.noDupAppend(parent.ID, &Point{node.Column, node.Idx, Pipe})
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
 					parent.Column = incrCol()
 					parent.ColorIdx = getColor(colorsMan, node.Idx)
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
+					node.noDupAppend(parent.ID, &Point{parent.Column, node.Idx, Fork})
 					node.setFirstOfBranch()
 				} else {
 					parent.Column = node.Column
@@ -600,27 +601,27 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 						child := index.Get(childID)
 						if idxRemove := child.pathTo(parent.ID).len() - 1; idxRemove > 0 {
 							child.remove(parent.ID, idxRemove)
-							child.noDupAppend(parent.ID, Point{child.pathTo(parent.ID).get(idxRemove - 1).X, parent.Idx, MergeBack})
-							child.noDupAppend(parent.ID, Point{node.Column, parent.Idx, Pipe})
+							child.noDupAppend(parent.ID, &Point{child.pathTo(parent.ID).get(idxRemove - 1).X, parent.Idx, MergeBack})
+							child.noDupAppend(parent.ID, &Point{node.Column, parent.Idx, Pipe})
 						}
 					}
 					parent.Column = node.Column
 					parent.ColorIdx = node.ColorIdx
 					node.setPathColor(parent.ID, node.ColorIdx)
 				} else {
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, Fork})
+					node.noDupAppend(parent.ID, &Point{parent.Column, node.Idx, Fork})
 					node.setPathColor(parent.ID, parent.ColorIdx)
 				}
 			} else if node.Column > parent.Column {
 				if node.hasBiggerParentDefined(index) || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch(index))) {
-					node.noDupAppend(parent.ID, Point{node.Column, parent.Idx, MergeBack})
+					node.noDupAppend(parent.ID, &Point{node.Column, parent.Idx, MergeBack})
 					node.setPathColor(parent.ID, node.ColorIdx)
 				} else {
-					node.noDupAppend(parent.ID, Point{parent.Column, node.Idx, MergeTo})
+					node.noDupAppend(parent.ID, &Point{parent.Column, node.Idx, MergeTo})
 					node.setPathColor(parent.ID, parent.ColorIdx)
 				}
 			}
-			node.noDupAppend(parent.ID, Point{parent.Column, parent.Idx, Pipe})
+			node.noDupAppend(parent.ID, &Point{parent.Column, parent.Idx, Pipe})
 		}
 	}
 }
