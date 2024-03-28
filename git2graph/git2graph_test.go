@@ -1,7 +1,6 @@
 package git2graph
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -20,7 +19,7 @@ func validateColumns(t *testing.T, expectedColumns []int, data []Node) {
 func pprintPoints(points []*Point) string {
 	s := make([]string, 0)
 	for _, p := range points {
-		s = append(s, fmt.Sprintf("{%d,%d,%d}", p.X, p.Y, p.Type))
+		s = append(s, p.String())
 	}
 	return "[" + strings.Join(s, ",") + "]"
 }

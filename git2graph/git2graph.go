@@ -3,6 +3,7 @@ package git2graph
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -182,6 +183,10 @@ type Point struct {
 	X    int
 	Y    int
 	Type pointType
+}
+
+func (p *Point) String() string {
+	return fmt.Sprintf("{%d,%d,%d}", p.X, p.Y, p.Type)
 }
 
 func (p *Point) Equal(other *Point) bool {
