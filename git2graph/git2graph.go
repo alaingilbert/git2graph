@@ -557,7 +557,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode.ID, node.Idx)
 							if targetColumn > secondToLastPoint.X {
-								// Remove second before last node has same Y, remove the before last node
+								// Remove all nodes, that are next to the last node, that have the same Y as the last node
 								for pathToFollowingNode.last().Y == pathToFollowingNode.secondToLast().Y {
 									pathToFollowingNode.removeSecondToLast()
 								}
