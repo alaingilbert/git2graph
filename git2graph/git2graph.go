@@ -385,7 +385,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 }
 
 func initNodes(inputNodes []*Node) []*internalNode {
-	out := make([]*internalNode, 0)
+	out := make([]*internalNode, len(inputNodes))
 	index := newNodesCache()
 	for idx, node := range inputNodes {
 		id, ok := (*node)[idKey].(string)
@@ -400,7 +400,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.Parents = make([]*internalNode, 0)
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]*internalNode, 0)
-		out = append(out, newNode)
+		out[idx] = newNode
 		index.Set(newNode.ID, newNode)
 	}
 	for _, node := range out {
