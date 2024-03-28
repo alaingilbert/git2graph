@@ -586,7 +586,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 											path.last().X = followingNode.Column
 										}
 									}
-									processedNodesInst1.Set(followingNode.ID, followingNodeChild.ID)
+									processedNodesInst1.Set(followingNode.ID, "")
 								}
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 							}
