@@ -110,7 +110,7 @@ func init() {
 func main() {
 	var authors []cli.Author
 	// Collaborators, add your name here :)
-	authors = append(authors, cli.Author{"Alain Gilbert", "alain.gilbert.15@gmail.com"})
+	authors = append(authors, cli.Author{Name: "Alain Gilbert", Email: "alain.gilbert.15@gmail.com"})
 
 	app := cli.NewApp()
 	app.Authors = authors
