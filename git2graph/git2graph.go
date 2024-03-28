@@ -551,27 +551,23 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodes[y].nbNodesMergingBack(index, targetColumn)
-								if followingNode.Column > secondToLastPoint.X && !processedNodesInst1.HasNode(followingNode.ID) {
+								shouldMoveNode := followingNode.Column > secondToLastPoint.X && !processedNodesInst1.HasNode(followingNode.ID)
+								if shouldMoveNode {
 									followingNode.Column -= nbNodesMergingBack
-									pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX, y, MergeBack})
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX - nbNodesMergingBack, y, Pipe})
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{followingNode.Column, followingNode.Idx, Pipe})
+								}
+								pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
+								followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX, y, MergeBack})
+								followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX - nbNodesMergingBack, y, Pipe})
+								followingNodeChild.noDupAppend(followingNode.ID, &Point{followingNode.Column, followingNode.Idx, Pipe})
+								if shouldMoveNode {
+									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
 									for _, c := range followingNode.children {
-										cc := index.Get(c)
-										path := cc.pathTo(followingNode.ID)
-										pathLen := path.len()
-										if pathLen == 0 {
-											continue
+										path := index.Get(c).pathTo(followingNode.ID)
+										if path.len() > 0 {
+											path.last().X = followingNode.Column
 										}
-										path.last().X = followingNode.Column
 									}
 									processedNodesInst1.Set(followingNode.ID, followingNodeChild.ID)
-								} else {
-									pathPointX := followingNodeChild.pathTo(followingNode.ID).last().X
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX, y, MergeBack})
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{pathPointX - nbNodesMergingBack, y, Pipe})
-									followingNodeChild.noDupAppend(followingNode.ID, &Point{followingNode.Column, followingNode.Idx, Pipe})
 								}
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
 							}
