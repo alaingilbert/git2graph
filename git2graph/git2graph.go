@@ -190,8 +190,7 @@ func (p *Path) remove(idx int) {
 
 // append a point to a parent path if it is not a duplicate
 func (p *Path) noDupAppend(point *Point) {
-	parentPathLen := p.len()
-	if parentPathLen > 0 && p.Points[parentPathLen-1].Equal(point) {
+	if p.len() > 0 && p.last().Equal(point) {
 		return
 	}
 	p.append(point)
