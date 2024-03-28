@@ -102,7 +102,6 @@ go test ./...
 ## TODO
 
 - Pagination
-- Colors algorithm
 
 ## How to contribute
 
