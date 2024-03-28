@@ -2171,7 +2171,7 @@ func assertEq(t *testing.T, expected, actual any) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	out := internalNode{parentsPaths: map[string]*Path{"1": {Points: []*Point{
+	out := &internalNode{ID: "1", parentsPaths: map[string]*Path{"1": {Points: []*Point{
 		{X: 0, Y: 2, Type: 0},
 		{X: 3, Y: 2, Type: 2},
 		{X: 3, Y: 9, Type: 1},
@@ -2179,13 +2179,13 @@ func TestPathHeight1(t *testing.T) {
 		{X: 2, Y: 11, Type: 1},
 		{X: 1, Y: 11, Type: 0},
 	}}}}
-	assertEq(t, -1, out.GetPathHeightAtIdx("1", 1))
-	assertEq(t, 3, out.GetPathHeightAtIdx("1", 2))
-	assertEq(t, 3, out.GetPathHeightAtIdx("1", 3))
-	assertEq(t, 2, out.GetPathHeightAtIdx("1", 9))
-	assertEq(t, 2, out.GetPathHeightAtIdx("1", 10))
-	assertEq(t, 1, out.GetPathHeightAtIdx("1", 11))
-	assertEq(t, -1, out.GetPathHeightAtIdx("1", 1000))
+	assertEq(t, -1, out.GetPathHeightAtIdx(out, 1))
+	assertEq(t, 3, out.GetPathHeightAtIdx(out, 2))
+	assertEq(t, 3, out.GetPathHeightAtIdx(out, 3))
+	assertEq(t, 2, out.GetPathHeightAtIdx(out, 9))
+	assertEq(t, 2, out.GetPathHeightAtIdx(out, 10))
+	assertEq(t, 1, out.GetPathHeightAtIdx(out, 11))
+	assertEq(t, -1, out.GetPathHeightAtIdx(out, 1000))
 }
 
 func BenchmarkTest1(b *testing.B) {
