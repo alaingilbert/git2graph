@@ -188,21 +188,19 @@ func (p *Path) remove(idx int) {
 	p.Points = append(p.Points[:idx], p.Points[idx+1:]...)
 }
 
-// append a point to a parent path if it is not a duplicate
+// append a point to a path if it is not a duplicate
 func (p *Path) noDupAppend(point *Point) {
-	if p.len() > 0 && p.last().Equal(point) {
-		return
+	if p.len() == 0 || !p.last().Equal(point) {
+		p.append(point)
 	}
-	p.append(point)
 }
 
-// insert a point to a parent path if it is not a duplicate
+// insert a point to a path if it is not a duplicate
 func (p *Path) noDupInsert(idx int, point *Point) {
 	idx = rotateIdx(idx, p.len())
-	if p.Points[idx-1].Equal(point) {
-		return
+	if !p.Points[idx-1].Equal(point) {
+		p.insert(idx, point)
 	}
-	p.insert(idx, point)
 }
 
 func (p *Path) append(point *Point) {
