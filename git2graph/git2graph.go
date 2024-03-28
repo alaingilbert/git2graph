@@ -164,22 +164,27 @@ func (p *Path) isMergeTo() bool {
 	return p.isValid() && p.second().Type.IsMergeTo()
 }
 
-func (p *Path) get(idx int) (out *Point) {
+func rotateIdx(idx, length int) int {
 	if idx < 0 {
-		idx = p.len() + idx
+		idx = length + idx
 		if idx < 0 {
 			log.Fatal("Weird, need to investigate")
 		}
 	}
-	return p.Points[idx]
+	return idx
+}
+
+func (p *Path) get(idx int) (out *Point) {
+	return p.Points[rotateIdx(idx, p.len())]
 }
 func (p *Path) first() *Point        { return p.get(0) }
 func (p *Path) second() *Point       { return p.get(1) }
 func (p *Path) last() *Point         { return p.get(-1) }
 func (p *Path) secondToLast() *Point { return p.get(-2) }
-func (p *Path) removeLast()          { p.remove(p.len() - 1) }
-func (p *Path) removeSecondToLast()  { p.remove(p.len() - 2) }
+func (p *Path) removeLast()          { p.remove(-1) }
+func (p *Path) removeSecondToLast()  { p.remove(-2) }
 func (p *Path) remove(idx int) {
+	idx = rotateIdx(idx, p.len())
 	p.Points = append(p.Points[:idx], p.Points[idx+1:]...)
 }
 
@@ -194,9 +199,7 @@ func (p *Path) noDupAppend(point *Point) {
 
 // insert a point to a parent path if it is not a duplicate
 func (p *Path) noDupInsert(idx int, point *Point) {
-	if idx < 0 {
-		idx = p.len() + idx
-	}
+	idx = rotateIdx(idx, p.len())
 	if p.Points[idx-1].Equal(point) {
 		return
 	}
