@@ -581,12 +581,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								pathToFollowingNode.noDupAppend(&Point{followingNode.Column, followingNode.Idx, Pipe})
 								if shouldMoveNode {
 									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
-									for _, c := range followingNode.children {
-										path := index.Get(c).pathTo(followingNode.ID)
-										if !path.isEmpty() {
-											path.last().X = followingNode.Column
-										}
-									}
+									fixPathsToNode(index, followingNode)
 									processedNodesInst1.Set(followingNode.ID, "")
 								}
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
@@ -640,6 +635,15 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 				}
 			}
 			nodePathToParent.noDupAppend(&Point{parent.Column, parent.Idx, Pipe})
+		}
+	}
+}
+
+func fixPathsToNode(index *nodesCache, node *internalNode) {
+	for _, child := range node.children {
+		path := index.Get(child).pathTo(node.ID)
+		if !path.isEmpty() {
+			path.last().X = node.Column
 		}
 	}
 }
