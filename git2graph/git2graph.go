@@ -674,7 +674,6 @@ func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
 
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
-		finalNode := node.InitialNode
 		finalParentsPaths := make([]any, len(node.parentsPaths))
 		i := 0
 		for _, n := range node.parentsPaths {
@@ -685,6 +684,7 @@ func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
 			i++
 		}
+		finalNode := node.InitialNode
 		(*finalNode)[parentsPathsTestKey] = node.parentsPaths // Kept for tests
 		(*finalNode)[gKey] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
