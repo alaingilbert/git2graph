@@ -242,7 +242,7 @@ type internalNode struct {
 	ColorIdx      int
 	firstOfBranch bool
 	Parents       []string
-	children      []string
+	children      []*internalNode
 	parentsPaths  map[string]*Path
 }
 
@@ -345,8 +345,7 @@ func (n *internalNode) GetPathHeightAtIdx(parentID string, lookupIdx int) (heigh
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
 func (n *internalNode) nbNodesMergingBack(index *nodesCache, maxX int) (nbNodesMergingBack int) {
 	nodeID := n.ID
-	for _, childID := range n.children {
-		child := index.Get(childID)
+	for _, child := range n.children {
 		childIsSubBranch := child.isPathSubBranch(nodeID)
 		secondToLastPoint := child.pathTo(nodeID).secondToLast()
 		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
@@ -407,7 +406,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.Column = -1
 		newNode.Parents = parents
 		newNode.parentsPaths = make(map[string]*Path)
-		newNode.children = make([]string, 0)
+		newNode.children = make([]*internalNode, 0)
 		out = append(out, newNode)
 	}
 	return out
@@ -502,7 +501,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		// Add node as a child into parents
 		for _, parentID := range node.Parents {
 			parent := index.Get(parentID)
-			parent.children = append(parent.children, node.ID)
+			parent.children = append(parent.children, node)
 		}
 
 		// Set column if not defined
@@ -521,8 +520,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 		// and decrement their column.
 		processedNodesInst := newProcessedNodes()
 		processedNodesInst1 := newProcessedNodes()
-		for _, childID := range node.children {
-			child := index.Get(childID)
+		for _, child := range node.children {
 			pathToNode := child.pathTo(node.ID)
 			secondToLastPoint := pathToNode.secondToLast()
 			if node.Column < secondToLastPoint.X || node.isOrphan() {
@@ -546,8 +544,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 				for followingNodeID := range followingNodesWithChildrenBeforeIdx.Items {
 					followingNode := index.Get(followingNodeID)
 					// Following nodes that have a child before the current node
-					for _, followingNodeChildID := range followingNode.children {
-						followingNodeChild := index.Get(followingNodeChildID)
+					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode.ID)
 						if followingNodeChild.Idx < node.Idx &&
 							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
@@ -578,7 +575,7 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 								pathToFollowingNode.noDupAppend(&Point{followingNode.Column, followingNode.Idx, Pipe})
 								if shouldMoveNode {
 									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
-									fixPathsToNode(index, followingNode)
+									fixPathsToNode(followingNode)
 									processedNodesInst1.Set(followingNode.ID, "")
 								}
 								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
@@ -606,8 +603,8 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 				node.setPathColor(parent.ID, parent.ColorIdx)
 			} else if node.Column < parent.Column {
 				if parentIdx == 0 {
-					for _, childID := range parent.children {
-						pathToParent := index.Get(childID).pathTo(parent.ID)
+					for _, child := range parent.children {
+						pathToParent := child.pathTo(parent.ID)
 						if pathToParent.isValid() {
 							pathToParent.removeLast()
 							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.Idx, MergeBack})
@@ -635,9 +632,9 @@ func setColumns(index *nodesCache, colorsMan *colorsManager, nodes []*internalNo
 	}
 }
 
-func fixPathsToNode(index *nodesCache, node *internalNode) {
+func fixPathsToNode(node *internalNode) {
 	for _, child := range node.children {
-		path := index.Get(child).pathTo(node.ID)
+		path := child.pathTo(node.ID)
 		if !path.isEmpty() {
 			path.last().X = node.Column
 		}
