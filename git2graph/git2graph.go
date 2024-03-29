@@ -304,6 +304,18 @@ func (n *internalNode) isPathSubBranch(parent *internalNode) bool {
 	return n.pathTo(parent).isFork() && !n.isFirstOfBranch()
 }
 
+// Move the node to the left by "nb" columns.
+// Ensure that all paths going to that node are also updated.
+func (n *internalNode) moveLeft(nb int) {
+	n.Column -= nb
+	for _, child := range n.children {
+		path := child.pathTo(n)
+		if !path.isEmpty() {
+			path.last().X = n.Column
+		}
+	}
+}
+
 const (
 	idKey               = "id"
 	parentsKey          = "parents"
@@ -503,9 +515,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.Idx, Pipe})
 								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.Idx, Pipe})
 								if shouldMoveNode {
-									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
-									followingNode.Column -= nbNodesMergingBack
-									fixPathsToNode(followingNode)
+									followingNode.moveLeft(nbNodesMergingBack)
 									processedNodes[followingNode] = true
 								}
 								processedNodes[followingNodeChild] = true
@@ -557,15 +567,6 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 				}
 			}
 			nodePathToParent.noDupAppend(&Point{parent.Column, parent.Idx, Pipe})
-		}
-	}
-}
-
-func fixPathsToNode(node *internalNode) {
-	for _, child := range node.children {
-		path := child.pathTo(node)
-		if !path.isEmpty() {
-			path.last().X = node.Column
 		}
 	}
 }
