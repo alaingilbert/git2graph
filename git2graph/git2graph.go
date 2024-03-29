@@ -416,24 +416,20 @@ func initNodes(inputNodes []*Node) []*internalNode {
 	return out
 }
 
-type stringSet struct {
-	Items map[*internalNode]struct{}
-}
+type stringSet map[*internalNode]struct{}
 
 func newStringSet() stringSet {
-	s := stringSet{}
-	s.Items = make(map[*internalNode]struct{})
-	return s
+	return make(map[*internalNode]struct{})
 }
 
 func (s *stringSet) Add(ins []*internalNode) {
 	for _, in := range ins {
-		s.Items[in] = struct{}{}
+		(*s)[in] = struct{}{}
 	}
 }
 
 func (s *stringSet) Remove(in *internalNode) {
-	delete(s.Items, in)
+	delete(*s, in)
 }
 
 func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
@@ -485,7 +481,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 				}
 
 				// Nodes that are following the current node
-				for followingNode := range followingNodesWithChildrenBeforeIdx.Items {
+				for followingNode := range followingNodesWithChildrenBeforeIdx {
 					// Following nodes that have a child before the current node
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
