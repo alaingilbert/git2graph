@@ -126,7 +126,7 @@
           .attr('alignment-baseline', 'middle')
           .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
           .text(function(commit) {
-            return commit.id.substr(0, 7);
+            return commit.id.substring(0, 7);
           });
       };
     </script>
