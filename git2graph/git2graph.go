@@ -389,7 +389,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 
 func initNodes(inputNodes []*Node) []*internalNode {
 	out := make([]*internalNode, len(inputNodes))
-	index := make(map[string]*internalNode)
+	index := make(map[string][]*internalNode) // map parentID -> child nodes
 	for idx, node := range inputNodes {
 		id, ok := (*node)[idKey].(string)
 		if !ok {
@@ -404,16 +404,22 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]*internalNode, 0)
 		out[idx] = newNode
-		index[newNode.id] = newNode
-	}
-	for _, node := range out {
-		parents, ok := (*node.initialNode)[parentsKey].([]string)
+
+		for _, childNode := range index[newNode.id] {
+			if len(childNode.parents) > 0 && (*childNode.initialNode)[parentsKey].([]string)[0] == newNode.id {
+				childNode.parents = append([]*internalNode{newNode}, childNode.parents...)
+			} else {
+				childNode.parents = append(childNode.parents, newNode)
+			}
+		}
+		parents, ok := (*node)[parentsKey].([]string)
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
 		for _, parent := range parents {
-			node.parents = append(node.parents, index[parent])
+			index[parent] = append(index[parent], newNode)
 		}
+		delete(index, newNode.id)
 	}
 	return out
 }
