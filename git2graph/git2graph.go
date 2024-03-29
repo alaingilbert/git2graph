@@ -213,6 +213,21 @@ func (p *Path) insert(idx int, point *Point) {
 	p.Points[idx] = point
 }
 
+// GetHeightAtIdx Get the path x at idx
+func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
+	height = -1
+	firstPoint := p.first()
+	lastPoint := p.last()
+	if lookupIdx >= firstPoint.y && lookupIdx <= lastPoint.y {
+		for _, point := range p.Points {
+			if point.y <= lookupIdx {
+				height = point.x
+			}
+		}
+	}
+	return
+}
+
 // Point is one part of a path
 type Point struct {
 	x   int
@@ -324,22 +339,6 @@ const (
 	gKey                = "g"
 	parentsPathsTestKey = "parentsPaths"
 )
-
-// GetPathHeightAtIdx Get the path x at idx
-func (n *internalNode) GetPathHeightAtIdx(parent *internalNode, lookupIdx int) (height int) {
-	height = -1
-	parentPath := n.pathTo(parent)
-	firstPoint := parentPath.first()
-	lastPoint := parentPath.last()
-	if lookupIdx >= firstPoint.y && lookupIdx <= lastPoint.y {
-		for _, point := range parentPath.Points {
-			if point.y <= lookupIdx {
-				height = point.x
-			}
-		}
-	}
-	return
-}
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
 func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
@@ -488,7 +487,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 						if followingNodeChild.idx < node.idx &&
 							!pathToFollowingNode.isEmpty() && !processedNodes[followingNodeChild] {
 							// Following node child has a path that is higher than the current path being merged
-							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode, node.idx)
+							targetColumn := pathToFollowingNode.GetHeightAtIdx(node.idx)
 							if targetColumn > secondToLastPoint.x {
 								// Remove all nodes, that are next to the last node, that have the same y as the last node
 								for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
