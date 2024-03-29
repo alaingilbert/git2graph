@@ -90,7 +90,7 @@ func (m *colorsManager) getColor(nodeIdx int) (i int) {
 	for {
 		clr, ok := m.m[i]
 		if !ok {
-			clr = &color{releaseIdx: -1}
+			clr = &color{}
 			m.m[i] = clr
 		}
 		if nodeIdx >= clr.releaseIdx && !clr.inUse {
