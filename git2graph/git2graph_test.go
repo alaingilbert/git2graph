@@ -2171,7 +2171,7 @@ func assertEq(t *testing.T, expected, actual any) {
 }
 
 func TestPathHeight1(t *testing.T) {
-	out := &internalNode{ID: "1", parentsPaths: map[string]*Path{"1": {Points: []*Point{
+	out := &internalNode{id: "1", parentsPaths: map[string]*Path{"1": {Points: []*Point{
 		{X: 0, Y: 2, Type: 0},
 		{X: 3, Y: 2, Type: 2},
 		{X: 3, Y: 9, Type: 1},

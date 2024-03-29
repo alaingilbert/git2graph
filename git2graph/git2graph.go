@@ -232,11 +232,11 @@ func (p *Point) Equal(other *Point) bool {
 // children are the nodes above the current node
 // A node only ever have at most 2 parents.
 type internalNode struct {
-	InitialNode   *Node
-	ID            string
-	Idx           int
-	Column        int
-	ColorIdx      int
+	initialNode   *Node
+	id            string
+	idx           int
+	column        int
+	colorIdx      int
 	firstOfBranch bool
 	Parents       []*internalNode
 	children      []*internalNode
@@ -258,21 +258,21 @@ func (n *internalNode) setFirstOfBranch() {
 }
 
 func (n *internalNode) pathTo(parent *internalNode) *Path {
-	parentPath, ok := n.parentsPaths[parent.ID]
+	parentPath, ok := n.parentsPaths[parent.id]
 	if !ok {
 		parentPath = &Path{}
-		n.parentsPaths[parent.ID] = parentPath
+		n.parentsPaths[parent.id] = parentPath
 	}
 	return parentPath
 }
 
 func (n *internalNode) columnDefined() bool {
-	return n.Column != -1
+	return n.column != -1
 }
 
 func (n *internalNode) firstInBranch() bool {
 	for _, parentNode := range n.Parents {
-		if !parentNode.columnDefined() || parentNode.Column == n.Column {
+		if !parentNode.columnDefined() || parentNode.column == n.column {
 			return false
 		}
 	}
@@ -281,17 +281,17 @@ func (n *internalNode) firstInBranch() bool {
 
 func (n *internalNode) hasBiggerParentDefined() bool {
 	for _, parentNode := range n.Parents {
-		if parentNode.Column > n.Column {
+		if parentNode.column > n.column {
 			return true
 		}
 	}
 	return false
 }
 
-// Return either or not the node has a parent that has higher "Idx" than the one in parameter
+// Return either or not the node has a parent that has higher "idx" than the one in parameter
 func (n *internalNode) hasOlderParent(idx int) bool {
 	for _, parentNode := range n.Parents {
-		if parentNode.Idx > idx {
+		if parentNode.idx > idx {
 			return true
 		}
 	}
@@ -307,11 +307,11 @@ func (n *internalNode) isPathSubBranch(parent *internalNode) bool {
 // Move the node to the left by "nb" columns.
 // Ensure that all paths going to that node are also updated.
 func (n *internalNode) moveLeft(nb int) {
-	n.Column -= nb
+	n.column -= nb
 	for _, child := range n.children {
 		path := child.pathTo(n)
 		if !path.isEmpty() {
-			path.last().X = n.Column
+			path.last().X = n.column
 		}
 	}
 }
@@ -323,7 +323,7 @@ const (
 	parentsPathsTestKey = "parentsPaths"
 )
 
-// GetPathHeightAtIdx Get the path X at Idx
+// GetPathHeightAtIdx Get the path X at idx
 func (n *internalNode) GetPathHeightAtIdx(parent *internalNode, lookupIdx int) (height int) {
 	height = -1
 	parentPath := n.pathTo(parent)
@@ -346,7 +346,7 @@ func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 		path := child.pathTo(n)
 		childIsSubBranch := child.isPathSubBranch(n)
 		secondToLastPoint := path.secondToLast()
-		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
+		if n.column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
 			!path.isMergeTo() {
 			nbNodesMergingBack++
@@ -395,18 +395,18 @@ func initNodes(inputNodes []*Node) []*internalNode {
 			log.Fatal("id property must be a string")
 		}
 		newNode := &internalNode{}
-		newNode.InitialNode = node
-		newNode.ID = id
-		newNode.Idx = idx
-		newNode.Column = -1
+		newNode.initialNode = node
+		newNode.id = id
+		newNode.idx = idx
+		newNode.column = -1
 		newNode.Parents = make([]*internalNode, 0)
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]*internalNode, 0)
 		out[idx] = newNode
-		index[newNode.ID] = newNode
+		index[newNode.id] = newNode
 	}
 	for _, node := range out {
-		parents, ok := (*node.InitialNode)[parentsKey].([]string)
+		parents, ok := (*node.initialNode)[parentsKey].([]string)
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
@@ -448,8 +448,8 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 
 		// Set column if not defined
 		if !node.columnDefined() {
-			node.Column = incrCol()
-			node.ColorIdx = colorsMan.getColor(node.Idx)
+			node.column = incrCol()
+			node.colorIdx = colorsMan.getColor(node.idx)
 		}
 
 		// Cache the following node with child before the current node
@@ -464,19 +464,19 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPoint := pathToNode.secondToLast()
-			if node.Column < secondToLastPoint.X || node.isOrphan() {
+			if node.column < secondToLastPoint.X || node.isOrphan() {
 				childIsSubBranch := child.isPathSubBranch(node)
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
 				}
-				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(node.Idx) {
-					pathToNode.setColor(child.ColorIdx)
+				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(node.idx) {
+					pathToNode.setColor(child.colorIdx)
 				}
-				colorsMan.releaseColor(pathToNode.colorIdx, node.Idx)
+				colorsMan.releaseColor(pathToNode.colorIdx, node.idx)
 
 				// Insert before the last element
-				if node.Column != child.Column {
-					pathToNode.noDupInsert(-1, &Point{secondToLastPoint.X, node.Idx, MergeBack})
+				if node.column != child.column {
+					pathToNode.noDupInsert(-1, &Point{secondToLastPoint.X, node.idx, MergeBack})
 				}
 
 				// Nodes that are following the current node
@@ -484,10 +484,10 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					// Following nodes that have a child before the current node
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
-						if followingNodeChild.Idx < node.Idx &&
+						if followingNodeChild.idx < node.idx &&
 							!pathToFollowingNode.isEmpty() && !processedNodes[followingNodeChild] {
 							// Following node child has a path that is higher than the current path being merged
-							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode, node.Idx)
+							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode, node.idx)
 							if targetColumn > secondToLastPoint.X {
 								// Remove all nodes, that are next to the last node, that have the same Y as the last node
 								for pathToFollowingNode.last().Y == pathToFollowingNode.secondToLast().Y {
@@ -499,19 +499,19 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 								nbNodesMergingBack := 0
 								nodeForMerge := node
 								if node.isOrphan() {
-									nodeForMerge = nodes[node.Idx+1]
+									nodeForMerge = nodes[node.idx+1]
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
-								followingNodeColumn := followingNode.Column
-								shouldMoveNode := followingNode.Column > secondToLastPoint.X && !processedNodes[followingNode]
+								followingNodeColumn := followingNode.column
+								shouldMoveNode := followingNode.column > secondToLastPoint.X && !processedNodes[followingNode]
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
 								pathPointX := pathToFollowingNode.last().X
-								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.Idx, MergeBack})
-								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.Idx, Pipe})
-								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.Idx, Pipe})
+								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
+								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
+								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
 									processedNodes[followingNode] = true
@@ -526,45 +526,45 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 
 		for parentIdx, parent := range node.Parents {
 			nodePathToParent := node.pathTo(parent)
-			nodePathToParent.noDupAppend(&Point{node.Column, node.Idx, Pipe})
+			nodePathToParent.noDupAppend(&Point{node.column, node.idx, Pipe})
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
-					parent.Column = incrCol()
-					parent.ColorIdx = colorsMan.getColor(node.Idx)
-					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, Fork})
+					parent.column = incrCol()
+					parent.colorIdx = colorsMan.getColor(node.idx)
+					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
 					node.setFirstOfBranch()
 				} else {
-					parent.Column = node.Column
-					parent.ColorIdx = node.ColorIdx
+					parent.column = node.column
+					parent.colorIdx = node.colorIdx
 				}
-				nodePathToParent.setColor(parent.ColorIdx)
-			} else if node.Column < parent.Column {
+				nodePathToParent.setColor(parent.colorIdx)
+			} else if node.column < parent.column {
 				if parentIdx == 0 {
 					for _, child := range parent.children {
 						pathToParent := child.pathTo(parent)
 						if pathToParent.isValid() {
 							pathToParent.removeLast()
-							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.Idx, MergeBack})
-							pathToParent.noDupAppend(&Point{node.Column, parent.Idx, Pipe})
+							pathToParent.noDupAppend(&Point{pathToParent.last().X, parent.idx, MergeBack})
+							pathToParent.noDupAppend(&Point{node.column, parent.idx, Pipe})
 						}
 					}
-					parent.Column = node.Column
-					parent.ColorIdx = node.ColorIdx
-					nodePathToParent.setColor(node.ColorIdx)
+					parent.column = node.column
+					parent.colorIdx = node.colorIdx
+					nodePathToParent.setColor(node.colorIdx)
 				} else {
-					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, Fork})
-					nodePathToParent.setColor(parent.ColorIdx)
+					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
+					nodePathToParent.setColor(parent.colorIdx)
 				}
-			} else if node.Column > parent.Column {
-				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch())) {
-					nodePathToParent.noDupAppend(&Point{node.Column, parent.Idx, MergeBack})
-					nodePathToParent.setColor(node.ColorIdx)
+			} else if node.column > parent.column {
+				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.idx > node.idx+1 || node.firstInBranch())) {
+					nodePathToParent.noDupAppend(&Point{node.column, parent.idx, MergeBack})
+					nodePathToParent.setColor(node.colorIdx)
 				} else {
-					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, MergeTo})
-					nodePathToParent.setColor(parent.ColorIdx)
+					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, MergeTo})
+					nodePathToParent.setColor(parent.colorIdx)
 				}
 			}
-			nodePathToParent.noDupAppend(&Point{parent.Column, parent.Idx, Pipe})
+			nodePathToParent.noDupAppend(&Point{parent.column, parent.idx, Pipe})
 		}
 	}
 }
@@ -608,9 +608,9 @@ func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
 			i++
 		}
-		finalNode := node.InitialNode
+		finalNode := node.initialNode
 		(*finalNode)[parentsPathsTestKey] = node.parentsPaths // Kept for tests
-		(*finalNode)[gKey] = []any{node.Idx, node.Column, colorGen.GetColor(node.ColorIdx), finalParentsPaths}
+		(*finalNode)[gKey] = []any{node.idx, node.column, colorGen.GetColor(node.colorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
 	}
 
