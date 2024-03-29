@@ -255,13 +255,13 @@ type internalNode struct {
 	column        int
 	colorIdx      int
 	firstOfBranch bool
-	Parents       []*internalNode
+	parents       []*internalNode
 	children      []*internalNode
 	parentsPaths  map[string]*Path
 }
 
 func (n *internalNode) isOrphan() bool {
-	return len(n.Parents) == 0
+	return len(n.parents) == 0
 }
 
 // A node is a "firstOfBranch" if there is a path to a parent that needs a new color,
@@ -288,7 +288,7 @@ func (n *internalNode) columnDefined() bool {
 }
 
 func (n *internalNode) firstInBranch() bool {
-	for _, parentNode := range n.Parents {
+	for _, parentNode := range n.parents {
 		if !parentNode.columnDefined() || parentNode.column == n.column {
 			return false
 		}
@@ -297,7 +297,7 @@ func (n *internalNode) firstInBranch() bool {
 }
 
 func (n *internalNode) hasBiggerParentDefined() bool {
-	for _, parentNode := range n.Parents {
+	for _, parentNode := range n.parents {
 		if parentNode.column > n.column {
 			return true
 		}
@@ -307,7 +307,7 @@ func (n *internalNode) hasBiggerParentDefined() bool {
 
 // Return either or not the node has a parent that has higher "idx" than the one in parameter
 func (n *internalNode) hasOlderParent(idx int) bool {
-	for _, parentNode := range n.Parents {
+	for _, parentNode := range n.parents {
 		if parentNode.idx > idx {
 			return true
 		}
@@ -399,7 +399,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.id = id
 		newNode.idx = idx
 		newNode.column = -1
-		newNode.Parents = make([]*internalNode, 0)
+		newNode.parents = make([]*internalNode, 0)
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]*internalNode, 0)
 		out[idx] = newNode
@@ -411,7 +411,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 			log.Fatal("parents property must be an array of string")
 		}
 		for _, parent := range parents {
-			node.Parents = append(node.Parents, index[parent])
+			node.parents = append(node.parents, index[parent])
 		}
 	}
 	return out
@@ -442,7 +442,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 	}
 	for _, node := range nodes {
 		// Add node as a child into parents
-		for _, parent := range node.Parents {
+		for _, parent := range node.parents {
 			parent.children = append(parent.children, node)
 		}
 
@@ -453,7 +453,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 		}
 
 		// Cache the following node with child before the current node
-		followingNodesWithChildrenBeforeIdx.Add(node.Parents)
+		followingNodesWithChildrenBeforeIdx.Add(node.parents)
 		followingNodesWithChildrenBeforeIdx.Remove(node)
 
 		// Each child that are merging
@@ -524,11 +524,11 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 			}
 		}
 
-		for parentIdx, parent := range node.Parents {
+		for parentIdx, parent := range node.parents {
 			nodePathToParent := node.pathTo(parent)
 			nodePathToParent.noDupAppend(&Point{node.column, node.idx, Pipe})
 			if !parent.columnDefined() {
-				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
+				if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
 					parent.column = incrCol()
 					parent.colorIdx = colorsMan.getColor(node.idx)
 					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
