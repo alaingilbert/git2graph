@@ -60,7 +60,7 @@ func startAction(c *cli.Context) error {
 				parentsPaths := (*node)["parents_paths"].([]git2graph.Path)
 				hasParentsInContext := false
 				for _, nodeParent := range parentsPaths {
-					if nodeParent.Points[len(nodeParent.Points)-1].Y >= fromFlag {
+					if nodeParent.Points[len(nodeParent.Points)-1].Y() >= fromFlag {
 						hasParentsInContext = true
 					}
 				}
