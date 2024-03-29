@@ -88,15 +88,15 @@ func newColorsManager(colorGen IColorGenerator) *colorsManager {
 	return &colorsManager{g: colorGen, m: make(map[int]*Color)}
 }
 
-func getColor(colorsManager *colorsManager, nodeIdx int) int {
+func (m *colorsManager) getColor(nodeIdx int) int {
 	var color *Color
 	i := 0
 	for {
 		var ok bool
-		color, ok = colorsManager.m[i]
+		color, ok = m.m[i]
 		if !ok {
-			color = &Color{color: colorsManager.g.GetColor(i), releaseIdx: -1}
-			colorsManager.m[i] = color
+			color = &Color{color: m.g.GetColor(i), releaseIdx: -1}
+			m.m[i] = color
 			break
 		}
 		if nodeIdx >= color.releaseIdx && !color.inUse {
@@ -108,10 +108,10 @@ func getColor(colorsManager *colorsManager, nodeIdx int) int {
 	return i
 }
 
-func releaseColor(colorsMan *colorsManager, colorIdx int, idx int) {
-	for i := range colorsMan.m {
+func (m *colorsManager) releaseColor(colorIdx int, idx int) {
+	for i := range m.m {
 		if i == colorIdx {
-			color := colorsMan.m[i]
+			color := m.m[i]
 			color.releaseIdx = idx + 2
 			color.inUse = false
 			break
@@ -444,7 +444,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.Column = incrCol()
-			node.ColorIdx = getColor(colorsMan, node.Idx)
+			node.ColorIdx = colorsMan.getColor(node.Idx)
 		}
 
 		// Cache the following node with child before the current node
@@ -469,7 +469,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
 					pathToNode.setColor(child.ColorIdx)
 				}
-				releaseColor(colorsMan, pathToNode.colorIdx, node.Idx)
+				colorsMan.releaseColor(pathToNode.colorIdx, node.Idx)
 
 				// Insert before the last element
 				if node.Column != child.Column {
@@ -527,7 +527,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.Parents[0]).isMergeTo() {
 					parent.Column = incrCol()
-					parent.ColorIdx = getColor(colorsMan, node.Idx)
+					parent.ColorIdx = colorsMan.getColor(node.Idx)
 					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, Fork})
 					node.setFirstOfBranch()
 				} else {
