@@ -387,7 +387,7 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 
 func initNodes(inputNodes []*Node) []*internalNode {
 	out := make([]*internalNode, len(inputNodes))
-	index := newNodesCache()
+	index := make(map[string]*internalNode)
 	for idx, node := range inputNodes {
 		id, ok := (*node)[idKey].(string)
 		if !ok {
@@ -402,7 +402,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.parentsPaths = make(map[string]*Path)
 		newNode.children = make([]*internalNode, 0)
 		out[idx] = newNode
-		index.Set(newNode.ID, newNode)
+		index[newNode.ID] = newNode
 	}
 	for _, node := range out {
 		parents, ok := (*node.InitialNode)[parentsKey].([]string)
@@ -410,7 +410,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 			log.Fatal("parents property must be an array of string")
 		}
 		for _, parent := range parents {
-			node.Parents = append(node.Parents, index.Get(parent))
+			node.Parents = append(node.Parents, index[parent])
 		}
 	}
 	return out
@@ -434,27 +434,6 @@ func (s *stringSet) Add(ins []*internalNode) {
 
 func (s *stringSet) Remove(in *internalNode) {
 	delete(s.Items, in)
-}
-
-type nodesCache struct {
-	m map[string]*internalNode
-}
-
-func newNodesCache() *nodesCache {
-	return &nodesCache{m: make(map[string]*internalNode)}
-}
-
-func (n *nodesCache) Get(key string) *internalNode {
-	return n.m[key]
-}
-
-func (n *nodesCache) Set(key string, node *internalNode) {
-	n.m[key] = node
-}
-
-func (n *nodesCache) Has(key string) bool {
-	_, ok := n.m[key]
-	return ok
 }
 
 func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
