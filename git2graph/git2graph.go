@@ -469,9 +469,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
 				}
-
-				childHasOlderParent := child.hasOlderParent(node.Idx)
-				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
+				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(node.Idx) {
 					pathToNode.setColor(child.ColorIdx)
 				}
 				colorsMan.releaseColor(pathToNode.colorIdx, node.Idx)
