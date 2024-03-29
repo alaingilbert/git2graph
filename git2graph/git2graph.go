@@ -158,6 +158,10 @@ func (p *Path) isValid() bool {
 	return p.len() >= 2
 }
 
+func (p *Path) setColor(color int) {
+	p.colorIdx = color
+}
+
 // Return either or not the path is of type "Fork"
 func (p *Path) isFork() bool {
 	return p.isValid() && p.second().Type.IsFork()
@@ -299,14 +303,6 @@ func (n *internalNode) hasOlderParent(idx int) bool {
 		}
 	}
 	return false
-}
-
-func (n *internalNode) setPathColor(parent *internalNode, color int) {
-	n.pathTo(parent).colorIdx = color
-}
-
-func (n *internalNode) getPathColor(parent *internalNode) int {
-	return n.pathTo(parent).colorIdx
 }
 
 // A subbranch, is when the child node is in the middle of another branch
@@ -471,9 +467,9 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 
 				childHasOlderParent := child.hasOlderParent(node.Idx)
 				if !child.isFirstOfBranch() && !childIsSubBranch && !childHasOlderParent {
-					child.setPathColor(node, child.ColorIdx)
+					pathToNode.setColor(child.ColorIdx)
 				}
-				releaseColor(colorsMan, child.getPathColor(node), node.Idx)
+				releaseColor(colorsMan, pathToNode.colorIdx, node.Idx)
 
 				// Insert before the last element
 				if node.Column != child.Column {
@@ -538,7 +534,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					parent.Column = node.Column
 					parent.ColorIdx = node.ColorIdx
 				}
-				node.setPathColor(parent, parent.ColorIdx)
+				nodePathToParent.setColor(parent.ColorIdx)
 			} else if node.Column < parent.Column {
 				if parentIdx == 0 {
 					for _, child := range parent.children {
@@ -551,18 +547,18 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					}
 					parent.Column = node.Column
 					parent.ColorIdx = node.ColorIdx
-					node.setPathColor(parent, node.ColorIdx)
+					nodePathToParent.setColor(node.ColorIdx)
 				} else {
 					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, Fork})
-					node.setPathColor(parent, parent.ColorIdx)
+					nodePathToParent.setColor(parent.ColorIdx)
 				}
 			} else if node.Column > parent.Column {
 				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.Idx > node.Idx+1 || node.firstInBranch())) {
 					nodePathToParent.noDupAppend(&Point{node.Column, parent.Idx, MergeBack})
-					node.setPathColor(parent, node.ColorIdx)
+					nodePathToParent.setColor(node.ColorIdx)
 				} else {
 					nodePathToParent.noDupAppend(&Point{parent.Column, node.Idx, MergeTo})
-					node.setPathColor(parent, parent.ColorIdx)
+					nodePathToParent.setColor(parent.ColorIdx)
 				}
 			}
 			nodePathToParent.noDupAppend(&Point{parent.Column, parent.Idx, Pipe})
