@@ -79,40 +79,34 @@ func (c *CycleColorGen) GetColor(idx int) string {
 }
 
 type colorsManager struct {
-	g IColorGenerator
 	m map[int]*color
 }
 
-func newColorsManager(colorGen IColorGenerator) *colorsManager {
-	return &colorsManager{g: colorGen, m: make(map[int]*color)}
+func newColorsManager() *colorsManager {
+	return &colorsManager{m: make(map[int]*color)}
 }
 
-func (m *colorsManager) getColor(nodeIdx int) int {
-	var clr *color
-	i := 0
+func (m *colorsManager) getColor(nodeIdx int) (i int) {
 	for {
-		var ok bool
-		clr, ok = m.m[i]
+		clr, ok := m.m[i]
 		if !ok {
 			clr = &color{releaseIdx: -1}
 			m.m[i] = clr
-			break
 		}
 		if nodeIdx >= clr.releaseIdx && !clr.inUse {
-			break
+			clr.inUse = true
+			return
 		}
 		i++
 	}
-	clr.inUse = true
-	return i
 }
 
 func (m *colorsManager) releaseColor(colorIdx int, idx int) {
 	for i := range m.m {
 		if i == colorIdx {
-			color := m.m[i]
-			color.releaseIdx = idx + 2
-			color.inUse = false
+			clr := m.m[i]
+			clr.releaseIdx = idx + 2
+			clr.inUse = false
 			break
 		}
 	}
@@ -595,7 +589,7 @@ func GetPaginated(inputNodes []*Node, from, size int) ([]*Node, error) {
 // BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
 func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
-	colorsMan := newColorsManager(colorGen)
+	colorsMan := newColorsManager()
 
 	nodes := initNodes(inputNodes)
 
