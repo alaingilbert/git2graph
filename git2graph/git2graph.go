@@ -132,9 +132,30 @@ func (p pointType) IsFork() bool    { return p == Fork }
 // Node is the raw information for a commit
 type Node map[string]any
 
+func (n *Node) GetID() string {
+	id, ok := (*n)[idKey].(string)
+	if !ok {
+		log.Fatal("id property must be a string")
+	}
+	return id
+}
+
+func (n *Node) GetParents() []string {
+	parents, ok := (*n)[parentsKey].([]string)
+	if !ok {
+		log.Fatal("parents property must be an array of string")
+	}
+	return parents
+}
+
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
 	Points   []*Point
+	colorIdx int
+}
+
+type PathTest struct {
+	Points   []*PointTest
 	colorIdx int
 }
 
@@ -218,10 +239,9 @@ func (p *Path) insert(idx int, point *Point) {
 func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
 	height = -1
 	firstPoint := p.first()
-	lastPoint := p.last()
-	if lookupIdx >= firstPoint.y && lookupIdx <= lastPoint.y {
+	if lookupIdx >= *firstPoint.y {
 		for _, point := range p.Points {
-			if point.y <= lookupIdx {
+			if *point.y <= lookupIdx && *point.y >= 0 {
 				height = point.x
 			}
 		}
@@ -229,22 +249,44 @@ func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
 	return
 }
 
-// Point is one part of a path
-type Point struct {
+type IPoint interface {
+	getX() int
+	GetY() int
+	getType() pointType
+}
+
+type PointTest struct {
 	x   int
 	y   int
 	typ pointType
 }
 
-func (p *Point) String() string {
+func (p *PointTest) String() string {
 	return fmt.Sprintf("{%d,%d,%d}", p.x, p.y, p.typ)
 }
 
-func (p *Point) Equal(other *Point) bool {
-	return p.x == other.x && p.y == other.y && p.typ == other.typ
+func (p *PointTest) getX() int          { return p.x }
+func (p *PointTest) GetY() int          { return p.y }
+func (p *PointTest) getType() pointType { return p.typ }
+
+// Point is one part of a path
+type Point struct {
+	x   int
+	y   *int
+	typ pointType
 }
 
-func (p *Point) Y() int { return p.y }
+func (p *Point) String() string {
+	return fmt.Sprintf("{%d,%d,%d}", p.x, *p.y, p.typ)
+}
+
+func (p *Point) Equal(other IPoint) bool {
+	return p.x == other.getX() && *p.y == other.GetY() && p.typ == other.getType()
+}
+
+func (p *Point) getX() int          { return p.x }
+func (p *Point) GetY() int          { return *p.y }
+func (p *Point) getType() pointType { return p.typ }
 
 // parents are the node below the current node
 // children are the nodes above the current node
@@ -252,7 +294,7 @@ func (p *Point) Y() int { return p.y }
 type internalNode struct {
 	initialNode   *Node
 	id            string
-	idx           int
+	idx           *int
 	column        int
 	colorIdx      int
 	firstOfBranch bool
@@ -309,7 +351,7 @@ func (n *internalNode) hasBiggerParentDefined() bool {
 // Return either or not the node has a parent that has higher "idx" than the one in parameter
 func (n *internalNode) hasOlderParent(idx int) bool {
 	for _, parentNode := range n.parents {
-		if parentNode.idx > idx {
+		if *parentNode.idx > idx || *parentNode.idx < 0 {
 			return true
 		}
 	}
@@ -332,6 +374,12 @@ func (n *internalNode) moveLeft(nb int) {
 			path.last().x = n.column
 		}
 	}
+}
+
+// Move the node down.
+// Ensure that all paths going to that node are also updated.
+func (n *internalNode) moveDown(idx int) {
+	*n.idx = idx
 }
 
 const (
@@ -387,50 +435,19 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 	return
 }
 
-func initNodes(inputNodes []*Node) []*internalNode {
-	out := make([]*internalNode, len(inputNodes))
-	index := make(map[string][]*internalNode) // map parentID -> child nodes
-	for idx, node := range inputNodes {
-		id, ok := (*node)[idKey].(string)
-		if !ok {
-			log.Fatal("id property must be a string")
-		}
-		newNode := &internalNode{}
-		newNode.initialNode = node
-		newNode.id = id
-		newNode.idx = idx
-		newNode.column = -1
-		newNode.parents = make([]*internalNode, 0)
-		newNode.parentsPaths = make(map[string]*Path)
-		newNode.children = make([]*internalNode, 0)
-		out[idx] = newNode
-
-		// If the node has children, add itself to their parents list
-		for _, childNode := range index[newNode.id] {
-			if len(childNode.parents) > 0 && (*childNode.initialNode)[parentsKey].([]string)[0] == newNode.id {
-				childNode.parents = append([]*internalNode{newNode}, childNode.parents...)
-			} else {
-				childNode.parents = append(childNode.parents, newNode)
-			}
-		}
-		// Add node parent IDs to the index cache
-		parents, ok := (*node)[parentsKey].([]string)
-		if !ok {
-			log.Fatal("parents property must be an array of string")
-		}
-		for _, parentID := range parents {
-			index[parentID] = append(index[parentID], newNode)
-		}
-		// Remove the nodes as we progress, as the processed nodes cannot be a parent of a future node...
-		delete(index, newNode.id)
-	}
-	return out
-}
-
 type stringSet map[*internalNode]struct{}
 
 func newStringSet() stringSet {
 	return make(map[*internalNode]struct{})
+}
+
+func (s *stringSet) Get(key string) *internalNode {
+	for n := range *s {
+		if n.id == key {
+			return n
+		}
+	}
+	return nil
 }
 
 func (s *stringSet) Add(ins []*internalNode) {
@@ -443,23 +460,63 @@ func (s *stringSet) Remove(in *internalNode) {
 	delete(*s, in)
 }
 
-func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
+func ptr[T any](i T) *T {
+	return &i
+}
+
+func newNode(id string, idx int) *internalNode {
+	node := &internalNode{}
+	node.id = id
+	node.idx = ptr(idx)
+	node.column = -1
+	node.parents = make([]*internalNode, 0)
+	node.parentsPaths = make(map[string]*Path)
+	node.children = make([]*internalNode, 0)
+	return node
+}
+
+func setColumns(inputNodes []*Node) (nodes []*internalNode) {
+	colorsMan := newColorsManager()
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
 	incrCol := func() int {
 		nextColumn++
 		return nextColumn
 	}
-	for _, node := range nodes {
-		// Add node as a child into parents
-		for _, parent := range node.parents {
-			parent.children = append(parent.children, node)
+	unassignedNodes := make(map[string]*internalNode)
+	tmpRow := -1
+	for idx, rawNode := range inputNodes {
+		id := rawNode.GetID()
+		var node *internalNode
+		if n, ok := unassignedNodes[id]; ok {
+			node = n
+			node.initialNode = rawNode
+			node.moveDown(idx)
+			delete(unassignedNodes, id)
+		} else {
+			node = newNode(id, idx)
+			node.initialNode = rawNode
+
+		}
+		nodes = append(nodes, node)
+
+		// Add node parent IDs to the index cache
+		parents := rawNode.GetParents()
+		for _, parentID := range parents {
+			parentNode, ok := unassignedNodes[parentID]
+			if !ok {
+				parentNode = newNode(parentID, tmpRow)
+				tmpRow--
+				unassignedNodes[parentNode.id] = parentNode
+			}
+			parentNode.children = append(parentNode.children, node)
+			node.parents = append(node.parents, parentNode)
 		}
 
 		// Set column if not defined
 		if !node.columnDefined() {
 			node.column = incrCol()
-			node.colorIdx = colorsMan.getColor(node.idx)
+			node.colorIdx = colorsMan.getColor(*node.idx)
 		}
 
 		// Cache the following node with child before the current node
@@ -479,10 +536,10 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
 				}
-				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(node.idx) {
+				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(*node.idx) {
 					pathToNode.setColor(child.colorIdx)
 				}
-				colorsMan.releaseColor(pathToNode.colorIdx, node.idx)
+				colorsMan.releaseColor(pathToNode.colorIdx, *node.idx)
 
 				// Insert before the last element
 				if node.column != child.column {
@@ -494,10 +551,10 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					// Following nodes that have a child before the current node
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
-						if followingNodeChild.idx < node.idx &&
+						if *followingNodeChild.idx < *node.idx &&
 							!pathToFollowingNode.isEmpty() && !processedNodes[followingNodeChild] {
 							// Following node child has a path that is higher than the current path being merged
-							targetColumn := pathToFollowingNode.GetHeightAtIdx(node.idx)
+							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
 							if targetColumn > secondToLastPoint.x {
 								// Remove all nodes, that are next to the last node, that have the same y as the last node
 								for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
@@ -509,7 +566,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 								nbNodesMergingBack := 0
 								nodeForMerge := node
 								if node.isOrphan() {
-									nodeForMerge = nodes[node.idx+1]
+									nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
@@ -540,7 +597,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
 					parent.column = incrCol()
-					parent.colorIdx = colorsMan.getColor(node.idx)
+					parent.colorIdx = colorsMan.getColor(*node.idx)
 					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
 					node.setFirstOfBranch()
 				} else {
@@ -566,7 +623,8 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					nodePathToParent.setColor(parent.colorIdx)
 				}
 			} else if node.column > parent.column {
-				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.idx > node.idx+1 || node.firstInBranch())) {
+				nextNodeID := inputNodes[idx+1].GetID()
+				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
 					nodePathToParent.noDupAppend(&Point{node.column, parent.idx, MergeBack})
 					nodePathToParent.setColor(node.colorIdx)
 				} else {
@@ -577,6 +635,12 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 			nodePathToParent.noDupAppend(&Point{parent.column, parent.idx, Pipe})
 		}
 	}
+	for n := range followingNodesWithChildrenBeforeIdx {
+		if *n.idx < 0 {
+			*n.idx = len(nodes)
+		}
+	}
+	return nodes
 }
 
 // Get generates the props to turn the input into a graph drawable
@@ -600,11 +664,7 @@ func GetPaginated(inputNodes []*Node, from, size int) ([]*Node, error) {
 // BuildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
 func BuildTree(inputNodes []*Node, colorGen IColorGenerator) ([]*Node, error) {
-	colorsMan := newColorsManager()
-
-	nodes := initNodes(inputNodes)
-
-	setColumns(colorsMan, nodes)
+	nodes := setColumns(inputNodes)
 
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
