@@ -16,9 +16,8 @@ import (
 var NoOutput = false
 
 // Color structure
-type Color struct {
+type color struct {
 	releaseIdx int
-	color      string
 	inUse      bool
 }
 
@@ -81,30 +80,30 @@ func (c *CycleColorGen) GetColor(idx int) string {
 
 type colorsManager struct {
 	g IColorGenerator
-	m map[int]*Color
+	m map[int]*color
 }
 
 func newColorsManager(colorGen IColorGenerator) *colorsManager {
-	return &colorsManager{g: colorGen, m: make(map[int]*Color)}
+	return &colorsManager{g: colorGen, m: make(map[int]*color)}
 }
 
 func (m *colorsManager) getColor(nodeIdx int) int {
-	var color *Color
+	var clr *color
 	i := 0
 	for {
 		var ok bool
-		color, ok = m.m[i]
+		clr, ok = m.m[i]
 		if !ok {
-			color = &Color{color: m.g.GetColor(i), releaseIdx: -1}
-			m.m[i] = color
+			clr = &color{releaseIdx: -1}
+			m.m[i] = clr
 			break
 		}
-		if nodeIdx >= color.releaseIdx && !color.inUse {
+		if nodeIdx >= clr.releaseIdx && !clr.inUse {
 			break
 		}
 		i++
 	}
-	color.inUse = true
+	clr.inUse = true
 	return i
 }
 
