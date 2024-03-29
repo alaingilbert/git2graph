@@ -493,16 +493,18 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
+								followingNodeColumn := followingNode.Column
 								shouldMoveNode := followingNode.Column > secondToLastPoint.X && !processedNodes[followingNode]
 								if shouldMoveNode {
-									followingNode.Column -= nbNodesMergingBack
+									followingNodeColumn -= nbNodesMergingBack
 								}
 								pathPointX := pathToFollowingNode.last().X
 								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.Idx, MergeBack})
 								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.Idx, Pipe})
-								pathToFollowingNode.noDupAppend(&Point{followingNode.Column, followingNode.Idx, Pipe})
+								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.Idx, Pipe})
 								if shouldMoveNode {
 									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
+									followingNode.Column -= nbNodesMergingBack
 									fixPathsToNode(followingNode)
 									processedNodes[followingNode] = true
 								}
