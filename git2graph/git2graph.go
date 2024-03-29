@@ -405,6 +405,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		newNode.children = make([]*internalNode, 0)
 		out[idx] = newNode
 
+		// If the node has children, add itself to their parents list
 		for _, childNode := range index[newNode.id] {
 			if len(childNode.parents) > 0 && (*childNode.initialNode)[parentsKey].([]string)[0] == newNode.id {
 				childNode.parents = append([]*internalNode{newNode}, childNode.parents...)
@@ -412,6 +413,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 				childNode.parents = append(childNode.parents, newNode)
 			}
 		}
+		// Add node parent IDs to the index cache
 		parents, ok := (*node)[parentsKey].([]string)
 		if !ok {
 			log.Fatal("parents property must be an array of string")
@@ -419,6 +421,7 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		for _, parent := range parents {
 			index[parent] = append(index[parent], newNode)
 		}
+		// Remove the nodes as we progress, as the processed nodes cannot be a parent of a future node...
 		delete(index, newNode.id)
 	}
 	return out
