@@ -342,11 +342,12 @@ func (n *internalNode) GetPathHeightAtIdx(parent *internalNode, lookupIdx int) (
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
 func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 	for _, child := range n.children {
+		path := child.pathTo(n)
 		childIsSubBranch := child.isPathSubBranch(n)
-		secondToLastPoint := child.pathTo(n).secondToLast()
+		secondToLastPoint := path.secondToLast()
 		if n.Column < secondToLastPoint.X && secondToLastPoint.X < maxX &&
 			!childIsSubBranch &&
-			!child.pathTo(n).isMergeTo() {
+			!path.isMergeTo() {
 			nbNodesMergingBack++
 		}
 	}
