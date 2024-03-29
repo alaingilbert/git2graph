@@ -101,6 +101,7 @@ func (m *colorsManager) getColor(nodeIdx int) (i int) {
 	}
 }
 
+// we add "2" because we need at least one commit in between two branches to reuse the same color, see test #28
 func (m *colorsManager) releaseColor(colorIdx int, idx int) {
 	for i := range m.m {
 		if i == colorIdx {
