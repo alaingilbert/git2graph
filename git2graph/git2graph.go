@@ -418,8 +418,8 @@ func initNodes(inputNodes []*Node) []*internalNode {
 		if !ok {
 			log.Fatal("parents property must be an array of string")
 		}
-		for _, parent := range parents {
-			index[parent] = append(index[parent], newNode)
+		for _, parentID := range parents {
+			index[parentID] = append(index[parentID], newNode)
 		}
 		// Remove the nodes as we progress, as the processed nodes cannot be a parent of a future node...
 		delete(index, newNode.id)
