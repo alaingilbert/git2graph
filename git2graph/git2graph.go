@@ -457,29 +457,6 @@ func (n *nodesCache) Has(key string) bool {
 	return ok
 }
 
-type processedNodes struct {
-	m map[string]map[string]bool
-}
-
-func newProcessedNodes() *processedNodes {
-	return &processedNodes{m: make(map[string]map[string]bool)}
-}
-
-func (p *processedNodes) HasNode(nodeID string) bool {
-	return p.m[nodeID] != nil
-}
-
-func (p *processedNodes) HasChild(nodeID, childID string) bool {
-	return p.m[nodeID][childID]
-}
-
-func (p *processedNodes) Set(nodeID, childID string) {
-	if p.m[nodeID] == nil {
-		p.m[nodeID] = make(map[string]bool)
-	}
-	p.m[nodeID][childID] = true
-}
-
 func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 	followingNodesWithChildrenBeforeIdx := newStringSet()
 	nextColumn := -1
@@ -507,8 +484,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 		// For each node, we need to check each child.
 		// For each child that is merging back, we need to alter paths that are passing over
 		// and decrement their column.
-		processedNodesInst := newProcessedNodes()
-		processedNodesInst1 := newProcessedNodes()
+		processedNodes := make(map[*internalNode]bool)
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPoint := pathToNode.secondToLast()
@@ -535,7 +511,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
 						if followingNodeChild.Idx < node.Idx &&
-							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.ID, followingNodeChild.ID) {
+							!pathToFollowingNode.isEmpty() && !processedNodes[followingNodeChild] {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := followingNodeChild.GetPathHeightAtIdx(followingNode, node.Idx)
 							if targetColumn > secondToLastPoint.X {
@@ -553,7 +529,7 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
-								shouldMoveNode := followingNode.Column > secondToLastPoint.X && !processedNodesInst1.HasNode(followingNode.ID)
+								shouldMoveNode := followingNode.Column > secondToLastPoint.X && !processedNodes[followingNode]
 								if shouldMoveNode {
 									followingNode.Column -= nbNodesMergingBack
 								}
@@ -564,9 +540,9 @@ func setColumns(colorsMan *colorsManager, nodes []*internalNode) {
 								if shouldMoveNode {
 									// If we move the node, we need to ensure that all paths going to that node now goes to the new column
 									fixPathsToNode(followingNode)
-									processedNodesInst1.Set(followingNode.ID, "")
+									processedNodes[followingNode] = true
 								}
-								processedNodesInst.Set(followingNode.ID, followingNodeChild.ID)
+								processedNodes[followingNodeChild] = true
 							}
 						}
 					}
