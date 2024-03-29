@@ -331,12 +331,11 @@ func (n *internalNode) GetPathHeightAtIdx(parent *internalNode, lookupIdx int) (
 	parentPath := n.pathTo(parent)
 	firstPoint := parentPath.first()
 	lastPoint := parentPath.last()
-	if lookupIdx < firstPoint.y || lookupIdx > lastPoint.y {
-		return
-	}
-	for _, point := range parentPath.Points {
-		if point.y <= lookupIdx {
-			height = point.x
+	if lookupIdx >= firstPoint.y && lookupIdx <= lastPoint.y {
+		for _, point := range parentPath.Points {
+			if point.y <= lookupIdx {
+				height = point.x
+			}
 		}
 	}
 	return
