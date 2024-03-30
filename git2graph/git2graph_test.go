@@ -100,7 +100,7 @@ func TestNotEnoughColors(t *testing.T) {
 		{"id": "2", "parents": []string{"3"}},
 		{"id": "3", "parents": []string{}},
 	}
-	out, _ := BuildTree(inputNodes, colors)
+	out, _ := BuildTree(inputNodes, colors, "", -1)
 	if (*out[2])[gKey].([]any)[2] != "#000" {
 		t.Fail()
 	}
@@ -109,7 +109,7 @@ func TestNotEnoughColors(t *testing.T) {
 func TestGetInputNodesFromJson(t *testing.T) {
 	json := `[{"id": "1", "parents": ["2"]}, {"id": "2", "parents": ["3"]}, {"id": "3", "parents": []}]`
 	inputNodes, _ := GetInputNodesFromJSON([]byte(json))
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 0, 0}
@@ -146,7 +146,7 @@ func Test1(t *testing.T) {
 		{"id": "3", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 0, 0}
@@ -178,7 +178,7 @@ func Test2(t *testing.T) {
 		{"id": "3", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
@@ -211,7 +211,7 @@ func Test3(t *testing.T) {
 		{"id": "3", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0}
@@ -252,7 +252,7 @@ func Test4(t *testing.T) {
 		{"id": "5", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0}
@@ -300,7 +300,7 @@ func Test5(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 0}
@@ -347,7 +347,7 @@ func Test6(t *testing.T) {
 		{"id": "5", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0}
@@ -396,7 +396,7 @@ func Test7(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0, 0}
@@ -449,7 +449,7 @@ func Test8(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 1, 0}
@@ -510,7 +510,7 @@ func Test9(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 0, 2, 1, 0}
@@ -578,7 +578,7 @@ func Test10(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 2, 1, 0}
@@ -635,7 +635,7 @@ func Test11(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 1, 0, 0}
@@ -690,7 +690,7 @@ func Test12(t *testing.T) {
 		{"id": "7", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0, 1, 0}
@@ -741,7 +741,7 @@ func Test13(t *testing.T) {
 		{"id": "10", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 1, 0, 1, 1, 0, 0, 2, 0}
@@ -787,7 +787,7 @@ func Test14(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 1, 0, 2, 0}
@@ -849,7 +849,7 @@ func Test15(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 2, 0, 1, 2, 0}
@@ -906,7 +906,7 @@ func Test16(t *testing.T) {
 		{"id": "7", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 0}
@@ -950,7 +950,7 @@ func Test17(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 0, 0}
@@ -994,7 +994,7 @@ func Test18(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 0}
@@ -1044,7 +1044,7 @@ func Test19(t *testing.T) {
 		{"id": "12", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 1, 0, 4, 3, 0, 2, 0, 1, 0}
@@ -1107,7 +1107,7 @@ func Test20(t *testing.T) {
 		{"id": "5", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 0}
@@ -1149,7 +1149,7 @@ func Test21(t *testing.T) {
 		{"id": "7", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 1, 0, 0, 1, 0}
@@ -1199,7 +1199,7 @@ func Test22(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 1, 0, 0, 1, 0}
@@ -1252,7 +1252,7 @@ func Test23(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 2, 0, 1, 0}
@@ -1308,7 +1308,7 @@ func Test24(t *testing.T) {
 		{"id": "11", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 4, 1, 1, 0, 3, 2, 1, 0}
@@ -1376,7 +1376,7 @@ func Test25(t *testing.T) {
 		{"id": "12", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 1, 2, 0, 2, 3, 0, 1, 2, 1, 0}
@@ -1445,7 +1445,7 @@ func Test26(t *testing.T) {
 		{"id": "8", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 1, 1, 2, 1, 0}
@@ -1508,7 +1508,7 @@ func Test27(t *testing.T) {
 		{"id": "17", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 1, 4, 2, 1, 1, 6, 3, 2, 5, 1, 0, 1, 0}
@@ -1589,7 +1589,7 @@ func Test28(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 0, 1, 0}
@@ -1656,7 +1656,7 @@ func Test29(t *testing.T) {
 		{"id": "27", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 4, 5, 6, 0, 3, 0, 7, 3, 5, 0, 4, 1, 0, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0}
@@ -1785,7 +1785,7 @@ func Test30(t *testing.T) {
 		{"id": "24", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 3, 0, 0, 0, 5, 6, 5, 4, 6, 6, 6, 2, 1, 0, 6, 0, 4, 0, 3, 2, 1, 0}
@@ -1889,7 +1889,7 @@ func Test31(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 0, 1, 0}
@@ -1934,7 +1934,7 @@ func Test32(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 0, 0, 2, 1, 0}
@@ -1987,7 +1987,7 @@ func Test33(t *testing.T) {
 		{"id": "13", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 0, 3, 1, 4, 2, 1, 0, 1, 2, 1, 0}
@@ -2056,7 +2056,7 @@ func Test34(t *testing.T) {
 		{"id": "7", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 2, 1, 0, 1, 0}
@@ -2103,7 +2103,7 @@ func Test35(t *testing.T) {
 		{"id": "4", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 1, 1, 0}
@@ -2140,7 +2140,7 @@ func Test36(t *testing.T) {
 		{"id": "6", "parents": []string{}},
 	}
 
-	out, _ := BuildTree(inputNodes, customColors)
+	out, _ := BuildTree(inputNodes, customColors, "", -1)
 
 	// Expected output
 	expectedColumns := []int{0, 1, 2, 2, 0, 1, 0}
@@ -2225,7 +2225,7 @@ func BenchmarkTest1(b *testing.B) {
 			{"id": "23", "parents": []string{"24"}},
 			{"id": "24", "parents": []string{}},
 		}
-		if _, err := BuildTree(inputNodes, customColors); err != nil {
+		if _, err := BuildTree(inputNodes, customColors, "", -1); err != nil {
 			b.Logf("Failed to build tree")
 		}
 	}
