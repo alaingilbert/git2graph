@@ -11,9 +11,9 @@ import (
 func startAction(c *cli.Context) error {
 	var nodes []*git2graph.Node
 	var err error
-	fromFlag := c.Int("from")
-	sizeFlag := c.Int("size")
-	contextFlag := c.Bool("context")
+	fromFlag := c.String("from")
+	limitFlag := c.Int("limit")
+	//contextFlag := c.Bool("context")
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
 	repoFlag := c.Bool("repo")
@@ -42,7 +42,7 @@ func startAction(c *cli.Context) error {
 		return err
 	}
 
-	out, err := git2graph.Get(nodes)
+	out, err := git2graph.GetPaginated(nodes, fromFlag, limitFlag)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -52,32 +52,32 @@ func startAction(c *cli.Context) error {
 	}
 
 	var tmp []*git2graph.Node
-	if fromFlag >= 0 && sizeFlag >= 1 {
-		// TODO: include context (nodes before "from" that have parents inside or after the range)
-		if contextFlag {
-			for _, node := range out {
-				nodeIdx := (*node)["idx"].(int)
-				parentsPaths := (*node)["parents_paths"].([]git2graph.Path)
-				hasParentsInContext := false
-				for _, nodeParent := range parentsPaths {
-					if nodeParent.Points[len(nodeParent.Points)-1].GetY() >= fromFlag {
-						hasParentsInContext = true
-					}
-				}
-				if hasParentsInContext ||
-					nodeIdx >= fromFlag && nodeIdx < fromFlag+sizeFlag {
-					tmp = append(tmp, node)
-				}
-				if nodeIdx >= fromFlag+sizeFlag-1 {
-					break
-				}
-			}
-		} else {
-			tmp = out[fromFlag : fromFlag+sizeFlag]
-		}
-	} else {
-		tmp = out
-	}
+	//if fromFlag >= 0 && sizeFlag >= 1 {
+	//	// TODO: include context (nodes before "from" that have parents inside or after the range)
+	//	if contextFlag {
+	//		for _, node := range out {
+	//			nodeIdx := (*node)["idx"].(int)
+	//			parentsPaths := (*node)["parents_paths"].([]git2graph.Path)
+	//			hasParentsInContext := false
+	//			for _, nodeParent := range parentsPaths {
+	//				if nodeParent.Points[len(nodeParent.Points)-1].GetY() >= fromFlag {
+	//					hasParentsInContext = true
+	//				}
+	//			}
+	//			if hasParentsInContext ||
+	//				nodeIdx >= fromFlag && nodeIdx < fromFlag+sizeFlag {
+	//				tmp = append(tmp, node)
+	//			}
+	//			if nodeIdx >= fromFlag+sizeFlag-1 {
+	//				break
+	//			}
+	//		}
+	//	} else {
+	//		tmp = out[fromFlag : fromFlag+sizeFlag]
+	//	}
+	//} else {
+	tmp = out
+	//}
 
 	git2graph.SerializeOutput(tmp)
 
@@ -150,15 +150,14 @@ func main() {
 			Name:  "n, no-output",
 			Usage: "No output",
 		},
-		// TODO: From should be a sha
-		cli.IntFlag{
+		cli.StringFlag{
 			Name:  "from",
 			Usage: "From",
-			Value: -1,
+			Value: "",
 		},
 		cli.IntFlag{
-			Name:  "size",
-			Usage: "Size",
+			Name:  "limit",
+			Usage: "Limit",
 			Value: -1,
 		},
 		cli.BoolFlag{
