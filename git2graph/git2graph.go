@@ -482,6 +482,29 @@ func newNode(id string, idx int) *internalNode {
 	return node
 }
 
+type processedNodes struct {
+	m map[string]map[string]bool
+}
+
+func newProcessedNodes() *processedNodes {
+	return &processedNodes{m: make(map[string]map[string]bool)}
+}
+
+func (p *processedNodes) HasNode(nodeID string) bool {
+	return p.m[nodeID] != nil
+}
+
+func (p *processedNodes) HasChild(nodeID, childID string) bool {
+	return p.m[nodeID][childID]
+}
+
+func (p *processedNodes) Set(nodeID, childID string) {
+	if p.m[nodeID] == nil {
+		p.m[nodeID] = make(map[string]bool)
+	}
+	p.m[nodeID][childID] = true
+}
+
 func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNode) {
 	colorsMan := newColorsManager()
 	followingNodesWithChildrenBeforeIdx := newStringSet()
@@ -543,7 +566,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		// For each node, we need to check each child.
 		// For each child that is merging back, we need to alter paths that are passing over
 		// and decrement their column.
-		processedNodes := make(map[*internalNode]bool)
+		processedNodes := newProcessedNodes()
+		processedNodes1 := newProcessedNodes()
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPoint := pathToNode.secondToLast()
@@ -568,7 +592,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
 						if *followingNodeChild.idx < *node.idx &&
-							!pathToFollowingNode.isEmpty() && !processedNodes[followingNodeChild] {
+							!pathToFollowingNode.isEmpty() && !processedNodes.HasChild(followingNode.id, followingNodeChild.id) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
 							if targetColumn > secondToLastPoint.x {
@@ -587,7 +611,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNode.column > secondToLastPoint.x && !processedNodes[followingNode]
+								shouldMoveNode := followingNode.column > secondToLastPoint.x && !processedNodes1.HasNode(followingNode.id)
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
@@ -597,9 +621,9 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
-									processedNodes[followingNode] = true
+									processedNodes1.Set(followingNode.id, "")
 								}
-								processedNodes[followingNodeChild] = true
+								processedNodes.Set(followingNode.id, followingNodeChild.id)
 							}
 						}
 					}
