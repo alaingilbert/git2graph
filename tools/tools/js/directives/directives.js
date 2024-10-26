@@ -285,20 +285,20 @@ app.directive('project', function() {
         out += 'func ' + testName + '(t *testing.T) {\n';
 
         out += '	// Initial input\n';
-        out += '	inputNodes := []Node{\n';
+        out += '	inputNodes := []*Node{\n';
         _.each($scope.tree, function(node) {
           var p = _.map(node.parents, function(el) { return '"' + el + '"'; }).join(', ');
           out += '		{"id": "' + node.id + '", "parents": []string{' + p + '}},\n';
         });
         out += '	}\n';
 
-        out += '\n	out, _ := BuildTree(inputNodes, customColors)\n\n';
+        out += '\n	out, _ := buildTree(inputNodes, customColors, "", -1)\n\n';
 
         out += '	// Expected output\n';
         var expectedColumns = _.map($scope.tree, 'column').join(', ');
         out += '	expectedColumns := []int{' + expectedColumns + '}\n\n';
 
-        out += '	expectedPaths := []map[string]Path{\n';
+        out += '	expectedPaths := []map[string]PathTest{\n';
         _.each($scope.tree, function(node) {
           node.parents = _.keys(node.parentsPaths);
           node.parents = _.sortBy(node.parents, function(item) { return $scope.tree[item].column; });
@@ -316,7 +316,7 @@ app.directive('project', function() {
             var prefix = "";
             _.each(_.range(maxParentLength - parentId.length), function() { prefix += " "; });
             var color = _.indexOf($scope.colors, node.parentsPaths[parentId].color);
-            out += '			"' + parentId + '":' + prefix + ' {[]Point{';
+            out += '			"' + parentId + '":' + prefix + ' {[]*PointTest{';
             var points = [];
             _.each(node.parentsPaths[parentId].path, function(point) {
               points.push('{' + point[0] + ', ' + point[1] + ', ' + point[2] + '}');
