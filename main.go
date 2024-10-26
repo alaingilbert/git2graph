@@ -118,52 +118,17 @@ func main() {
 	app.Name = "git2graph"
 	app.Usage = "Take a git tree, make a graph structure"
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "f, file",
-			Usage: "File",
-		},
-		cli.StringFlag{
-			Name:  "j, json",
-			Usage: "Json input",
-		},
-		cli.StringFlag{
-			Name:  "L, log",
-			Usage: "Log level",
-		},
-		cli.BoolFlag{
-			Name:  "r, repo",
-			Usage: "Repository",
-		},
-		cli.StringFlag{
-			Name:  "p, parents",
-			Usage: "Parents",
-		},
-		cli.BoolFlag{
-			Name:  "l, repo-linear",
-			Usage: "Repository linear history",
-		},
-		cli.BoolFlag{
-			Name:  "s, seq-ids",
-			Usage: "Use sequential ids instead of sha for linear history",
-		},
-		cli.BoolFlag{
-			Name:  "n, no-output",
-			Usage: "No output",
-		},
-		cli.StringFlag{
-			Name:  "from",
-			Usage: "From",
-			Value: "",
-		},
-		cli.IntFlag{
-			Name:  "limit",
-			Usage: "Limit",
-			Value: -1,
-		},
-		cli.BoolFlag{
-			Name:  "context",
-			Usage: "Include context",
-		},
+		cli.StringFlag{Name: "f, file", Usage: "File"},
+		cli.StringFlag{Name: "j, json", Usage: "Json input"},
+		cli.StringFlag{Name: "L, log", Usage: "Log level"},
+		cli.BoolFlag{Name: "r, repo", Usage: "Repository"},
+		cli.StringFlag{Name: "p, parents", Usage: "Parents"},
+		cli.BoolFlag{Name: "l, repo-linear", Usage: "Repository linear history"},
+		cli.BoolFlag{Name: "s, seq-ids", Usage: "Use sequential ids instead of sha for linear history"},
+		cli.BoolFlag{Name: "n, no-output", Usage: "No output"},
+		cli.StringFlag{Name: "from", Usage: "From"},
+		cli.IntFlag{Name: "limit", Usage: "Limit", Value: -1},
+		cli.BoolFlag{Name: "context", Usage: "Include context"},
 	}
 	app.Action = startAction
 	if err := app.Run(os.Args); err != nil {
