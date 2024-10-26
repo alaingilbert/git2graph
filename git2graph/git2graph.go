@@ -606,7 +606,9 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								nbNodesMergingBack := 0
 								nodeForMerge := node
 								if node.isOrphan() {
-									nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
+									if idx+1 < len(inputNodes) {
+										nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
+									}
 									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
