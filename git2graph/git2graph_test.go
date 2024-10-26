@@ -2179,7 +2179,7 @@ func Test37(t *testing.T) {
 		{"id": "1", "parents": []string{"6"}},
 		{"id": "2", "parents": []string{"5"}},
 		{"id": "3", "parents": []string{"4"}},
-		{"id": "4", "parents": []string{"7", "8"}},
+		{"id": "4", "parents": []string{"8", "7"}},
 		{"id": "5", "parents": []string{"6"}},
 		{"id": "6", "parents": []string{"7"}},
 		{"id": "7", "parents": []string{"8"}},
