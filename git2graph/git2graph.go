@@ -566,8 +566,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		// For each node, we need to check each child.
 		// For each child that is merging back, we need to alter paths that are passing over
 		// and decrement their column.
-		processedNodes := newProcessedNodes()
-		processedNodes1 := newProcessedNodes()
+		processedNodesInst := newProcessedNodes()
+		processedNodesInst1 := newProcessedNodes()
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPoint := pathToNode.secondToLast()
@@ -592,7 +592,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
 						if *followingNodeChild.idx < *node.idx &&
-							!pathToFollowingNode.isEmpty() && !processedNodes.HasChild(followingNode.id, followingNodeChild.id) {
+							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
 							if targetColumn > secondToLastPoint.x {
@@ -613,7 +613,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNode.column > secondToLastPoint.x && !processedNodes1.HasNode(followingNode.id)
+								shouldMoveNode := followingNode.column > secondToLastPoint.x && !processedNodesInst1.HasNode(followingNode.id)
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
@@ -623,9 +623,9 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
-									processedNodes1.Set(followingNode.id, "")
+									processedNodesInst1.Set(followingNode.id, "")
 								}
-								processedNodes.Set(followingNode.id, followingNodeChild.id)
+								processedNodesInst.Set(followingNode.id, followingNodeChild.id)
 							}
 						}
 					}
