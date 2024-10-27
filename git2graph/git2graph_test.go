@@ -2117,6 +2117,7 @@ func Test35(t *testing.T) {
 			"2": {[]*PointTest{{1, 1, 0}, {1, 2, 0}}, 1},
 			"3": {[]*PointTest{{1, 1, 0}, {2, 1, 2}, {2, 3, 1}, {1, 3, 0}}, 2},
 		},
+		{},
 		{
 			"4": {[]*PointTest{{1, 3, 0}, {1, 4, 1}, {0, 4, 0}}, 2},
 		},
@@ -2233,9 +2234,9 @@ func Test38(t *testing.T) {
 		{"id": "2", "parents": []string{"6"}},
 		{"id": "3", "parents": []string{"6"}},
 		{"id": "4", "parents": []string{"7"}},
-		{"id": "5", "parents": []string{""}},
+		{"id": "5", "parents": []string{}},
 		{"id": "6", "parents": []string{"7"}},
-		{"id": "7", "parents": []string{""}},
+		{"id": "7", "parents": []string{}},
 	}
 
 	out, _ := buildTree(inputNodes, customColors, "", -1)

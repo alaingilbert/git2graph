@@ -394,11 +394,13 @@ func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 	for _, child := range n.children {
 		path := child.pathTo(n)
 		childIsSubBranch := child.isPathSubBranch(n)
-		secondToLastPoint := path.secondToLast()
-		if n.column < secondToLastPoint.x && secondToLastPoint.x < maxX &&
-			!childIsSubBranch &&
-			!path.isMergeTo() {
-			nbNodesMergingBack++
+		if path.len() >= 2 {
+			secondToLastPoint := path.secondToLast()
+			if n.column < secondToLastPoint.x && secondToLastPoint.x < maxX &&
+				!childIsSubBranch &&
+				!path.isMergeTo() {
+				nbNodesMergingBack++
+			}
 		}
 	}
 	return
