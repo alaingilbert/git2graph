@@ -2272,6 +2272,42 @@ func Test38(t *testing.T) {
 	validateColors(t, expectedPaths, out)
 }
 
+func Test39(t *testing.T) {
+	// Initial input
+	inputNodes := []*Node{
+		{"id": "0", "parents": []string{"6"}},
+		{"id": "1", "parents": []string{"5"}},
+		{"id": "2", "parents": []string{"6"}},
+		{"id": "3", "parents": []string{"7"}},
+		{"id": "4", "parents": []string{"8"}},
+		{"id": "5", "parents": []string{}},
+		{"id": "6", "parents": []string{"7"}},
+		{"id": "7", "parents": []string{"8"}},
+		{"id": "8", "parents": []string{}},
+	}
+
+	out, _ := buildTree(inputNodes, customColors, "", -1)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 2, 3, 4, 1, 0, 0, 0}
+
+	expectedPaths := []map[string]PathTest{
+		{"6": {[]*PointTest{{0, 0, 0}, {0, 6, 0}}, 0}},
+		{"5": {[]*PointTest{{1, 1, 0}, {1, 5, 0}}, 1}},
+		{"6": {[]*PointTest{{2, 2, 0}, {2, 6, 1}, {0, 6, 0}}, 2}},
+		{"7": {[]*PointTest{{3, 3, 0}, {3, 6, 1}, {1, 6, 0}, {1, 7, 1}, {0, 7, 0}}, 3}},
+		{"8": {[]*PointTest{{4, 4, 0}, {4, 6, 1}, {2, 6, 0}, {2, 7, 1}, {1, 7, 0}, {1, 8, 1}, {0, 8, 0}}, 4}},
+		{},
+		{"7": {[]*PointTest{{0, 6, 0}, {0, 7, 0}}, 0}},
+		{"8": {[]*PointTest{{0, 7, 0}, {0, 8, 0}}, 0}},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
 func assertEq(t *testing.T, expected, actual any) {
 	if actual != expected {
 		t.Logf("Expected: %d, Actual: %d", expected, actual)
