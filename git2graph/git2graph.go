@@ -522,12 +522,10 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		if limit == 0 {
 			break
 		}
+		limit--
 		id := rawNode.GetID()
 		if id == from {
 			fromIdx = idx
-		}
-		if fromIdx != -1 {
-			limit--
 		}
 		var node *internalNode
 		if n, ok := unassignedNodes[id]; ok {
