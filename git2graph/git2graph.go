@@ -285,6 +285,10 @@ type Point struct {
 	typ pointType
 }
 
+func newPoint(x int, y *int, typ pointType) *Point {
+	return &Point{x: x, y: y, typ: typ}
+}
+
 func (p *Point) String() string {
 	return fmt.Sprintf("{%d,%d,%d}", p.getX(), p.GetY(), p.getType())
 }
@@ -608,7 +612,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 				// Insert before the last element
 				if node.column != child.column {
-					pathToNode.noDupInsert(-1, &Point{secondToLastPointX, node.idx, MergeBack})
+					pathToNode.noDupInsert(-1, newPoint(secondToLastPointX, node.idx, MergeBack))
 				}
 
 				// Nodes that are following the current node
@@ -641,9 +645,9 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 									followingNodeColumn -= nbNodesMergingBack
 								}
 								pathPointX := pathToFollowingNode.last().getX()
-								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
-								pathToFollowingNode.noDupAppend2(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
-								pathToFollowingNode.noDupAppend2(&Point{followingNodeColumn, followingNode.idx, Pipe})
+								pathToFollowingNode.noDupAppend(newPoint(pathPointX, nodeForMerge.idx, MergeBack))
+								pathToFollowingNode.noDupAppend2(newPoint(pathPointX-nbNodesMergingBack, nodeForMerge.idx, Pipe))
+								pathToFollowingNode.noDupAppend2(newPoint(followingNodeColumn, followingNode.idx, Pipe))
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
 									processedNodesInst1.Set(followingNode.id, "")
@@ -658,12 +662,12 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 		for parentIdx, parent := range node.parents {
 			nodePathToParent := node.pathTo(parent)
-			nodePathToParent.noDupAppend(&Point{node.column, node.idx, Pipe})
+			nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
 					parent.column = incrCol()
 					parent.colorIdx = colorsMan.getColor(*node.idx)
-					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
+					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
 					node.setFirstOfBranch()
 				} else {
 					parent.column = node.column
@@ -676,28 +680,28 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 						pathToParent := child.pathTo(parent)
 						if pathToParent.isValid() {
 							pathToParent.removeLast()
-							pathToParent.noDupAppend(&Point{pathToParent.last().getX(), parent.idx, MergeBack})
-							pathToParent.noDupAppend(&Point{node.column, parent.idx, Pipe})
+							pathToParent.noDupAppend(newPoint(pathToParent.last().getX(), parent.idx, MergeBack))
+							pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
 						}
 					}
 					parent.column = node.column
 					parent.colorIdx = node.colorIdx
 					nodePathToParent.setColor(node.colorIdx)
 				} else {
-					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, Fork})
+					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
 					nodePathToParent.setColor(parent.colorIdx)
 				}
 			} else if node.column > parent.column {
 				nextNodeID := inputNodes[idx+1].GetID()
 				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
-					nodePathToParent.noDupAppend(&Point{node.column, parent.idx, MergeBack})
+					nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
 					nodePathToParent.setColor(node.colorIdx)
 				} else {
-					nodePathToParent.noDupAppend(&Point{parent.column, node.idx, MergeTo})
+					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
 					nodePathToParent.setColor(parent.colorIdx)
 				}
 			}
-			nodePathToParent.noDupAppend(&Point{parent.column, parent.idx, Pipe})
+			nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
 		}
 	}
 	// Sets idx of all nodes with undefined idx (y coord)
