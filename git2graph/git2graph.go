@@ -755,10 +755,18 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
+func True() bool  { return true }
+func False() bool { return false }
+
 // GetInputNodesFromRepo creates an array of Node from a repository
 func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err error) {
+	topoOrder := False()
 	startOfCommit := "@@@@@@@@@@"
-	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes", "--topo-order").Output()
+	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes"}
+	if topoOrder {
+		args = append(args, "--topo-order")
+	}
+	outBytes, err := exec.Command("git", args...).Output()
 	if err != nil {
 		return
 	}
