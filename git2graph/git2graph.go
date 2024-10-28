@@ -635,13 +635,13 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 									followingNodeColumn -= nbNodesMergingBack
 								}
 								pathPointX := pathToFollowingNode.last().x
-								pathToFollowingNode.append(&Point{pathPointX, nodeForMerge.idx, MergeBack})
-								pathToFollowingNode.append(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
+								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
+								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
 								for pathToFollowingNode.len() >= 3 &&
 									pathToFollowingNode.get(-1).y == pathToFollowingNode.get(-3).y {
 									pathToFollowingNode.remove(-2)
 								}
-								pathToFollowingNode.append(&Point{followingNodeColumn, followingNode.idx, Pipe})
+								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
 								for pathToFollowingNode.len() >= 3 &&
 									pathToFollowingNode.get(-1).y == pathToFollowingNode.get(-2).y &&
 									pathToFollowingNode.get(-1).y == pathToFollowingNode.get(-3).y {
