@@ -292,7 +292,7 @@ app.directive('project', function() {
         });
         out += '	}\n';
 
-        out += '\n	out, _ := buildTree(inputNodes, customColors, "", -1)\n\n';
+        out += '\n	out, _ := buildTreeTest(inputNodes, customColors, "", -1)\n\n';
 
         out += '	// Expected output\n';
         var expectedColumns = _.map($scope.tree, 'column').join(', ');

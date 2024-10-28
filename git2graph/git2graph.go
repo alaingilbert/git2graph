@@ -718,25 +718,21 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 // Get generates the props to turn the input into a graph drawable
 func Get(inputNodes []*Node) ([]*Node, error) {
-	nodes, err := buildTree(inputNodes, NewCycleColorGen(DefaultColors), "", -1)
-	for _, node := range nodes {
-		delete(*node, parentsPathsTestKey)
-	}
-	return nodes, err
+	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), "", -1, false)
 }
 
 // GetPaginated same as Get but only return the nodes for the asked page
 func GetPaginated(inputNodes []*Node, from string, limit int) ([]*Node, error) {
-	nodes, err := buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit)
-	for _, node := range nodes {
-		delete(*node, parentsPathsTestKey)
-	}
-	return nodes, err
+	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
+}
+
+func buildTreeTest(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Node, error) {
+	return buildTree(inputNodes, colorGen, from, limit, true)
 }
 
 // buildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
-func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Node, error) {
+func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit int, isTest bool) ([]*Node, error) {
 	nodes := setColumns(inputNodes, from, limit)
 
 	finalStruct := make([]*Node, len(nodes))
@@ -752,7 +748,9 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 			i++
 		}
 		finalNode := node.initialNode
-		(*finalNode)[parentsPathsTestKey] = node.parentsPaths // Kept for tests
+		if isTest {
+			(*finalNode)[parentsPathsTestKey] = node.parentsPaths
+		}
 		(*finalNode)[gKey] = []any{node.idx, node.column, colorGen.GetColor(node.colorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
 	}
