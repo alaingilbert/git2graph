@@ -758,7 +758,7 @@ func deleteEmpty(s []string) []string {
 // GetInputNodesFromRepo creates an array of Node from a repository
 func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
-	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes").Output()
+	outBytes, err := exec.Command("git", "log", "--pretty=tformat:"+startOfCommit+"%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes", "--topo-order").Output()
 	if err != nil {
 		return
 	}
