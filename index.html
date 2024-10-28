@@ -27,7 +27,7 @@
           <option>Choose an example</option>
         </select>
       </div>
-      <div id="json-group" id="json-group" class="form-group">
+      <div id="json-group" class="form-group">
         <textarea id="json" class="form-control"></textarea>
       </div>
       <div class="form-group">
@@ -55,7 +55,7 @@
         render();
       });
 
-      var render = function() {
+      const render = function() {
         const jsonText = $('#json').val();
         let tree;
         try {
@@ -126,7 +126,7 @@
           .attr('alignment-baseline', 'middle')
           .attr('font-family', 'Consolas, "Liberation Mono", Menlo, Courier, monospace')
           .text(function(commit) {
-            return commit.id.substr(0, 7);
+            return commit.id.substring(0, 7);
           });
       };
     </script>
