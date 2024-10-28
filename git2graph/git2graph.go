@@ -587,8 +587,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		nodes = append(nodes, node)
 
 		// Add node parent IDs to the index cache
-		parents := rawNode.GetParents()
-		for _, parentID := range parents {
+		for _, parentID := range rawNode.GetParents() {
 			parentNode, ok := unassignedNodes[parentID]
 			if !ok {
 				parentNode = newNode(parentID, tmpRow)
