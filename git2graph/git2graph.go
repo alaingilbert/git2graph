@@ -396,10 +396,10 @@ func (n *internalNode) moveDown(idx int) {
 }
 
 const (
-	idKey               = "id"
-	parentsKey          = "parents"
-	gKey                = "g"
-	parentsPathsTestKey = "parentsPaths"
+	idKey               = "id"           // Commit sha
+	parentsKey          = "parents"      // Parent sha(s)
+	gKey                = "g"            // Graph information
+	parentsPathsTestKey = "parentsPaths" // Used in tests
 )
 
 // A merging node is one that come from a higher column, but is not a sub-branch and is not a MergeTo
