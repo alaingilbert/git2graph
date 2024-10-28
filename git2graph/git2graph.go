@@ -507,7 +507,7 @@ func ternary[T any](predicate bool, a, b T) T {
 func newNode(id string, idx int) *internalNode {
 	node := &internalNode{}
 	node.id = id
-	node.idx = ptr(idx)
+	node.idx = &idx
 	node.column = -1
 	node.parents = make([]*internalNode, 0)
 	node.parentsPaths = make(map[string]*Path)
