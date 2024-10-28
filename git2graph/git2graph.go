@@ -738,14 +738,13 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
 		finalParentsPaths := make([]any, len(node.parentsPaths))
-		i := 0
-		for _, n := range node.parentsPaths {
+		for i, parent := range node.parents {
+			n := node.parentsPaths[parent.id]
 			path := make([][]any, len(n.Points))
 			for pointIdx, point := range n.Points {
 				path[pointIdx] = []any{point.getX(), point.GetY(), point.getType()}
 			}
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
-			i++
 		}
 		finalNode := node.initialNode
 		if isTest {
