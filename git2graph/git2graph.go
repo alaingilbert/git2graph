@@ -113,6 +113,23 @@ func (m *colorsManager) releaseColor(colorIdx int, idx int) {
 	}
 }
 
+type columnManager struct {
+	c int
+}
+
+func newColumnManager() *columnManager {
+	return &columnManager{c: -1}
+}
+
+func (c *columnManager) next() int {
+	c.c++
+	return c.c
+}
+
+func (c *columnManager) decr() {
+	c.c--
+}
+
 // Types; to understand these constants, you need to read the graph from top to bottom.
 // Fork is when a node fork into two paths (top -> bottom)
 // MergeBack is when a branch merge back into a branch on its right
@@ -540,12 +557,8 @@ func (p *processedNodes) Set(nodeID, childID string) {
 
 func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNode) {
 	colorsMan := newColorsManager()
+	columnMan := newColumnManager()
 	followingNodesWithChildrenBeforeIdx := newStringSet()
-	nextColumn := -1
-	incrCol := func() int {
-		nextColumn++
-		return nextColumn
-	}
 	unassignedNodes := make(map[string]*internalNode)
 	tmpRow := -1
 	fromIdx := ternary(from == "", 0, -1)
@@ -584,7 +597,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 		// Set column if not defined
 		if !node.columnDefined() {
-			node.column = incrCol()
+			node.column = columnMan.next()
 			node.colorIdx = colorsMan.getColor(*node.idx)
 		}
 
@@ -603,7 +616,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			if node.column < secondToLastPointX || node.isOrphan() {
 				childIsSubBranch := child.isPathSubBranch(node)
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
-					nextColumn--
+					columnMan.decr()
 				}
 				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(*node.idx) {
 					pathToNode.setColor(child.colorIdx)
@@ -664,7 +677,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
 			if !parent.columnDefined() {
 				if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
-					parent.column = incrCol()
+					parent.column = columnMan.next()
 					parent.colorIdx = colorsMan.getColor(*node.idx)
 					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
 					node.setFirstOfBranch()
