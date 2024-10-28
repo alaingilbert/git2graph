@@ -633,8 +633,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 					// Following nodes that have a child before the current node
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
-						if *followingNodeChild.idx < *node.idx &&
-							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
+						if *followingNodeChild.idx < *node.idx && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
 							if targetColumn > secondToLastPointX {
