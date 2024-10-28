@@ -780,12 +780,8 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
-func True() bool  { return true }
-func False() bool { return false }
-
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err error) {
-	topoOrder := False()
+func GetInputNodesFromRepo(seqIds bool, parentsOf string, topoOrder bool) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes"}
 	if topoOrder {

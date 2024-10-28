@@ -17,6 +17,7 @@ func startAction(c *cli.Context) error {
 	jsonFlag := c.String("json")
 	fileFlag := c.String("file")
 	repoFlag := c.Bool("repo")
+	topoOrderFlag := c.Bool("topo-order")
 	git2graph.NoOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
 	seqIds := c.Bool("seq-ids")
@@ -25,7 +26,7 @@ func startAction(c *cli.Context) error {
 	setLogLevel(logLevel)
 
 	if repoFlag || repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents)
+		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents, topoOrderFlag)
 		if repoLinearFlag {
 			git2graph.SerializeOutput(nodes)
 			return err
@@ -122,6 +123,7 @@ func main() {
 		cli.StringFlag{Name: "j, json", Usage: "Json input"},
 		cli.StringFlag{Name: "L, log", Usage: "Log level"},
 		cli.BoolFlag{Name: "r, repo", Usage: "Repository"},
+		cli.BoolFlag{Name: "topo-order", Usage: "Topological order"},
 		cli.StringFlag{Name: "p, parents", Usage: "Parents"},
 		cli.BoolFlag{Name: "l, repo-linear", Usage: "Repository linear history"},
 		cli.BoolFlag{Name: "s, seq-ids", Usage: "Use sequential ids instead of sha for linear history"},
