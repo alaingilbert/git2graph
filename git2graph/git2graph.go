@@ -701,6 +701,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			nodePathToParent.noDupAppend(&Point{parent.column, parent.idx, Pipe})
 		}
 	}
+	// Sets idx of all nodes with undefined idx (y coord)
 	for _, n := range followingNodesWithChildrenBeforeIdx.a {
 		if *n.idx < 0 {
 			*n.idx = len(nodes)
