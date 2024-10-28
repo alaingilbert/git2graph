@@ -622,11 +622,9 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								// Calculate nb of merging nodes
 								nbNodesMergingBack := 0
 								nodeForMerge := node
-								if node.isOrphan() {
-									if idx+1 < len(inputNodes) {
-										nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
-										nbNodesMergingBack++
-									}
+								if node.isOrphan() && idx+1 < len(inputNodes) {
+									nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
+									nbNodesMergingBack++
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
