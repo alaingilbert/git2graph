@@ -571,37 +571,12 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			break
 		}
 		limit--
-		id := rawNode.GetID()
-		if id == from {
-			fromIdx = idx
-		}
-		var node *internalNode
-		if n, ok := unassignedNodes[id]; ok {
-			node = n
-			node.moveDown(idx)
-			delete(unassignedNodes, id)
-		} else {
-			node = newNode(id, idx)
-		}
-		node.initialNode = rawNode
+
+		node := initNode(rawNode, idx, &tmpRow, unassignedNodes, columnMan, colorsMan)
 		nodes = append(nodes, node)
 
-		// Add node parent IDs to the index cache
-		for _, parentID := range rawNode.GetParents() {
-			parentNode, ok := unassignedNodes[parentID]
-			if !ok {
-				parentNode = newNode(parentID, tmpRow)
-				tmpRow--
-				unassignedNodes[parentNode.id] = parentNode
-			}
-			parentNode.children = append(parentNode.children, node)
-			node.parents = append(node.parents, parentNode)
-		}
-
-		// Set column if not defined
-		if !node.columnDefined() {
-			node.column = columnMan.next()
-			node.colorIdx = colorsMan.getColor(*node.idx)
+		if node.id == from {
+			fromIdx = idx
 		}
 
 		// Cache the following node with child before the current node
@@ -621,6 +596,37 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		return nodes[fromIdx:]
 	}
 	return nodes
+}
+
+func initNode(rawNode *Node, idx int, tmpRow *int, unassignedNodes map[string]*internalNode, columnMan *columnManager, colorsMan *colorsManager) (node *internalNode) {
+	id := rawNode.GetID()
+	if n, ok := unassignedNodes[id]; ok {
+		node = n
+		node.moveDown(idx)
+		delete(unassignedNodes, id)
+	} else {
+		node = newNode(id, idx)
+	}
+	node.initialNode = rawNode
+
+	// Add node parent IDs to the index cache
+	for _, parentID := range rawNode.GetParents() {
+		parentNode, ok := unassignedNodes[parentID]
+		if !ok {
+			parentNode = newNode(parentID, *tmpRow)
+			*tmpRow--
+			unassignedNodes[parentNode.id] = parentNode
+		}
+		parentNode.children = append(parentNode.children, node)
+		node.parents = append(node.parents, parentNode)
+	}
+
+	// Set column if not defined
+	if !node.columnDefined() {
+		node.column = columnMan.next()
+		node.colorIdx = colorsMan.getColor(*node.idx)
+	}
+	return node
 }
 
 func processChildren(node *internalNode, idx int, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *internalNodeSet, columnMan *columnManager, colorsMan *colorsManager) {
