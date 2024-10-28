@@ -247,10 +247,10 @@ func (p *Path) insert(idx int, point *Point) {
 // GetHeightAtIdx Get the path x at idx
 func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
 	height = -1
-	firstPoint := p.first()
-	if lookupIdx >= firstPoint.GetY() {
+	if lookupIdx >= p.first().GetY() {
 		for _, point := range p.Points {
-			if point.GetY() <= lookupIdx && point.GetY() >= 0 {
+			pointY := point.GetY()
+			if 0 <= pointY && pointY <= lookupIdx {
 				height = point.getX()
 			}
 		}
