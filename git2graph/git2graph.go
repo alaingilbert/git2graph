@@ -204,6 +204,7 @@ func (p *Path) first() *Point        { return p.get(0) }
 func (p *Path) second() *Point       { return p.get(1) }
 func (p *Path) last() *Point         { return p.get(-1) }
 func (p *Path) secondToLast() *Point { return p.get(-2) }
+func (p *Path) thirdToLast() *Point  { return p.get(-3) }
 func (p *Path) removeLast()          { p.remove(-1) }
 func (p *Path) removeSecondToLast()  { p.remove(-2) }
 func (p *Path) remove(idx int) {
@@ -635,11 +636,11 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								pathPointX := pathToFollowingNode.last().x
 								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
 								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
-								for pathToFollowingNode.last().y == pathToFollowingNode.get(-3).y {
+								for pathToFollowingNode.last().y == pathToFollowingNode.thirdToLast().y {
 									pathToFollowingNode.removeSecondToLast()
 								}
 								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
-								for pathToFollowingNode.last().y == pathToFollowingNode.get(-3).y {
+								for pathToFollowingNode.last().y == pathToFollowingNode.thirdToLast().y {
 									pathToFollowingNode.removeSecondToLast()
 								}
 								if shouldMoveNode {
