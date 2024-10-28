@@ -556,13 +556,12 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		var node *internalNode
 		if n, ok := unassignedNodes[id]; ok {
 			node = n
-			node.initialNode = rawNode
 			node.moveDown(idx)
 			delete(unassignedNodes, id)
 		} else {
 			node = newNode(id, idx)
-			node.initialNode = rawNode
 		}
+		node.initialNode = rawNode
 		nodes = append(nodes, node)
 
 		// Add node parent IDs to the index cache
