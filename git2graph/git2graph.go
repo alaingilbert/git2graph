@@ -356,6 +356,10 @@ func (n *internalNode) pathTo(parent *internalNode) *Path {
 	return parentPath
 }
 
+func (n *internalNode) ensureColumn() bool {
+	return n.column != -1
+}
+
 func (n *internalNode) columnDefined() bool {
 	return n.column != -1
 }
@@ -475,8 +479,8 @@ type stringSet struct {
 	m map[*internalNode]struct{}
 }
 
-func newStringSet() stringSet {
-	return stringSet{
+func newStringSet() *stringSet {
+	return &stringSet{
 		a: make([]*internalNode, 0),
 		m: make(map[*internalNode]struct{}),
 	}
@@ -559,7 +563,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 	colorsMan := newColorsManager()
 	columnMan := newColumnManager()
 	followingNodesWithChildrenBeforeIdx := newStringSet()
-	unassignedNodes := make(map[string]*internalNode)
+	unassignedNodes := make(map[string]*internalNode) // Keep track of nodes for which the row (idx) has not been defined yet
 	tmpRow := -1
 	fromIdx := ternary(from == "", 0, -1)
 	for idx, rawNode := range inputNodes {
@@ -605,115 +609,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		followingNodesWithChildrenBeforeIdx.Add(node.parents)
 		followingNodesWithChildrenBeforeIdx.Remove(node)
 
-		// Each child that are merging
-		// For each node, we need to check each child.
-		// For each child that is merging back, we need to alter paths that are passing over
-		// and decrement their column.
-		processedNodesInst := newProcessedNodes()
-		for _, child := range node.children {
-			pathToNode := child.pathTo(node)
-			secondToLastPointX := pathToNode.secondToLast().getX()
-			if node.column < secondToLastPointX || node.isOrphan() {
-				childIsSubBranch := child.isPathSubBranch(node)
-				if !childIsSubBranch && !pathToNode.isMergeTo() {
-					columnMan.decr()
-				}
-				if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(*node.idx) {
-					pathToNode.setColor(child.colorIdx)
-				}
-				colorsMan.releaseColor(pathToNode.colorIdx, *node.idx)
-
-				// Insert before the last element
-				if node.column != child.column {
-					pathToNode.noDupInsert(-1, newPoint(secondToLastPointX, node.idx, MergeBack))
-				}
-
-				// Nodes that are following the current node
-				for _, followingNode := range followingNodesWithChildrenBeforeIdx.a {
-					// Following nodes that have a child before the current node
-					for _, followingNodeChild := range followingNode.children {
-						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
-						if *followingNodeChild.idx < *node.idx && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
-							// Following node child has a path that is higher than the current path being merged
-							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
-							if targetColumn > secondToLastPointX {
-								// Remove all nodes, that are next to the last node, that have the same y as the last node
-								for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
-									pathToFollowingNode.removeSecondToLast()
-								}
-								pathToFollowingNode.removeLast()
-
-								// Calculate nb of merging nodes
-								nbNodesMergingBack := 0
-								nodeForMerge := node
-								if node.isOrphan() && idx+1 < len(inputNodes) {
-									nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
-									nbNodesMergingBack++
-								}
-								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
-								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNodeColumn > secondToLastPointX && !processedNodesInst.HasNode(followingNode.id)
-								if shouldMoveNode {
-									followingNodeColumn -= nbNodesMergingBack
-								}
-								pathPointX := pathToFollowingNode.last().getX()
-								pathToFollowingNode.noDupAppend(newPoint(pathPointX, nodeForMerge.idx, MergeBack))
-								pathToFollowingNode.noDupAppend2(newPoint(pathPointX-nbNodesMergingBack, nodeForMerge.idx, Pipe))
-								pathToFollowingNode.noDupAppend2(newPoint(followingNodeColumn, followingNode.idx, Pipe))
-								if shouldMoveNode {
-									followingNode.moveLeft(nbNodesMergingBack)
-								}
-								processedNodesInst.Set(followingNode.id, followingNodeChild.id)
-							}
-						}
-					}
-				}
-			}
-		}
-
-		for parentIdx, parent := range node.parents {
-			nodePathToParent := node.pathTo(parent)
-			nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
-			if !parent.columnDefined() {
-				if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
-					parent.column = columnMan.next()
-					parent.colorIdx = colorsMan.getColor(*node.idx)
-					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
-					node.setFirstOfBranch()
-				} else {
-					parent.column = node.column
-					parent.colorIdx = node.colorIdx
-				}
-				nodePathToParent.setColor(parent.colorIdx)
-			} else if node.column < parent.column {
-				if parentIdx == 0 {
-					for _, child := range parent.children {
-						pathToParent := child.pathTo(parent)
-						if pathToParent.isValid() {
-							pathToParent.removeLast()
-							pathToParent.noDupAppend(newPoint(pathToParent.last().getX(), parent.idx, MergeBack))
-							pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
-						}
-					}
-					parent.column = node.column
-					parent.colorIdx = node.colorIdx
-					nodePathToParent.setColor(node.colorIdx)
-				} else {
-					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
-					nodePathToParent.setColor(parent.colorIdx)
-				}
-			} else if node.column > parent.column {
-				nextNodeID := inputNodes[idx+1].GetID()
-				if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
-					nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
-					nodePathToParent.setColor(node.colorIdx)
-				} else {
-					nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
-					nodePathToParent.setColor(parent.colorIdx)
-				}
-			}
-			nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
-		}
+		processChildren(node, idx, inputNodes, followingNodesWithChildrenBeforeIdx, columnMan, colorsMan)
+		processParents(node, idx, inputNodes, columnMan, colorsMan)
 	}
 	// Sets idx of all nodes with undefined idx (y coord)
 	for _, n := range followingNodesWithChildrenBeforeIdx.a {
@@ -725,6 +622,120 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		return nodes[fromIdx:]
 	}
 	return nodes
+}
+
+func processChildren(node *internalNode, idx int, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *stringSet, columnMan *columnManager, colorsMan *colorsManager) {
+	// Each child that are merging
+	// For each node, we need to check each child.
+	// For each child that is merging back, we need to alter paths that are passing over
+	// and decrement their column.
+	processedNodesInst := newProcessedNodes()
+	for _, child := range node.children {
+		pathToNode := child.pathTo(node)
+		secondToLastPointX := pathToNode.secondToLast().getX()
+		if node.column < secondToLastPointX || node.isOrphan() {
+			childIsSubBranch := child.isPathSubBranch(node)
+			if !childIsSubBranch && !pathToNode.isMergeTo() {
+				columnMan.decr()
+			}
+			if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(*node.idx) {
+				pathToNode.setColor(child.colorIdx)
+			}
+			colorsMan.releaseColor(pathToNode.colorIdx, *node.idx)
+
+			// Insert before the last element
+			if node.column != child.column {
+				pathToNode.noDupInsert(-1, newPoint(secondToLastPointX, node.idx, MergeBack))
+			}
+
+			// Nodes that are following the current node
+			for _, followingNode := range followingNodesWithChildrenBeforeIdx.a {
+				// Following nodes that have a child before the current node
+				for _, followingNodeChild := range followingNode.children {
+					pathToFollowingNode := followingNodeChild.pathTo(followingNode)
+					if *followingNodeChild.idx < *node.idx && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
+						// Following node child has a path that is higher than the current path being merged
+						targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
+						if targetColumn > secondToLastPointX {
+							// Remove all nodes, that are next to the last node, that have the same y as the last node
+							for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
+								pathToFollowingNode.removeSecondToLast()
+							}
+							pathToFollowingNode.removeLast()
+
+							// Calculate nb of merging nodes
+							nbNodesMergingBack := 0
+							nodeForMerge := node
+							if node.isOrphan() && idx+1 < len(inputNodes) {
+								nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
+								nbNodesMergingBack++
+							}
+							nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
+							followingNodeColumn := followingNode.column
+							shouldMoveNode := followingNodeColumn > secondToLastPointX && !processedNodesInst.HasNode(followingNode.id)
+							if shouldMoveNode {
+								followingNodeColumn -= nbNodesMergingBack
+							}
+							pathPointX := pathToFollowingNode.last().getX()
+							pathToFollowingNode.noDupAppend(newPoint(pathPointX, nodeForMerge.idx, MergeBack))
+							pathToFollowingNode.noDupAppend2(newPoint(pathPointX-nbNodesMergingBack, nodeForMerge.idx, Pipe))
+							pathToFollowingNode.noDupAppend2(newPoint(followingNodeColumn, followingNode.idx, Pipe))
+							if shouldMoveNode {
+								followingNode.moveLeft(nbNodesMergingBack)
+							}
+							processedNodesInst.Set(followingNode.id, followingNodeChild.id)
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func processParents(node *internalNode, idx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
+	for parentIdx, parent := range node.parents {
+		nodePathToParent := node.pathTo(parent)
+		nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
+		if !parent.columnDefined() {
+			if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
+				parent.column = columnMan.next()
+				parent.colorIdx = colorsMan.getColor(*node.idx)
+				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
+				node.setFirstOfBranch()
+			} else {
+				parent.column = node.column
+				parent.colorIdx = node.colorIdx
+			}
+			nodePathToParent.setColor(parent.colorIdx)
+		} else if node.column < parent.column {
+			if parentIdx == 0 {
+				for _, child := range parent.children {
+					pathToParent := child.pathTo(parent)
+					if pathToParent.isValid() {
+						pathToParent.removeLast()
+						pathToParent.noDupAppend(newPoint(pathToParent.last().getX(), parent.idx, MergeBack))
+						pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
+					}
+				}
+				parent.column = node.column
+				parent.colorIdx = node.colorIdx
+				nodePathToParent.setColor(node.colorIdx)
+			} else {
+				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
+				nodePathToParent.setColor(parent.colorIdx)
+			}
+		} else if node.column > parent.column {
+			nextNodeID := inputNodes[idx+1].GetID()
+			if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
+				nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
+				nodePathToParent.setColor(node.colorIdx)
+			} else {
+				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
+				nodePathToParent.setColor(parent.colorIdx)
+			}
+		}
+		nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
+	}
 }
 
 // Get generates the props to turn the input into a graph drawable
