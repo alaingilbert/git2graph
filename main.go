@@ -24,12 +24,12 @@ func startAction(c *cli.Context) error {
 	parents := c.String("parents")
 	setLogLevel(logLevel)
 
-	if repoFlag {
+	if repoFlag || repoLinearFlag {
 		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents)
-	} else if repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents)
-		git2graph.SerializeOutput(nodes)
-		return err
+		if repoLinearFlag {
+			git2graph.SerializeOutput(nodes)
+			return err
+		}
 	} else if jsonFlag != "" {
 		nodes, err = git2graph.GetInputNodesFromJSON([]byte(jsonFlag))
 	} else if fileFlag != "" {
