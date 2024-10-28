@@ -2346,6 +2346,43 @@ func Test40(t *testing.T) {
 	validateColors(t, expectedPaths, out)
 }
 
+// Test41 test the date-order bug where parent defined before node ends up with an infinite branch going down
+func Test41(t *testing.T) {
+	// Initial input
+	inputNodes := []*Node{
+		{"id": "0", "parents": []string{"2"}},
+		{"id": "1", "parents": []string{"4", "3"}},
+		{"id": "2", "parents": []string{"3", "1"}},
+		{"id": "3", "parents": []string{"4"}},
+		{"id": "4", "parents": []string{"5"}},
+		{"id": "5", "parents": []string{}},
+	}
+
+	out, _ := buildTree(inputNodes, customColors, "", -1)
+
+	// Expected output
+	expectedColumns := []int{0, 1, 0, 0, 0, 0}
+
+	expectedPaths := []map[string]PathTest{
+		{"2": {[]*PointTest{{0, 0, 0}, {0, 2, 0}}, 0}},
+		{
+			"3": {[]*PointTest{{1, 1, 0}, {2, 1, 2}, {2, 3, 1}, {0, 3, 0}}, 2},
+			"4": {[]*PointTest{{1, 1, 0}, {1, 4, 1}, {0, 4, 0}}, 1},
+		},
+		{
+			"3": {[]*PointTest{{0, 2, 0}, {0, 3, 0}}, 0},
+			"1": {[]*PointTest{{0, 2, 0}, {3, 2, 2}, {3, 3, 1}, {2, 3, 0}, {2, 4, 1}, {1, 4, 0}, {1, 5, 1}, {1, 5, 0}, {1, 6, 0}}, 3},
+		},
+		{"4": {[]*PointTest{{0, 3, 0}, {0, 4, 0}}, 0}},
+		{"5": {[]*PointTest{{0, 4, 0}, {0, 5, 0}}, 0}},
+	}
+
+	// Validation
+	validateColumns(t, expectedColumns, out)
+	validatePaths(t, expectedPaths, out)
+	validateColors(t, expectedPaths, out)
+}
+
 func assertEq(t *testing.T, expected, actual any) {
 	if actual != expected {
 		t.Logf("Expected: %d, Actual: %d", expected, actual)
