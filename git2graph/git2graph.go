@@ -219,6 +219,14 @@ func (p *Path) noDupAppend(point *Point) {
 	}
 }
 
+// append a point to a path if it is not a duplicate
+func (p *Path) noDupAppend2(point *Point) {
+	p.noDupAppend(point)
+	for p.last().y == p.thirdToLast().y {
+		p.removeSecondToLast()
+	}
+}
+
 // insert a point to a path if it is not a duplicate
 func (p *Path) noDupInsert(idx int, point *Point) {
 	idx = rotateIdx(idx, p.len())
@@ -635,14 +643,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								pathPointX := pathToFollowingNode.last().x
 								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
-								pathToFollowingNode.noDupAppend(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
-								for pathToFollowingNode.last().y == pathToFollowingNode.thirdToLast().y {
-									pathToFollowingNode.removeSecondToLast()
-								}
-								pathToFollowingNode.noDupAppend(&Point{followingNodeColumn, followingNode.idx, Pipe})
-								for pathToFollowingNode.last().y == pathToFollowingNode.thirdToLast().y {
-									pathToFollowingNode.removeSecondToLast()
-								}
+								pathToFollowingNode.noDupAppend2(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
+								pathToFollowingNode.noDupAppend2(&Point{followingNodeColumn, followingNode.idx, Pipe})
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
 									processedNodesInst1.Set(followingNode.id, "")
