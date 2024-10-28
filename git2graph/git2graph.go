@@ -596,7 +596,6 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		// For each child that is merging back, we need to alter paths that are passing over
 		// and decrement their column.
 		processedNodesInst := newProcessedNodes()
-		processedNodesInst1 := newProcessedNodes()
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPointX := pathToNode.secondToLast().getX()
@@ -640,7 +639,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNode.column > secondToLastPointX && !processedNodesInst1.HasNode(followingNode.id)
+								shouldMoveNode := followingNode.column > secondToLastPointX && !processedNodesInst.HasNode(followingNode.id)
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
@@ -650,7 +649,6 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								pathToFollowingNode.noDupAppend2(newPoint(followingNodeColumn, followingNode.idx, Pipe))
 								if shouldMoveNode {
 									followingNode.moveLeft(nbNodesMergingBack)
-									processedNodesInst1.Set(followingNode.id, "")
 								}
 								processedNodesInst.Set(followingNode.id, followingNodeChild.id)
 							}
