@@ -474,19 +474,19 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 	return
 }
 
-type stringSet struct {
+type internalNodeSet struct {
 	a []*internalNode
 	m map[*internalNode]struct{}
 }
 
-func newStringSet() *stringSet {
-	return &stringSet{
+func newInternalNodeSet() *internalNodeSet {
+	return &internalNodeSet{
 		a: make([]*internalNode, 0),
 		m: make(map[*internalNode]struct{}),
 	}
 }
 
-func (s *stringSet) Get(key string) *internalNode {
+func (s *internalNodeSet) Get(key string) *internalNode {
 	for _, n := range s.a {
 		if n.id == key {
 			return n
@@ -495,7 +495,7 @@ func (s *stringSet) Get(key string) *internalNode {
 	return nil
 }
 
-func (s *stringSet) Add(ins []*internalNode) {
+func (s *internalNodeSet) Add(ins []*internalNode) {
 	for _, in := range ins {
 		if _, ok := s.m[in]; !ok {
 			s.a = append([]*internalNode{in}, s.a...)
@@ -504,7 +504,7 @@ func (s *stringSet) Add(ins []*internalNode) {
 	}
 }
 
-func (s *stringSet) Remove(in *internalNode) {
+func (s *internalNodeSet) Remove(in *internalNode) {
 	for i := len(s.a) - 1; i >= 0; i-- {
 		if s.a[i] == in {
 			s.a = append(s.a[:i], s.a[i+1:]...)
@@ -562,7 +562,7 @@ func (p *processedNodes) Set(nodeID, childID string) {
 func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNode) {
 	colorsMan := newColorsManager()
 	columnMan := newColumnManager()
-	followingNodesWithChildrenBeforeIdx := newStringSet()
+	followingNodesWithChildrenBeforeIdx := newInternalNodeSet()
 	unassignedNodes := make(map[string]*internalNode) // Keep track of nodes for which the row (idx) has not been defined yet
 	tmpRow := -1
 	fromIdx := ternary(from == "", 0, -1)
@@ -624,7 +624,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 	return nodes
 }
 
-func processChildren(node *internalNode, idx int, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *stringSet, columnMan *columnManager, colorsMan *colorsManager) {
+func processChildren(node *internalNode, idx int, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *internalNodeSet, columnMan *columnManager, colorsMan *colorsManager) {
 	// Each child that are merging
 	// For each node, we need to check each child.
 	// For each child that is merging back, we need to alter paths that are passing over
