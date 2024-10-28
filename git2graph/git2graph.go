@@ -774,12 +774,7 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err er
 	lines := strings.Split(outString, "\n")
 	ids := 0
 	shaMap := make(map[string]string)
-	i := 0
-	for i < len(lines) {
-		if i >= len(lines) {
-			break
-		}
-		i++
+	for i := 1; i < len(lines); i++ {
 		sha := lines[i]
 		//name := lines[i+1]
 		//email := lines[i+2]
