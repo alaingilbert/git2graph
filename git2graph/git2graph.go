@@ -440,14 +440,20 @@ func GetInputNodesFromJSON(inputJSON []byte) (nodes []*Node, err error) {
 	return
 }
 
-type stringSet map[*internalNode]struct{}
+type stringSet struct {
+	a []*internalNode
+	m map[*internalNode]struct{}
+}
 
 func newStringSet() stringSet {
-	return make(map[*internalNode]struct{})
+	return stringSet{
+		a: make([]*internalNode, 0),
+		m: make(map[*internalNode]struct{}),
+	}
 }
 
 func (s *stringSet) Get(key string) *internalNode {
-	for n := range *s {
+	for _, n := range s.a {
 		if n.id == key {
 			return n
 		}
@@ -457,12 +463,20 @@ func (s *stringSet) Get(key string) *internalNode {
 
 func (s *stringSet) Add(ins []*internalNode) {
 	for _, in := range ins {
-		(*s)[in] = struct{}{}
+		if _, ok := s.m[in]; !ok {
+			s.a = append([]*internalNode{in}, s.a...)
+			s.m[in] = struct{}{}
+		}
 	}
 }
 
 func (s *stringSet) Remove(in *internalNode) {
-	delete(*s, in)
+	for i := len(s.a) - 1; i >= 0; i-- {
+		if s.a[i] == in {
+			s.a = append(s.a[:i], s.a[i+1:]...)
+		}
+	}
+	delete(s.m, in)
 }
 
 func ptr[T any](i T) *T {
@@ -590,7 +604,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 				}
 
 				// Nodes that are following the current node
-				for followingNode := range followingNodesWithChildrenBeforeIdx {
+				for _, followingNode := range followingNodesWithChildrenBeforeIdx.a {
 					// Following nodes that have a child before the current node
 					for _, followingNodeChild := range followingNode.children {
 						pathToFollowingNode := followingNodeChild.pathTo(followingNode)
@@ -689,7 +703,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			nodePathToParent.noDupAppend(&Point{parent.column, parent.idx, Pipe})
 		}
 	}
-	for n := range followingNodesWithChildrenBeforeIdx {
+	for _, n := range followingNodesWithChildrenBeforeIdx.a {
 		if *n.idx < 0 {
 			*n.idx = len(nodes)
 		}
