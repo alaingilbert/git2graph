@@ -799,21 +799,23 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err er
 	lines := strings.Split(outString, "\n")
 	ids := 0
 	shaMap := make(map[string]string)
-	for i := 1; i < len(lines); i++ {
-		sha := lines[i]
-		//name := lines[i+1]
-		//email := lines[i+2]
-		//date := lines[i+3]
-		//dateIso := lines[i+4]
-		parents := strings.Split(lines[i+5], " ")
+	for i := 0; i < len(lines); i += 9 {
+		if lines[i] != startOfCommit {
+			break
+		}
+		sha := lines[i+1]
+		//name := lines[i+2]
+		//email := lines[i+3]
+		//date := lines[i+4]
+		//dateIso := lines[i+5]
+		parents := strings.Split(lines[i+6], " ")
 		parents = deleteEmpty(parents)
 		if parentsOf != "" && strings.HasPrefix(sha, parentsOf) {
 			log.Errorf("%v: %v", sha, parents)
 			os.Exit(0)
 		}
-		//tree := lines[i+6]
-		//subject := lines[i+7]
-		i += 8
+		//tree := lines[i+7]
+		//subject := lines[i+8]
 		var id string
 		if seqIds {
 			id = strconv.Itoa(ids)
@@ -826,9 +828,6 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string) (nodes []*Node, err er
 		(*node)[parentsKey] = parents
 		nodes = append(nodes, node)
 		ids++
-		if lines[i] != startOfCommit {
-			break
-		}
 	}
 	if seqIds {
 		for _, node := range nodes {
