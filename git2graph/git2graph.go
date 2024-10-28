@@ -487,6 +487,7 @@ func (s *stringSet) Remove(in *internalNode) {
 	for i := len(s.a) - 1; i >= 0; i-- {
 		if s.a[i] == in {
 			s.a = append(s.a[:i], s.a[i+1:]...)
+			break
 		}
 	}
 	delete(s.m, in)
