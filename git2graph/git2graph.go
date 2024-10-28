@@ -821,9 +821,10 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string, topoOrder bool) (nodes
 	}
 	if seqIds {
 		for _, node := range nodes {
-			mappedParents := make([]string, 0)
-			for _, parentSha := range (*node)[parentsKey].([]string) {
-				mappedParents = append(mappedParents, shaMap[parentSha])
+			parents := (*node)[parentsKey].([]string)
+			mappedParents := make([]string, len(parents))
+			for i, parentSha := range parents {
+				mappedParents[i] = shaMap[parentSha]
 			}
 			(*node)[parentsKey] = mappedParents
 		}
