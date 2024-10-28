@@ -595,8 +595,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		processedNodesInst1 := newProcessedNodes()
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
-			secondToLastPoint := pathToNode.secondToLast()
-			if node.column < secondToLastPoint.getX() || node.isOrphan() {
+			secondToLastPointX := pathToNode.secondToLast().getX()
+			if node.column < secondToLastPointX || node.isOrphan() {
 				childIsSubBranch := child.isPathSubBranch(node)
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
@@ -608,7 +608,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 				// Insert before the last element
 				if node.column != child.column {
-					pathToNode.noDupInsert(-1, &Point{secondToLastPoint.getX(), node.idx, MergeBack})
+					pathToNode.noDupInsert(-1, &Point{secondToLastPointX, node.idx, MergeBack})
 				}
 
 				// Nodes that are following the current node
@@ -620,7 +620,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
-							if targetColumn > secondToLastPoint.getX() {
+							if targetColumn > secondToLastPointX {
 								// Remove all nodes, that are next to the last node, that have the same y as the last node
 								for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
 									pathToFollowingNode.removeSecondToLast()
@@ -636,7 +636,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNode.column > secondToLastPoint.getX() && !processedNodesInst1.HasNode(followingNode.id)
+								shouldMoveNode := followingNode.column > secondToLastPointX && !processedNodesInst1.HasNode(followingNode.id)
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
