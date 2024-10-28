@@ -179,12 +179,12 @@ func (p *Path) setColor(color int) {
 
 // Return either or not the path is of type "Fork"
 func (p *Path) isFork() bool {
-	return p.isValid() && p.second().typ.IsFork()
+	return p.isValid() && p.second().getType().IsFork()
 }
 
 // Return either or not the path is of type "MergeTo"
 func (p *Path) isMergeTo() bool {
-	return p.isValid() && p.second().typ.IsMergeTo()
+	return p.isValid() && p.second().getType().IsMergeTo()
 }
 
 func rotateIdx(idx, length int) int {
@@ -248,10 +248,10 @@ func (p *Path) insert(idx int, point *Point) {
 func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
 	height = -1
 	firstPoint := p.first()
-	if lookupIdx >= *firstPoint.y {
+	if lookupIdx >= firstPoint.GetY() {
 		for _, point := range p.Points {
-			if *point.y <= lookupIdx && *point.y >= 0 {
-				height = point.x
+			if point.GetY() <= lookupIdx && point.GetY() >= 0 {
+				height = point.getX()
 			}
 		}
 	}
@@ -286,11 +286,11 @@ type Point struct {
 }
 
 func (p *Point) String() string {
-	return fmt.Sprintf("{%d,%d,%d}", p.x, *p.y, p.typ)
+	return fmt.Sprintf("{%d,%d,%d}", p.getX(), p.GetY(), p.getType())
 }
 
 func (p *Point) Equal(other IPoint) bool {
-	return p.x == other.getX() && *p.y == other.GetY() && p.typ == other.getType()
+	return p.getX() == other.getX() && p.GetY() == other.GetY() && p.getType() == other.getType()
 }
 
 func (p *Point) getX() int          { return p.x }
@@ -408,7 +408,7 @@ func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 		childIsSubBranch := child.isPathSubBranch(n)
 		if path.len() >= 2 {
 			secondToLastPoint := path.secondToLast()
-			if n.column < secondToLastPoint.x && secondToLastPoint.x < maxX &&
+			if n.column < secondToLastPoint.getX() && secondToLastPoint.getX() < maxX &&
 				!childIsSubBranch &&
 				!path.isMergeTo() {
 				nbNodesMergingBack++
@@ -597,7 +597,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		for _, child := range node.children {
 			pathToNode := child.pathTo(node)
 			secondToLastPoint := pathToNode.secondToLast()
-			if node.column < secondToLastPoint.x || node.isOrphan() {
+			if node.column < secondToLastPoint.getX() || node.isOrphan() {
 				childIsSubBranch := child.isPathSubBranch(node)
 				if !childIsSubBranch && !pathToNode.isMergeTo() {
 					nextColumn--
@@ -609,7 +609,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 
 				// Insert before the last element
 				if node.column != child.column {
-					pathToNode.noDupInsert(-1, &Point{secondToLastPoint.x, node.idx, MergeBack})
+					pathToNode.noDupInsert(-1, &Point{secondToLastPoint.getX(), node.idx, MergeBack})
 				}
 
 				// Nodes that are following the current node
@@ -621,7 +621,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 							!pathToFollowingNode.isEmpty() && !processedNodesInst.HasChild(followingNode.id, followingNodeChild.id) {
 							// Following node child has a path that is higher than the current path being merged
 							targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
-							if targetColumn > secondToLastPoint.x {
+							if targetColumn > secondToLastPoint.getX() {
 								// Remove all nodes, that are next to the last node, that have the same y as the last node
 								for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
 									pathToFollowingNode.removeSecondToLast()
@@ -637,11 +637,11 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 								}
 								nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
 								followingNodeColumn := followingNode.column
-								shouldMoveNode := followingNode.column > secondToLastPoint.x && !processedNodesInst1.HasNode(followingNode.id)
+								shouldMoveNode := followingNode.column > secondToLastPoint.getX() && !processedNodesInst1.HasNode(followingNode.id)
 								if shouldMoveNode {
 									followingNodeColumn -= nbNodesMergingBack
 								}
-								pathPointX := pathToFollowingNode.last().x
+								pathPointX := pathToFollowingNode.last().getX()
 								pathToFollowingNode.noDupAppend(&Point{pathPointX, nodeForMerge.idx, MergeBack})
 								pathToFollowingNode.noDupAppend2(&Point{pathPointX - nbNodesMergingBack, nodeForMerge.idx, Pipe})
 								pathToFollowingNode.noDupAppend2(&Point{followingNodeColumn, followingNode.idx, Pipe})
@@ -677,7 +677,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 						pathToParent := child.pathTo(parent)
 						if pathToParent.isValid() {
 							pathToParent.removeLast()
-							pathToParent.noDupAppend(&Point{pathToParent.last().x, parent.idx, MergeBack})
+							pathToParent.noDupAppend(&Point{pathToParent.last().getX(), parent.idx, MergeBack})
 							pathToParent.noDupAppend(&Point{node.column, parent.idx, Pipe})
 						}
 					}
@@ -743,7 +743,7 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 		for _, n := range node.parentsPaths {
 			path := make([][]any, len(n.Points))
 			for pointIdx, point := range n.Points {
-				path[pointIdx] = []any{point.x, point.y, point.typ}
+				path[pointIdx] = []any{point.getX(), point.GetY(), point.getType()}
 			}
 			finalParentsPaths[i] = []any{colorGen.GetColor(n.colorIdx), path}
 			i++
