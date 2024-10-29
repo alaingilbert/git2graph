@@ -697,10 +697,11 @@ func processParents(node *internalNode, idx int, inputNodes []*Node, columnMan *
 }
 
 func processParent(node *internalNode, idx int, parent *internalNode, parentIdx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
+	isFirstParent := parentIdx == 0
 	nodePathToParent := node.pathTo(parent)
 	nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
 	if !parent.columnDefined() {
-		if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
+		if !isFirstParent && !node.pathTo(node.parents[0]).isMergeTo() {
 			parent.column = columnMan.next()
 			parent.colorIdx = colorsMan.getColor(*node.idx)
 			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
@@ -711,7 +712,7 @@ func processParent(node *internalNode, idx int, parent *internalNode, parentIdx 
 		}
 		nodePathToParent.setColor(parent.colorIdx)
 	} else if node.column < parent.column {
-		if parentIdx == 0 {
+		if isFirstParent {
 			for _, child := range parent.children {
 				pathToParent := child.pathTo(parent)
 				if pathToParent.isValid() {
@@ -729,7 +730,7 @@ func processParent(node *internalNode, idx int, parent *internalNode, parentIdx 
 		}
 	} else if node.column > parent.column {
 		nextNodeID := inputNodes[idx+1].GetID()
-		if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
+		if node.hasBiggerParentDefined() || (isFirstParent && (parent.id != nextNodeID || node.firstInBranch())) {
 			nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
 			nodePathToParent.setColor(node.colorIdx)
 		} else {
