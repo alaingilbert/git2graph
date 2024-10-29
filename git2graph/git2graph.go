@@ -587,11 +587,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		processParents(node, idx, inputNodes, columnMan, colorsMan)
 	}
 	// Sets idx of all nodes with undefined idx (y coord)
-	for _, n := range followingNodesWithChildrenBeforeIdx.a {
-		if *n.idx < 0 {
-			*n.idx = len(nodes)
-		}
-	}
+	setUndefinedRows(followingNodesWithChildrenBeforeIdx, len(nodes))
 	return nodes[fromIdx:]
 }
 
@@ -737,6 +733,14 @@ func processParents(node *internalNode, idx int, inputNodes []*Node, columnMan *
 			}
 		}
 		nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
+	}
+}
+
+func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, lastRowIdx int) {
+	for _, n := range followingNodesWithChildrenBeforeIdx.a {
+		if *n.idx < 0 {
+			*n.idx = lastRowIdx
+		}
 	}
 }
 
