@@ -592,10 +592,7 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 			*n.idx = len(nodes)
 		}
 	}
-	if from != "" {
-		return nodes[fromIdx:]
-	}
-	return nodes
+	return nodes[fromIdx:]
 }
 
 func initNode(rawNode *Node, idx int, tmpRow *int, unassignedNodes map[string]*internalNode, columnMan *columnManager, colorsMan *colorsManager) (node *internalNode) {
