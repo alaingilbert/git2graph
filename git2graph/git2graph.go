@@ -333,6 +333,10 @@ type internalNode struct {
 	parentsPaths  map[string]*Path
 }
 
+func (n *internalNode) setColumn(column int) {
+	n.column = column
+}
+
 func (n *internalNode) setColor(color int) {
 	n.colorIdx = color
 }
@@ -611,7 +615,7 @@ func initNode(rawNode *Node, idx int, tmpRow *int, unassignedNodes map[string]*i
 
 	// Set column if not defined
 	if !node.columnDefined() {
-		node.column = columnMan.next()
+		node.setColumn(columnMan.next())
 		node.setColor(colorsMan.getColor(*node.idx))
 	}
 	return node
@@ -694,10 +698,10 @@ func processParent(node *internalNode, parent *internalNode, parentIdx int, inpu
 	nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
 	if !parent.columnDefined() {
 		if isFirstParent || node.pathTo(node.parents[0]).isMergeTo() {
-			parent.column = node.column
+			parent.setColumn(node.column)
 			parent.setColor(node.colorIdx)
 		} else {
-			parent.column = columnMan.next()
+			parent.setColumn(columnMan.next())
 			parent.setColor(colorsMan.getColor(*node.idx))
 			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
 			node.setFirstOfBranch()
@@ -713,7 +717,7 @@ func processParent(node *internalNode, parent *internalNode, parentIdx int, inpu
 					pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
 				}
 			}
-			parent.column = node.column
+			parent.setColumn(node.column)
 			parent.setColor(node.colorIdx)
 			nodePathToParent.setColor(node.colorIdx)
 		} else {
