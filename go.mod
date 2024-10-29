@@ -1,4 +1,4 @@
-module git2graph
+module github.com/alaingilbert/git2graph
 
 go 1.21
 
