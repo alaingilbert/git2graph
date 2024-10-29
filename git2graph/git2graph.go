@@ -733,6 +733,8 @@ func processParent(node *internalNode, parent *internalNode, parentIdx int, inpu
 			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
 			nodePathToParent.setColor(parent.colorIdx)
 		}
+	} else if node.column == parent.column {
+		parent.setColor(node.colorIdx)
 	}
 	nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
 }
