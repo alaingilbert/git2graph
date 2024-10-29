@@ -1,7 +1,7 @@
 package main
 
 import (
-	"git2graph/git2graph"
+	"github.com/alaingilbert/git2graph/git2graph"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -22,11 +22,10 @@ func startAction(c *cli.Context) error {
 	repoLinearFlag := c.Bool("repo-linear")
 	seqIds := c.Bool("seq-ids")
 	logLevel := c.String("log")
-	parents := c.String("parents")
 	setLogLevel(logLevel)
 
 	if repoFlag || repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo(seqIds, parents, topoOrderFlag)
+		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag)
 		if repoLinearFlag {
 			git2graph.SerializeOutput(nodes)
 			return err
@@ -124,7 +123,6 @@ func main() {
 		cli.StringFlag{Name: "L, log", Usage: "Log level"},
 		cli.BoolFlag{Name: "r, repo", Usage: "Repository"},
 		cli.BoolFlag{Name: "topo-order", Usage: "Topological order"},
-		cli.StringFlag{Name: "p, parents", Usage: "Parents"},
 		cli.BoolFlag{Name: "l, repo-linear", Usage: "Repository linear history"},
 		cli.BoolFlag{Name: "s, seq-ids", Usage: "Use sequential ids instead of sha for linear history"},
 		cli.BoolFlag{Name: "n, no-output", Usage: "No output"},

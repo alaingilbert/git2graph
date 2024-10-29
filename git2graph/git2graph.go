@@ -801,13 +801,15 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(seqIds bool, parentsOf string, topoOrder bool) (nodes []*Node, err error) {
+func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes"}
 	if topoOrder {
 		args = append(args, "--topo-order")
 	}
-	outBytes, err := exec.Command("git", args...).Output()
+	cmd := exec.Command("git", args...)
+	cmd.Dir = dir
+	outBytes, err := cmd.Output()
 	if err != nil {
 		return
 	}
@@ -822,10 +824,6 @@ func GetInputNodesFromRepo(seqIds bool, parentsOf string, topoOrder bool) (nodes
 		sha := lines[i+1]
 		parents := strings.Split(lines[i+6], " ")
 		parents = deleteEmpty(parents)
-		if parentsOf != "" && strings.HasPrefix(sha, parentsOf) {
-			log.Errorf("%v: %v", sha, parents)
-			os.Exit(0)
-		}
 		var id string
 		if seqIds {
 			id = strconv.Itoa(ids)
