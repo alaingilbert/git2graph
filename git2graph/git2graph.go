@@ -701,14 +701,14 @@ func processParent(node *internalNode, idx int, parent *internalNode, parentIdx 
 	nodePathToParent := node.pathTo(parent)
 	nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
 	if !parent.columnDefined() {
-		if !isFirstParent && !node.pathTo(node.parents[0]).isMergeTo() {
+		if isFirstParent || node.pathTo(node.parents[0]).isMergeTo() {
+			parent.column = node.column
+			parent.colorIdx = node.colorIdx
+		} else {
 			parent.column = columnMan.next()
 			parent.colorIdx = colorsMan.getColor(*node.idx)
 			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
 			node.setFirstOfBranch()
-		} else {
-			parent.column = node.column
-			parent.colorIdx = node.colorIdx
 		}
 		nodePathToParent.setColor(parent.colorIdx)
 	} else if node.column < parent.column {
