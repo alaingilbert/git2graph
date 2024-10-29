@@ -692,48 +692,52 @@ func processChildren(node *internalNode, idx int, inputNodes []*Node, followingN
 
 func processParents(node *internalNode, idx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
 	for parentIdx, parent := range node.parents {
-		nodePathToParent := node.pathTo(parent)
-		nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
-		if !parent.columnDefined() {
-			if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
-				parent.column = columnMan.next()
-				parent.colorIdx = colorsMan.getColor(*node.idx)
-				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
-				node.setFirstOfBranch()
-			} else {
-				parent.column = node.column
-				parent.colorIdx = node.colorIdx
-			}
-			nodePathToParent.setColor(parent.colorIdx)
-		} else if node.column < parent.column {
-			if parentIdx == 0 {
-				for _, child := range parent.children {
-					pathToParent := child.pathTo(parent)
-					if pathToParent.isValid() {
-						pathToParent.removeLast()
-						pathToParent.noDupAppend(newPoint(pathToParent.last().getX(), parent.idx, MergeBack))
-						pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
-					}
-				}
-				parent.column = node.column
-				parent.colorIdx = node.colorIdx
-				nodePathToParent.setColor(node.colorIdx)
-			} else {
-				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
-				nodePathToParent.setColor(parent.colorIdx)
-			}
-		} else if node.column > parent.column {
-			nextNodeID := inputNodes[idx+1].GetID()
-			if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
-				nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
-				nodePathToParent.setColor(node.colorIdx)
-			} else {
-				nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
-				nodePathToParent.setColor(parent.colorIdx)
-			}
-		}
-		nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
+		processParent(node, idx, parent, parentIdx, inputNodes, columnMan, colorsMan)
 	}
+}
+
+func processParent(node *internalNode, idx int, parent *internalNode, parentIdx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
+	nodePathToParent := node.pathTo(parent)
+	nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
+	if !parent.columnDefined() {
+		if parentIdx > 0 && !node.pathTo(node.parents[0]).isMergeTo() {
+			parent.column = columnMan.next()
+			parent.colorIdx = colorsMan.getColor(*node.idx)
+			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
+			node.setFirstOfBranch()
+		} else {
+			parent.column = node.column
+			parent.colorIdx = node.colorIdx
+		}
+		nodePathToParent.setColor(parent.colorIdx)
+	} else if node.column < parent.column {
+		if parentIdx == 0 {
+			for _, child := range parent.children {
+				pathToParent := child.pathTo(parent)
+				if pathToParent.isValid() {
+					pathToParent.removeLast()
+					pathToParent.noDupAppend(newPoint(pathToParent.last().getX(), parent.idx, MergeBack))
+					pathToParent.noDupAppend(newPoint(node.column, parent.idx, Pipe))
+				}
+			}
+			parent.column = node.column
+			parent.colorIdx = node.colorIdx
+			nodePathToParent.setColor(node.colorIdx)
+		} else {
+			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, Fork))
+			nodePathToParent.setColor(parent.colorIdx)
+		}
+	} else if node.column > parent.column {
+		nextNodeID := inputNodes[idx+1].GetID()
+		if node.hasBiggerParentDefined() || (parentIdx == 0 && (parent.id != nextNodeID || node.firstInBranch())) {
+			nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
+			nodePathToParent.setColor(node.colorIdx)
+		} else {
+			nodePathToParent.noDupAppend(newPoint(parent.column, node.idx, MergeTo))
+			nodePathToParent.setColor(parent.colorIdx)
+		}
+	}
+	nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
 }
 
 func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, lastRowIdx int) {
