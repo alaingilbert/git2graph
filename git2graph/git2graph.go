@@ -631,9 +631,6 @@ func processChildren(node *internalNode, inputNodes []*Node, followingNodesWithC
 			if !childIsSubBranch && !pathToNode.isMergeTo() {
 				columnMan.decr()
 			}
-			if !child.isFirstOfBranch() && !childIsSubBranch && !child.hasOlderParent(*node.idx) {
-				pathToNode.setColor(child.colorIdx)
-			}
 			colorsMan.releaseColor(pathToNode.colorIdx, *node.idx)
 
 			// Insert before the last element
