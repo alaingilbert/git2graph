@@ -747,11 +747,6 @@ func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, last
 	}
 }
 
-// Get generates the props to turn the input into a graph drawable
-func Get(inputNodes []*Node) ([]*Node, error) {
-	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), "", -1, false)
-}
-
 // GetPaginated same as Get but only return the nodes for the asked page
 func GetPaginated(inputNodes []*Node, from string, limit int) ([]*Node, error) {
 	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
