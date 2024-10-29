@@ -373,15 +373,6 @@ func (n *internalNode) firstInBranch() bool {
 	return true
 }
 
-func (n *internalNode) hasBiggerParentDefined() bool {
-	for _, parentNode := range n.parents {
-		if parentNode.column > n.column {
-			return true
-		}
-	}
-	return false
-}
-
 // Return either or not the node has a parent that has higher "idx" than the one in parameter
 func (n *internalNode) hasOlderParent(idx int) bool {
 	for _, parentNode := range n.parents {
@@ -730,7 +721,7 @@ func processParent(node *internalNode, idx int, parent *internalNode, parentIdx 
 		}
 	} else if node.column > parent.column {
 		nextNodeID := inputNodes[idx+1].GetID()
-		if node.hasBiggerParentDefined() || (isFirstParent && (parent.id != nextNodeID || node.firstInBranch())) {
+		if isFirstParent && (parent.id != nextNodeID || node.firstInBranch()) {
 			nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
 			nodePathToParent.setColor(node.colorIdx)
 		} else {
