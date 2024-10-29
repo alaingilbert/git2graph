@@ -564,13 +564,15 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		if limit == 0 {
 			break
 		}
-		limit--
 
 		node := initNode(rawNode, idx, &tmpRow, unassignedNodes, columnMan, colorsMan)
 		nodes = append(nodes, node)
 
 		if node.id == from {
 			fromIdx = idx
+		}
+		if fromIdx != -1 {
+			limit--
 		}
 
 		// Cache the following node with child before the current node
