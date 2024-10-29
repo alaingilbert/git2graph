@@ -364,10 +364,6 @@ func (n *internalNode) pathTo(parent *internalNode) *Path {
 	return parentPath
 }
 
-func (n *internalNode) ensureColumn() bool {
-	return n.column != -1
-}
-
 func (n *internalNode) columnDefined() bool {
 	return n.column != -1
 }
