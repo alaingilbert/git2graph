@@ -425,11 +425,10 @@ func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 	}
 	for _, child := range n.children {
 		path := child.pathTo(n)
-		childIsSubBranch := child.isPathSubBranch(n)
 		if path.len() >= 2 {
 			secondToLastPoint := path.secondToLast()
 			if n.column < secondToLastPoint.getX() && secondToLastPoint.getX() < maxX &&
-				!childIsSubBranch &&
+				!child.isPathSubBranch(n) &&
 				!path.isMergeTo() {
 				nbNodesMergingBack++
 			}
@@ -627,8 +626,7 @@ func processChildren(node *internalNode, inputNodes []*Node, followingNodesWithC
 		pathToNode := child.pathTo(node)
 		secondToLastPointX := pathToNode.secondToLast().getX()
 		if node.column < secondToLastPointX || node.isOrphan() {
-			childIsSubBranch := child.isPathSubBranch(node)
-			if !childIsSubBranch && !pathToNode.isMergeTo() {
+			if !child.isPathSubBranch(node) && !pathToNode.isMergeTo() {
 				columnMan.decr()
 			}
 			colorsMan.releaseColor(pathToNode.colorIdx, *node.idx)
