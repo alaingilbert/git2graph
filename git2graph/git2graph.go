@@ -574,8 +574,8 @@ func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNo
 		followingNodesWithChildrenBeforeIdx.Add(node.parents)
 		followingNodesWithChildrenBeforeIdx.Remove(node)
 
-		processChildren(node, idx, inputNodes, followingNodesWithChildrenBeforeIdx, columnMan, colorsMan)
-		processParents(node, idx, inputNodes, columnMan, colorsMan)
+		processChildren(node, inputNodes, followingNodesWithChildrenBeforeIdx, columnMan, colorsMan)
+		processParents(node, inputNodes, columnMan, colorsMan)
 	}
 	// Sets idx of all nodes with undefined idx (y coord)
 	setUndefinedRows(followingNodesWithChildrenBeforeIdx, len(nodes))
@@ -613,7 +613,7 @@ func initNode(rawNode *Node, idx int, tmpRow *int, unassignedNodes map[string]*i
 	return node
 }
 
-func processChildren(node *internalNode, idx int, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *internalNodeSet, columnMan *columnManager, colorsMan *colorsManager) {
+func processChildren(node *internalNode, inputNodes []*Node, followingNodesWithChildrenBeforeIdx *internalNodeSet, columnMan *columnManager, colorsMan *colorsManager) {
 	// Each child that are merging
 	// For each node, we need to check each child.
 	// For each child that is merging back, we need to alter paths that are passing over
@@ -655,8 +655,8 @@ func processChildren(node *internalNode, idx int, inputNodes []*Node, followingN
 							// Calculate nb of merging nodes
 							nbNodesMergingBack := 0
 							nodeForMerge := node
-							if node.isOrphan() && idx+1 < len(inputNodes) {
-								nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[idx+1].GetID())
+							if node.isOrphan() && *node.idx+1 < len(inputNodes) {
+								nodeForMerge = followingNodesWithChildrenBeforeIdx.Get(inputNodes[*node.idx+1].GetID())
 								nbNodesMergingBack++
 							}
 							nbNodesMergingBack += nodeForMerge.nbNodesMergingBack(targetColumn)
@@ -681,13 +681,13 @@ func processChildren(node *internalNode, idx int, inputNodes []*Node, followingN
 	}
 }
 
-func processParents(node *internalNode, idx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
+func processParents(node *internalNode, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
 	for parentIdx, parent := range node.parents {
-		processParent(node, idx, parent, parentIdx, inputNodes, columnMan, colorsMan)
+		processParent(node, parent, parentIdx, inputNodes, columnMan, colorsMan)
 	}
 }
 
-func processParent(node *internalNode, idx int, parent *internalNode, parentIdx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
+func processParent(node *internalNode, parent *internalNode, parentIdx int, inputNodes []*Node, columnMan *columnManager, colorsMan *colorsManager) {
 	isFirstParent := parentIdx == 0
 	nodePathToParent := node.pathTo(parent)
 	nodePathToParent.noDupAppend(newPoint(node.column, node.idx, Pipe))
@@ -720,7 +720,7 @@ func processParent(node *internalNode, idx int, parent *internalNode, parentIdx 
 			nodePathToParent.setColor(parent.colorIdx)
 		}
 	} else if node.column > parent.column {
-		nextNodeID := inputNodes[idx+1].GetID()
+		nextNodeID := inputNodes[*node.idx+1].GetID()
 		if isFirstParent && (parent.id != nextNodeID || node.firstInBranch()) {
 			nodePathToParent.noDupAppend(newPoint(node.column, parent.idx, MergeBack))
 			nodePathToParent.setColor(node.colorIdx)
