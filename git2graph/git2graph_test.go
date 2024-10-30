@@ -2429,3 +2429,27 @@ func BenchmarkTest1(b *testing.B) {
 		}
 	}
 }
+
+func TestCropPathAt(t *testing.T) {
+	p := &Path{Points: []*Point{{0, ptr(2), 0}, {3, ptr(2), 2}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}}
+	expected := []*Point{{2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}
+	np := cropPathAt(p, 4, 10)
+	testPoints(t, expected, np.Points)
+
+	p = &Path{Points: []*Point{{0, ptr(0), 0}, {3, ptr(0), 2}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}}
+	expected = []*Point{{3, ptr(1), 0}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}
+	np = cropPathAt(p, 1, 10)
+	testPoints(t, expected, np.Points)
+}
+
+func testPoints(t *testing.T, expected, points []*Point) {
+	for i, p := range points {
+		if i >= len(expected) {
+			t.Logf("fail1")
+			t.Fail()
+		} else if !p.Equal(expected[i]) {
+			t.Logf("fail2 %v != %v", expected[i], p)
+			t.Fail()
+		}
+	}
+}

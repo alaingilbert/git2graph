@@ -146,6 +146,12 @@ type pointType uint8
 func (p pointType) IsMergeTo() bool { return p == MergeTo }
 func (p pointType) IsFork() bool    { return p == Fork }
 
+type Out struct {
+	FirstSha     string
+	Nodes        []*Node
+	PartialPaths []*PartialPath
+}
+
 // Node is the raw information for a commit
 type Node map[string]any
 
@@ -163,6 +169,11 @@ func (n *Node) GetParents() []string {
 		log.Fatal("parents property must be an array of string")
 	}
 	return parents
+}
+
+type PartialPath struct {
+	Points []*Point
+	Color  string
 }
 
 // Path defines how to draw a line in between a parent and child nodes
@@ -302,6 +313,10 @@ type Point struct {
 	typ pointType
 }
 
+func (p *Point) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]int{p.x, *p.y, int(p.typ)})
+}
+
 func newPoint(x int, y *int, typ pointType) *Point {
 	return &Point{x: x, y: y, typ: typ}
 }
@@ -377,16 +392,6 @@ func (n *internalNode) firstInBranch() bool {
 	return true
 }
 
-// Return either or not the node has a parent that has higher "idx" than the one in parameter
-func (n *internalNode) hasOlderParent(idx int) bool {
-	for _, parentNode := range n.parents {
-		if *parentNode.idx > idx || *parentNode.idx < 0 {
-			return true
-		}
-	}
-	return false
-}
-
 // A subbranch, is when the child node is in the middle of another branch
 // See test_022.png node #4 (zero-indexed)
 func (n *internalNode) isPathSubBranch(parent *internalNode) bool {
@@ -438,10 +443,10 @@ func (n *internalNode) nbNodesMergingBack(maxX int) (nbNodesMergingBack int) {
 }
 
 // SerializeOutput Json encode object
-func SerializeOutput(out []*Node) {
+func SerializeOutput(out *Out) {
 	if !NoOutput {
 		enc := json.NewEncoder(os.Stdout)
-		if err := enc.Encode(out); err != nil {
+		if err := enc.Encode(out.Nodes); err != nil {
 			log.Error("Could not encode json")
 		}
 	}
@@ -553,38 +558,123 @@ func (p *processedNodes) Set(nodeID, childID string) {
 	p.m[nodeID][childID] = true
 }
 
-func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNode) {
+func setColumns(inputNodes []*Node, from string, limit int) (nodes []*internalNode, partialPaths []*Path) {
+	origLimit := limit
 	colorsMan := newColorsManager()
 	columnMan := newColumnManager()
-	followingNodesWithChildrenBeforeIdx := newInternalNodeSet()
 	unassignedNodes := make(map[string]*internalNode) // Keep track of nodes for which the row (idx) has not been defined yet
-	tmpRow := -1
+	tmpRow, followingNodes := -1, newInternalNodeSet()
 	fromIdx := ternary(from == "", 0, -1)
 	for idx, rawNode := range inputNodes {
 		if limit == 0 {
 			break
 		}
-
 		node := initNode(rawNode, idx, &tmpRow, unassignedNodes, columnMan, colorsMan)
 		nodes = append(nodes, node)
-
-		if node.id == from {
-			fromIdx = idx
-		}
-		if fromIdx != -1 {
-			limit--
-		}
-
-		// Cache the following node with child before the current node
-		followingNodesWithChildrenBeforeIdx.Add(node.parents)
-		followingNodesWithChildrenBeforeIdx.Remove(node)
-
-		processChildren(node, inputNodes, followingNodesWithChildrenBeforeIdx, columnMan, colorsMan)
+		updateLimitAndIndex(node, from, &limit, &fromIdx, idx)
+		updateNodeTracking(node, followingNodes)
+		processChildren(node, inputNodes, followingNodes, columnMan, colorsMan)
 		processParents(node, inputNodes, columnMan, colorsMan)
+		if node.id == from {
+			partialPaths = calcPartialPaths(followingNodes)
+		}
 	}
-	// Sets idx of all nodes with undefined idx (y coord)
-	setUndefinedRows(followingNodesWithChildrenBeforeIdx, len(nodes))
-	return nodes[fromIdx:]
+	finalizeNodes(followingNodes, nodes, partialPaths, fromIdx, origLimit)
+	return sliceResults(nodes, fromIdx, origLimit), partialPaths
+}
+
+func updateLimitAndIndex(node *internalNode, from string, limit, fromIdx *int, idx int) {
+	if node.id == from {
+		*fromIdx = idx + 1
+		*limit += 2
+	}
+	if *fromIdx != -1 {
+		*limit--
+	}
+}
+
+// Cache the following node with child before the current node
+func updateNodeTracking(node *internalNode, followingNodes *internalNodeSet) {
+	followingNodes.Add(node.parents)
+	followingNodes.Remove(node)
+}
+
+func finalizeNodes(followingNodes *internalNodeSet, nodes []*internalNode, partialPaths []*Path, fromIdx, origLimit int) {
+	setUndefinedRows(followingNodes, len(nodes))
+	cropPartialPaths(partialPaths, fromIdx, origLimit)
+	cropNodesPaths(nodes, fromIdx, origLimit)
+}
+
+func sliceResults(nodes []*internalNode, fromIdx, origLimit int) []*internalNode {
+	if origLimit > 0 {
+		return nodes[fromIdx:min(fromIdx+origLimit, len(nodes))]
+	}
+	return nodes
+}
+
+// Ensure partial paths are cropped to stay within [from, from+limit]
+func cropPartialPaths(paths []*Path, from, limit int) {
+	for i, p := range paths {
+		paths[i] = cropPathAt(p, from, limit)
+	}
+}
+
+// Ensure nodes paths are cropped to stay be smaller than `from+limit`
+func cropNodesPaths(nodes []*internalNode, from, limit int) {
+	if limit >= 0 {
+		for _, n := range nodes {
+			for _, parent := range n.parents {
+				n.parentsPaths[parent.id] = cropPathEndAt(n.parentsPaths[parent.id], from, limit)
+			}
+		}
+	}
+}
+
+// Return the paths that come from outside our page
+func calcPartialPaths(followingNodesWithChildrenBeforeIdx *internalNodeSet) (out []*Path) {
+	for _, n := range followingNodesWithChildrenBeforeIdx.a {
+		for _, c := range n.children {
+			for _, parent := range c.parents {
+				out = append(out, c.parentsPaths[parent.id])
+			}
+		}
+	}
+	return out
+}
+
+func cropPathAt(path *Path, from, limit int) *Path {
+	points := make([]*Point, 0)
+	threshold := from + limit
+	for i := 1; i < len(path.Points); i++ {
+		p1, p2 := path.Points[i-1], path.Points[i]
+		if p1.GetY() < from && p2.GetY() > from {
+			points = append(points, newPoint(p1.x, ptr(from), 0))
+		}
+		if p2.GetY() >= from {
+			if p2.GetY() > threshold {
+				points = append(points, newPoint(p1.x, ptr(threshold), 0))
+				break
+			}
+			points = append(points, p2)
+		}
+	}
+	return &Path{Points: points, colorIdx: path.colorIdx}
+}
+
+// Crop a path to `from+limit` height
+func cropPathEndAt(path *Path, from, limit int) *Path {
+	points := []*Point{path.Points[0]}
+	threshold := from + limit
+	for i := 1; i < len(path.Points); i++ {
+		pt := path.Points[i]
+		if *pt.y <= threshold {
+			points = append(points, pt)
+		} else {
+			points = append(points, newPoint(path.Points[i-1].x, ptr(threshold), 0))
+			break
+		}
+	}
+	return &Path{Points: points, colorIdx: path.colorIdx}
 }
 
 func initNode(rawNode *Node, idx int, tmpRow *int, unassignedNodes map[string]*internalNode, columnMan *columnManager, colorsMan *colorsManager) (node *internalNode) {
@@ -735,27 +825,36 @@ func processParent(node *internalNode, parent *internalNode, parentIdx int, inpu
 	nodePathToParent.noDupAppend(newPoint(parent.column, parent.idx, Pipe))
 }
 
+// Sets idx of all nodes with undefined idx (y coord)
 func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, lastRowIdx int) {
 	for _, n := range followingNodesWithChildrenBeforeIdx.a {
 		if *n.idx < 0 {
+			for _, c := range n.children {
+				p := c.parentsPaths[n.id]
+				p.last().x = p.secondToLast().x
+			}
 			*n.idx = lastRowIdx
 		}
 	}
 }
 
 // GetPaginated same as Get but only return the nodes for the asked page
-func GetPaginated(inputNodes []*Node, from string, limit int) ([]*Node, error) {
+func GetPaginated(inputNodes []*Node, from string, limit int) (*Out, error) {
 	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
 }
 
 func buildTreeTest(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Node, error) {
-	return buildTree(inputNodes, colorGen, from, limit, true)
+	out, err := buildTree(inputNodes, colorGen, from, limit, true)
+	if err != nil {
+		return nil, err
+	}
+	return out.Nodes, nil
 }
 
 // buildTree given an array of Node, execute the algorithm on it to generate the necessary properties
 // to make it drawable as a graph.
-func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit int, isTest bool) ([]*Node, error) {
-	nodes := setColumns(inputNodes, from, limit)
+func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit int, isTest bool) (*Out, error) {
+	nodes, partialPaths := setColumns(inputNodes, from, limit)
 
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
@@ -775,8 +874,15 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 		(*finalNode)[gKey] = []any{node.idx, node.column, colorGen.GetColor(node.colorIdx), finalParentsPaths}
 		finalStruct[nodeIdx] = finalNode
 	}
-
-	return finalStruct, nil
+	finalPP := make([]*PartialPath, 0)
+	for _, p := range partialPaths {
+		finalPP = append(finalPP, &PartialPath{Points: p.Points, Color: colorGen.GetColor(p.colorIdx)})
+	}
+	return &Out{
+		FirstSha:     inputNodes[0].GetID(), // if first sha change, we probably need to re-render the whole tree
+		Nodes:        finalStruct,
+		PartialPaths: finalPP,
+	}, nil
 }
 
 // GetInputNodesFromFile creates an array of Node from json contained in a file
@@ -803,11 +909,14 @@ func deleteEmpty(s []string) []string {
 }
 
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool) (nodes []*Node, err error) {
+func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool, limit int) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes"}
 	if topoOrder {
 		args = append(args, "--topo-order")
+	}
+	if limit > 0 {
+		args = append(args, fmt.Sprintf("-%d", limit+2))
 	}
 	cmd := exec.Command("git", args...)
 	cmd.Dir = dir

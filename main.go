@@ -25,9 +25,9 @@ func startAction(c *cli.Context) error {
 	setLogLevel(logLevel)
 
 	if repoFlag || repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag)
+		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag, limitFlag)
 		if repoLinearFlag {
-			git2graph.SerializeOutput(nodes)
+			git2graph.SerializeOutput(&git2graph.Out{Nodes: nodes})
 			return err
 		}
 	} else if jsonFlag != "" {
@@ -47,39 +47,8 @@ func startAction(c *cli.Context) error {
 		log.Error(err)
 		return err
 	}
-	for _, node := range out {
-		delete(*node, "parentsPaths")
-	}
 
-	var tmp []*git2graph.Node
-	//if fromFlag >= 0 && sizeFlag >= 1 {
-	//	// TODO: include context (nodes before "from" that have parents inside or after the range)
-	//	if contextFlag {
-	//		for _, node := range out {
-	//			nodeIdx := (*node)["idx"].(int)
-	//			parentsPaths := (*node)["parents_paths"].([]git2graph.Path)
-	//			hasParentsInContext := false
-	//			for _, nodeParent := range parentsPaths {
-	//				if nodeParent.Points[len(nodeParent.Points)-1].GetY() >= fromFlag {
-	//					hasParentsInContext = true
-	//				}
-	//			}
-	//			if hasParentsInContext ||
-	//				nodeIdx >= fromFlag && nodeIdx < fromFlag+sizeFlag {
-	//				tmp = append(tmp, node)
-	//			}
-	//			if nodeIdx >= fromFlag+sizeFlag-1 {
-	//				break
-	//			}
-	//		}
-	//	} else {
-	//		tmp = out[fromFlag : fromFlag+sizeFlag]
-	//	}
-	//} else {
-	tmp = out
-	//}
-
-	git2graph.SerializeOutput(tmp)
+	git2graph.SerializeOutput(out)
 
 	return err
 }
