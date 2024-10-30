@@ -419,6 +419,7 @@ func (n *internalNode) moveDown(idx int) {
 const (
 	idKey               = "id"           // Commit sha
 	parentsKey          = "parents"      // Parent sha(s)
+	decorateKey         = "decorate"     // Parent sha(s)
 	gKey                = "g"            // Graph information
 	parentsPathsTestKey = "parentsPaths" // Used in tests
 )
@@ -911,7 +912,7 @@ func deleteEmpty(s []string) []string {
 // GetInputNodesFromRepo creates an array of Node from a repository
 func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool, limit int) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
-	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s", "--date=local", "--branches", "--remotes"}
+	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s%n%d", "--date=local", "--branches", "--remotes", "--decorate"}
 	if topoOrder {
 		args = append(args, "--topo-order")
 	}
@@ -925,10 +926,10 @@ func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool, limit int) (
 		return
 	}
 	outString := string(outBytes)
-	lines := strings.Split(outString, "\n") // delim, sha, name, email, date, dateIso, parents, tree, subject
+	lines := strings.Split(outString, "\n") // delim, sha, name, email, date, dateIso, parents, tree, subject, decorate
 	ids := 0
 	shaMap := make(map[string]string)
-	for i := 0; i < len(lines); i += 9 {
+	for i := 0; i < len(lines); i += 10 {
 		if lines[i] != startOfCommit {
 			break
 		}
@@ -945,6 +946,7 @@ func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool, limit int) (
 		node := &Node{}
 		(*node)[idKey] = id
 		(*node)[parentsKey] = parents
+		(*node)[decorateKey] = lines[i+9]
 		nodes = append(nodes, node)
 		ids++
 	}
