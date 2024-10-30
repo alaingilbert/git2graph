@@ -667,13 +667,12 @@ func cropPathEndAt(path *Path, from, limit int) *Path {
 	points := []*Point{path.Points[0]}
 	threshold := from + limit
 	for i := 1; i < len(path.Points); i++ {
-		pt := path.Points[i]
-		if *pt.y <= threshold {
-			points = append(points, pt)
-		} else {
-			points = append(points, newPoint(path.Points[i-1].x, ptr(threshold), 0))
+		p1, p2 := path.Points[i-1], path.Points[i]
+		if p2.GetY() > threshold {
+			points = append(points, newPoint(p1.x, ptr(threshold), 0))
 			break
 		}
+		points = append(points, p2)
 	}
 	return &Path{Points: points, colorIdx: path.colorIdx}
 }
