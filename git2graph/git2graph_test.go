@@ -25,7 +25,7 @@ func pprintPoints(points []*PointTest) string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func pprintPoints1(points []*Point) string {
+func pprintPoints1(points []IPoint) string {
 	s := make([]string, 0)
 	for _, p := range points {
 		s = append(s, p.String())
@@ -2378,15 +2378,22 @@ func assertEq(t *testing.T, expected, actual any) {
 	}
 }
 
+func convertPoints[P IPoint](arr []P) (out []IPoint) {
+	for _, v := range arr {
+		out = append(out, v)
+	}
+	return
+}
+
 func TestPathHeight1(t *testing.T) {
-	path := &Path{Points: []*Point{
-		{x: 0, y: ptr(2), typ: 0},
-		{x: 3, y: ptr(2), typ: 2},
-		{x: 3, y: ptr(9), typ: 1},
-		{x: 2, y: ptr(9), typ: 0},
-		{x: 2, y: ptr(11), typ: 1},
-		{x: 1, y: ptr(11), typ: 0},
-	}}
+	path := &Path{Points: convertPoints([]*PointTest{
+		{0, 2, 0},
+		{3, 2, 2},
+		{3, 9, 1},
+		{2, 9, 0},
+		{2, 11, 1},
+		{1, 11, 0},
+	})}
 	assertEq(t, -1, path.GetHeightAtIdx(1))
 	assertEq(t, 3, path.GetHeightAtIdx(2))
 	assertEq(t, 3, path.GetHeightAtIdx(3))
@@ -2431,18 +2438,18 @@ func BenchmarkTest1(b *testing.B) {
 }
 
 func TestCropPathAt(t *testing.T) {
-	p := &Path{Points: []*Point{{0, ptr(2), 0}, {3, ptr(2), 2}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}}
-	expected := []*Point{{2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}
+	p := &Path{Points: convertPoints([]*PointTest{{0, 2, 0}, {3, 2, 2}, {3, 3, 1}, {2, 3, 0}, {2, 4, 1}, {1, 4, 0}, {1, 5, 1}, {1, 5, 0}, {1, 6, 0}})}
+	expected := convertPoints([]*PointTest{{2, 4, 1}, {1, 4, 0}, {1, 5, 1}, {1, 5, 0}, {1, 6, 0}})
 	np := cropPathAt(p, 4, 10)
 	testPoints(t, expected, np.Points)
 
-	p = &Path{Points: []*Point{{0, ptr(0), 0}, {3, ptr(0), 2}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}}
-	expected = []*Point{{3, ptr(1), 0}, {3, ptr(3), 1}, {2, ptr(3), 0}, {2, ptr(4), 1}, {1, ptr(4), 0}, {1, ptr(5), 1}, {1, ptr(5), 0}, {1, ptr(6), 0}}
+	p = &Path{Points: convertPoints([]*PointTest{{0, 0, 0}, {3, 0, 2}, {3, 3, 1}, {2, 3, 0}, {2, 4, 1}, {1, 4, 0}, {1, 5, 1}, {1, 5, 0}, {1, 6, 0}})}
+	expected = convertPoints([]*PointTest{{3, 1, 0}, {3, 3, 1}, {2, 3, 0}, {2, 4, 1}, {1, 4, 0}, {1, 5, 1}, {1, 5, 0}, {1, 6, 0}})
 	np = cropPathAt(p, 1, 10)
 	testPoints(t, expected, np.Points)
 }
 
-func testPoints(t *testing.T, expected, points []*Point) {
+func testPoints(t *testing.T, expected, points []IPoint) {
 	for i, p := range points {
 		if i >= len(expected) {
 			t.Logf("fail1")

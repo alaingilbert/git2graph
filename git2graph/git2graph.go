@@ -171,13 +171,13 @@ func (n *Node) GetParents() []string {
 }
 
 type PartialPath struct {
-	Points []*Point
+	Points []IPoint
 	Color  string
 }
 
 // Path defines how to draw a line in between a parent and child nodes
 type Path struct {
-	Points   []*Point
+	Points   []IPoint
 	colorIdx int
 }
 
@@ -224,14 +224,14 @@ func rotateIdx(idx, length int) int {
 	return idx
 }
 
-func (p *Path) get(idx int) (out *Point) {
+func (p *Path) get(idx int) (out IPoint) {
 	return p.Points[rotateIdx(idx, p.len())]
 }
-func (p *Path) first() *Point        { return p.get(0) }
-func (p *Path) second() *Point       { return p.get(1) }
-func (p *Path) last() *Point         { return p.get(-1) }
-func (p *Path) secondToLast() *Point { return p.get(-2) }
-func (p *Path) thirdToLast() *Point  { return p.get(-3) }
+func (p *Path) first() IPoint        { return p.get(0) }
+func (p *Path) second() IPoint       { return p.get(1) }
+func (p *Path) last() IPoint         { return p.get(-1) }
+func (p *Path) secondToLast() IPoint { return p.get(-2) }
+func (p *Path) thirdToLast() IPoint  { return p.get(-3) }
 func (p *Path) removeLast()          { p.remove(-1) }
 func (p *Path) removeSecondToLast()  { p.remove(-2) }
 func (p *Path) remove(idx int) {
@@ -249,7 +249,7 @@ func (p *Path) noDupAppend(point *Point) {
 // append a point to a path if it is not a duplicate
 func (p *Path) noDupAppend2(point *Point) {
 	p.noDupAppend(point)
-	for p.last().y == p.thirdToLast().y {
+	for p.last().GetY() == p.thirdToLast().GetY() {
 		p.removeSecondToLast()
 	}
 }
@@ -287,8 +287,11 @@ func (p *Path) GetHeightAtIdx(lookupIdx int) (height int) {
 
 type IPoint interface {
 	getX() int
+	SetX(int)
 	GetY() int
 	getType() pointType
+	Equal(IPoint) bool
+	String() string
 }
 
 type PointTest struct {
@@ -297,11 +300,16 @@ type PointTest struct {
 	typ pointType
 }
 
+func (p *PointTest) Equal(other IPoint) bool {
+	return p.getX() == other.getX() && p.GetY() == other.GetY() && p.getType() == other.getType()
+}
+
 func (p *PointTest) String() string {
 	return fmt.Sprintf("{%d,%d,%d}", p.x, p.y, p.typ)
 }
 
 func (p *PointTest) getX() int          { return p.x }
+func (p *PointTest) SetX(v int)         { p.x = v }
 func (p *PointTest) GetY() int          { return p.y }
 func (p *PointTest) getType() pointType { return p.typ }
 
@@ -329,6 +337,7 @@ func (p *Point) Equal(other IPoint) bool {
 }
 
 func (p *Point) getX() int          { return p.x }
+func (p *Point) SetX(v int)         { p.x = v }
 func (p *Point) GetY() int          { return *p.y }
 func (p *Point) getType() pointType { return p.typ }
 
@@ -404,7 +413,7 @@ func (n *internalNode) moveLeft(nb int) {
 	for _, child := range n.children {
 		path := child.pathTo(n)
 		if !path.isEmpty() {
-			path.last().x = n.column
+			path.last().SetX(n.column)
 		}
 	}
 }
@@ -648,16 +657,16 @@ func calcPartialPaths(followingNodesWithChildrenBeforeIdx *internalNodeSet) (out
 }
 
 func cropPathAt(path *Path, from, limit int) *Path {
-	points := make([]*Point, 0)
+	points := make([]IPoint, 0)
 	threshold := from + limit
 	for i := 1; i < len(path.Points); i++ {
 		p1, p2 := path.Points[i-1], path.Points[i]
 		if p1.GetY() < from && p2.GetY() > from {
-			points = append(points, newPoint(p1.x, ptr(from), 0))
+			points = append(points, newPoint(p1.getX(), ptr(from), 0))
 		}
 		if p2.GetY() >= from {
 			if p2.GetY() > threshold {
-				points = append(points, newPoint(p1.x, ptr(threshold), 0))
+				points = append(points, newPoint(p1.getX(), ptr(threshold), 0))
 				break
 			}
 			points = append(points, p2)
@@ -668,12 +677,12 @@ func cropPathAt(path *Path, from, limit int) *Path {
 
 // Crop a path to `from+limit` height
 func cropPathEndAt(path *Path, from, limit int) *Path {
-	points := []*Point{path.Points[0]}
+	points := []IPoint{path.Points[0]}
 	threshold := from + limit
 	for i := 1; i < len(path.Points); i++ {
 		p1, p2 := path.Points[i-1], path.Points[i]
 		if p2.GetY() > threshold {
-			points = append(points, newPoint(p1.x, ptr(threshold), 0))
+			points = append(points, newPoint(p1.getX(), ptr(threshold), 0))
 			break
 		}
 		points = append(points, p2)
@@ -742,7 +751,7 @@ func processChildren(node *internalNode, inputNodes []*Node, followingNodesWithC
 						targetColumn := pathToFollowingNode.GetHeightAtIdx(*node.idx)
 						if targetColumn > secondToLastPointX {
 							// Remove all nodes, that are next to the last node, that have the same y as the last node
-							for pathToFollowingNode.last().y == pathToFollowingNode.secondToLast().y {
+							for pathToFollowingNode.last().GetY() == pathToFollowingNode.secondToLast().GetY() {
 								pathToFollowingNode.removeSecondToLast()
 							}
 							pathToFollowingNode.removeLast()
@@ -835,7 +844,7 @@ func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, last
 		if *n.idx < 0 {
 			for _, c := range n.children {
 				p := c.parentsPaths[n.id]
-				p.last().x = p.secondToLast().x
+				p.last().SetX(p.secondToLast().getX())
 			}
 			*n.idx = lastRowIdx
 		}
