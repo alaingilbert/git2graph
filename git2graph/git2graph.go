@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // NoOutput No output
@@ -418,8 +417,13 @@ func (n *internalNode) moveDown(idx int) {
 
 const (
 	idKey               = "id"           // Commit sha
+	authorNameKey       = "name"         // Author name
+	authorEmailKey      = "email"        // Author email
+	timestampKey        = "timestamp"    // Timestamp
+	dateIsoKey          = "date"         // Date iso
 	parentsKey          = "parents"      // Parent sha(s)
-	decorateKey         = "decorate"     // Parent sha(s)
+	decorateKey         = "decorate"     // Branches/tags
+	subjectKey          = "subject"      // Commit subject
 	gKey                = "g"            // Graph information
 	parentsPathsTestKey = "parentsPaths" // Used in tests
 )
@@ -945,6 +949,11 @@ func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder bool, limit int) (
 		node := &Node{}
 		(*node)[idKey] = id
 		(*node)[parentsKey] = parents
+		(*node)[authorNameKey] = lines[i+2]
+		(*node)[authorEmailKey] = lines[i+3]
+		(*node)[timestampKey] = lines[i+4]
+		(*node)[dateIsoKey] = lines[i+5]
+		(*node)[subjectKey] = lines[i+8]
 		(*node)[decorateKey] = lines[i+9]
 		nodes = append(nodes, node)
 		ids++
