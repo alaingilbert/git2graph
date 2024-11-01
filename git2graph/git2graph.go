@@ -1005,8 +1005,8 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 					addLine1(yOffset2, p2.getX(), BottomHalfLine, color)
 				}
 				if i == len(path.Points)-1 {
-					p2 = path.Points[i]
-					addLine1(p2.GetY()-offset, p2.getX(), TopHalfLine, color)
+					p3 := path.Points[i]
+					addLine1(p3.GetY()-offset, p3.getX(), TopHalfLine, color)
 				}
 			case p2.getType() == MergeTo:
 				addLine(yOffset1, p1.getX(), p2.getX(), ForkLine, color)
