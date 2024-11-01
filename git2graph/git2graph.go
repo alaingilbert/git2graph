@@ -22,24 +22,40 @@ type color struct {
 }
 
 // DefaultColors Default colors
+//var DefaultColors = []string{
+//	"#5aa1be",
+//	"#c065b8",
+//	"#c0ab5f",
+//	"#59bc95",
+//	"#7a63be",
+//	"#c0615b",
+//	"#73bb5e",
+//	"#6ee585",
+//	"#7088e8",
+//	"#eb77a3",
+//	"#c2e675",
+//	"#6fdfe9",
+//	"#d87de8",
+//	"#eab774",
+//	"#be82fb",
+//	"#72d7fc",
+//	"#adfb82",
+//}
+
+// DefaultColors Default colors
 var DefaultColors = []string{
-	"#5aa1be",
-	"#c065b8",
-	"#c0ab5f",
-	"#59bc95",
-	"#7a63be",
-	"#c0615b",
-	"#73bb5e",
-	"#6ee585",
-	"#7088e8",
-	"#eb77a3",
-	"#c2e675",
-	"#6fdfe9",
-	"#d87de8",
-	"#eab774",
-	"#be82fb",
-	"#72d7fc",
-	"#adfb82",
+	"#0D55B4",
+	"#BB3C01",
+	"#F79413",
+	"#226A4B",
+	"#444199",
+	"#2B91AB",
+	"#1174FD",
+	"#F46835",
+	"#FAB118",
+	"#52B286",
+	"#6864C2",
+	"#37BADB",
 }
 
 type IColorGenerator interface {
