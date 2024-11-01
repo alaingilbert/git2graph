@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -856,6 +857,10 @@ func GetPaginated(inputNodes []*Node, from string, limit int) (*Out, error) {
 	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
 }
 
+func GetPaginated1(inputNodes []*Node, from string, limit int) (*Out, error) {
+	return buildTree1(inputNodes, NewCycleColorGen(DefaultColors), from, limit)
+}
+
 func buildTreeTest(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Node, error) {
 	out, err := buildTree(inputNodes, colorGen, from, limit, true)
 	if err != nil {
@@ -896,6 +901,164 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 		Nodes:        finalStruct,
 		PartialPaths: finalPP,
 	}, nil
+}
+
+func buildTree1(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) (*Out, error) {
+	nodes, _ := buildRows(inputNodes, colorGen, from, limit)
+	finalStruct := make([]*Node, len(nodes))
+	for nodeIdx, node := range nodes {
+		finalNode := node.initialNode
+		(*finalNode)[gKey] = []any{node.X, node.Color, node.lines}
+		finalStruct[nodeIdx] = finalNode
+	}
+	return &Out{
+		FirstSha: inputNodes[0].GetID(), // if first sha change, we probably need to re-render the whole tree
+		Nodes:    finalStruct,
+	}, nil
+}
+
+type Tmp struct {
+	initialNode *Node
+	X           int
+	Color       string
+	lines       []TmpLine
+}
+
+func (t Tmp) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]any{t.X, t.Color, t.lines})
+}
+
+type TmpLine struct {
+	X1    int
+	X2    int
+	Typ   int
+	Color string
+}
+
+func (t TmpLine) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]any{t.X1, t.X2, t.Typ, t.Color})
+}
+
+func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Tmp, error) {
+	nodes, partialPaths := setColumns(inputNodes, from, limit)
+	offset := *nodes[0].idx
+	out := make([]*Tmp, len(nodes)+1)
+
+	// Initialize output array
+	for i := range out {
+		out[i] = &Tmp{lines: []TmpLine{}}
+	}
+
+	// Helper function for adding lines to out
+	addLine := func(yOffset int, x1, x2, lineType int, color string) {
+		if yOffset < len(out) {
+			out[yOffset].lines = append(out[yOffset].lines, TmpLine{x1, x2, lineType, color})
+		}
+	}
+
+	// Process paths and nodes
+	processPath := func(path *Path, offset int, color string, isPartialPath bool) {
+		for i := 1; i < len(path.Points); i++ {
+			p1, p2 := path.Points[i-1], path.Points[i]
+			yOffset1, yOffset2 := p1.GetY()-offset, p2.GetY()-offset
+
+			switch {
+			case p2.getType() == Fork:
+				addLine(yOffset1, p1.getX(), p2.getX(), 2, color)
+				i++
+				p3 := path.Points[i]
+				if p3.getX() == p2.getX() && p3.getType() != MergeBack {
+					yOffset3 := p3.GetY() - offset
+					addLine(yOffset3, p3.getX(), p3.getX(), 3, color)
+				}
+			case p1.getType() == MergeBack:
+				addLine(yOffset1, p1.getX(), p2.getX(), 1, color)
+				i++
+				if i < len(path.Points) {
+					addLine(yOffset2, p2.getX(), p2.getX(), 4, color)
+				}
+				if i == len(path.Points)-1 {
+					p2 = path.Points[i]
+					addLine(p2.GetY()-offset, p2.getX(), p2.getX(), 7, color)
+				}
+			case p2.getType() == MergeTo:
+				addLine(yOffset1, p1.getX(), p2.getX(), 5, color)
+			case i == 1:
+				if isPartialPath {
+					addLine(yOffset1, p1.getX(), p1.getX(), 6, color)
+				} else {
+					addLine(yOffset1, p1.getX(), p1.getX(), 0, color)
+				}
+				if i == len(path.Points)-1 {
+					addLine(yOffset2, p2.getX(), p2.getX(), 7, color)
+				}
+			case i == len(path.Points)-1:
+				addLine(yOffset1, p1.getX(), p1.getX(), 6, color)
+				addLine(yOffset2, p2.getX(), p2.getX(), 7, color)
+			default:
+				addLine(yOffset1, p1.getX(), p1.getX(), 6, color)
+			}
+		}
+	}
+
+	// Process each partial path
+	for _, path2 := range partialPaths {
+		if len(path2.Points) == 0 {
+			continue
+		}
+		path := expandPath(path2)
+		pathColor := colorGen.GetColor(path.colorIdx)
+		processPath(path, offset, pathColor, true)
+	}
+
+	// Process nodes and their parent paths
+	for i, node := range nodes {
+		t := out[i]
+		t.initialNode = node.initialNode
+		t.X = node.column
+		t.Color = colorGen.GetColor(node.colorIdx)
+
+		// draw path arriving at node if the node is the first node of a new page and has children
+		if len(node.children) > 0 {
+			addLine(*node.idx-offset, node.column, node.column, 6, t.Color)
+		}
+
+		for _, parent := range node.parents {
+			parentPath := expandPath(node.parentsPaths[parent.id])
+			pathColor := colorGen.GetColor(parentPath.colorIdx)
+			processPath(parentPath, offset, pathColor, false)
+		}
+	}
+
+	// Sort lines in each Tmp instance
+	for i := range out {
+		sort.Slice(out[i].lines, func(j, k int) bool {
+			a, b := out[i].lines[j], out[i].lines[k]
+			if a.Typ == 0 || a.Typ == 6 || a.Typ == 7 {
+				return true
+			}
+			if b.Typ == 0 || b.Typ == 6 || b.Typ == 7 {
+				return false
+			}
+			return a.X1 < b.X1
+		})
+	}
+
+	return out[:len(nodes)], nil
+}
+
+func expandPath(path *Path) *Path {
+	np := &Path{colorIdx: path.colorIdx, Points: []IPoint{path.Points[0]}}
+	for i := 1; i < len(path.Points); i++ {
+		p1, p2 := path.Points[i-1], path.Points[i]
+		if p2.GetY() > p1.GetY()+1 {
+			for j := p1.GetY() + 1; j < p2.GetY(); j++ {
+				np.Points = append(np.Points, newPoint(p1.getX(), ptr(j), 0))
+			}
+		}
+		np.Points = append(np.Points, p2)
+	}
+	return np
 }
 
 // GetInputNodesFromFile creates an array of Node from json contained in a file

@@ -1,6 +1,8 @@
 package git2graph
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -88,6 +90,8 @@ var customColors = NewSimpleColorGen([]string{
 	"color9",
 	"color10",
 })
+
+var realColors = NewSimpleColorGen(DefaultColors)
 
 func TestNotEnoughColors(t *testing.T) {
 	var colors = NewSimpleColorGen([]string{
@@ -2459,4 +2463,26 @@ func testPoints(t *testing.T, expected, points []IPoint) {
 			t.Fail()
 		}
 	}
+}
+
+func TestBuildRows(t *testing.T) {
+	inputNodes := []*Node{
+		{"id": "0", "parents": []string{"2"}},
+		{"id": "1", "parents": []string{"4", "3"}},
+		{"id": "2", "parents": []string{"3", "1"}},
+		{"id": "3", "parents": []string{"4"}},
+		{"id": "4", "parents": []string{"5"}},
+		{"id": "5", "parents": []string{}},
+	}
+	out, _ := buildRows(inputNodes, realColors, "", -1)
+	by, _ := json.Marshal(out)
+	fmt.Println(string(by))
+	t.Fail()
+}
+
+func TestExpandPath(t *testing.T) {
+	path := &Path{Points: convertPoints([]*PointTest{{0, 0, 0}, {0, 3, 0}})}
+	out := expandPath(path)
+	fmt.Println("????", out)
+	t.Fail()
 }
