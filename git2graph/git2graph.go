@@ -979,6 +979,9 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 			out[yOffset].lines = append(out[yOffset].lines, TmpLine{x1, x2, lineType, color})
 		}
 	}
+	addLine1 := func(yOffset int, x, lineType int, color string) {
+		addLine(yOffset, x, x, lineType, color)
+	}
 
 	// Process paths and nodes
 	processPath := func(path *Path, offset int, color string, isPartialPath bool) {
@@ -993,34 +996,34 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 				p3 := path.Points[i]
 				if p3.getX() == p2.getX() && p3.getType() != MergeBack {
 					yOffset3 := p3.GetY() - offset
-					addLine(yOffset3, p3.getX(), p3.getX(), TopHalfLine, color)
+					addLine1(yOffset3, p3.getX(), TopHalfLine, color)
 				}
 			case p1.getType() == MergeBack:
 				addLine(yOffset1, p1.getX(), p2.getX(), MergeBackLine, color)
 				i++
 				if i < len(path.Points) {
-					addLine(yOffset2, p2.getX(), p2.getX(), BottomHalfLine, color)
+					addLine1(yOffset2, p2.getX(), BottomHalfLine, color)
 				}
 				if i == len(path.Points)-1 {
 					p2 = path.Points[i]
-					addLine(p2.GetY()-offset, p2.getX(), p2.getX(), TopHalfLine, color)
+					addLine1(p2.GetY()-offset, p2.getX(), TopHalfLine, color)
 				}
 			case p2.getType() == MergeTo:
 				addLine(yOffset1, p1.getX(), p2.getX(), ForkLine, color)
 			case i == 1:
 				if isPartialPath {
-					addLine(yOffset1, p1.getX(), p1.getX(), FullLine, color)
+					addLine1(yOffset1, p1.getX(), FullLine, color)
 				} else {
-					addLine(yOffset1, p1.getX(), p1.getX(), BottomHalfLine, color)
+					addLine1(yOffset1, p1.getX(), BottomHalfLine, color)
 				}
 				if i == len(path.Points)-1 {
-					addLine(yOffset2, p2.getX(), p2.getX(), TopHalfLine, color)
+					addLine1(yOffset2, p2.getX(), TopHalfLine, color)
 				}
 			case i == len(path.Points)-1:
-				addLine(yOffset1, p1.getX(), p1.getX(), FullLine, color)
-				addLine(yOffset2, p2.getX(), p2.getX(), TopHalfLine, color)
+				addLine1(yOffset1, p1.getX(), FullLine, color)
+				addLine1(yOffset2, p2.getX(), TopHalfLine, color)
 			default:
-				addLine(yOffset1, p1.getX(), p1.getX(), FullLine, color)
+				addLine1(yOffset1, p1.getX(), FullLine, color)
 			}
 		}
 	}
