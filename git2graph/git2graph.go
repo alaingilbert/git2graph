@@ -1000,10 +1000,10 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 				}
 			case p1.getType() == MergeBack:
 				addLine(yOffset1, p1.getX(), p2.getX(), MergeBackLine, color)
-				i++
-				if i < len(path.Points) {
+				if i < len(path.Points)-1 {
 					addLine1(yOffset2, p2.getX(), BottomHalfLine, color)
 				}
+				i++
 				if i == len(path.Points)-1 {
 					p3 := path.Points[i]
 					addLine1(p3.GetY()-offset, p3.getX(), TopHalfLine, color)
