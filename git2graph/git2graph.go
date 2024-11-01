@@ -1050,7 +1050,7 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 
 		// draw path arriving at node if the node is the first node of a new page and has children
 		if len(node.children) > 0 {
-			addLine(*node.idx-offset, node.column, node.column, 6, t.Color)
+			addLine(*node.idx-offset, node.column, node.column, TopHalfLine, t.Color)
 		}
 
 		for _, parent := range node.parents {
