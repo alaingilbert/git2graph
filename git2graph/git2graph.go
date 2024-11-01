@@ -1055,13 +1055,14 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	}
 
 	// Sort lines in each Tmp instance
+	isStraight := func(typ int) bool { return typ == BottomHalfLine || typ == TopHalfLine || typ == FullLine }
 	for i := range out {
 		sort.Slice(out[i].lines, func(j, k int) bool {
 			a, b := out[i].lines[j], out[i].lines[k]
-			if a.Typ == BottomHalfLine || a.Typ == TopHalfLine || a.Typ == FullLine {
+			if isStraight(a.Typ) {
 				return true
 			}
-			if b.Typ == BottomHalfLine || b.Typ == TopHalfLine || b.Typ == FullLine {
+			if isStraight(b.Typ) {
 				return false
 			}
 			return a.X1 < b.X1
