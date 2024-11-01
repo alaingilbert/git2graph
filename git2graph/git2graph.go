@@ -924,7 +924,7 @@ func buildTree1(inputNodes []*Node, colorGen IColorGenerator, from string, limit
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
 		finalNode := node.initialNode
-		(*finalNode)[gKey] = []any{node.X, node.Color, node.lines}
+		(*finalNode)[gKey] = []any{node.x, node.color, node.lines}
 		finalStruct[nodeIdx] = finalNode
 	}
 	return &Out{
@@ -933,26 +933,26 @@ func buildTree1(inputNodes []*Node, colorGen IColorGenerator, from string, limit
 	}, nil
 }
 
-type Tmp struct {
+type row struct {
 	initialNode *Node
-	X           int
-	Color       string
-	lines       []TmpLine
+	x           int
+	color       string
+	lines       []rowLine
 }
 
-func (t Tmp) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]any{t.X, t.Color, t.lines})
+func (t row) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]any{t.x, t.color, t.lines})
 }
 
-type TmpLine struct {
-	X1    int
-	X2    int
-	Typ   int
-	Color string
+type rowLine struct {
+	x1    int
+	x2    int
+	typ   int
+	color string
 }
 
-func (t TmpLine) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]any{t.X1, t.X2, t.Typ, t.Color})
+func (t rowLine) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]any{t.x1, t.x2, t.typ, t.color})
 }
 
 const (
@@ -963,20 +963,20 @@ const (
 	MergeBackLine  = 4
 )
 
-func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Tmp, error) {
+func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*row, error) {
 	nodes, partialPaths := setColumns(inputNodes, from, limit)
 	offset := *nodes[0].idx
-	out := make([]*Tmp, len(nodes)+1)
+	out := make([]*row, len(nodes)+1)
 
 	// Initialize output array
 	for i := range out {
-		out[i] = &Tmp{lines: []TmpLine{}}
+		out[i] = &row{lines: []rowLine{}}
 	}
 
 	// Helper function for adding lines to out
 	addLine := func(yOffset int, x1, x2, lineType int, color string) {
 		if yOffset < len(out) {
-			out[yOffset].lines = append(out[yOffset].lines, TmpLine{x1, x2, lineType, color})
+			out[yOffset].lines = append(out[yOffset].lines, rowLine{x1, x2, lineType, color})
 		}
 	}
 	addLine1 := func(yOffset int, x1, x2 IPoint, lineType int, color string) {
@@ -1045,12 +1045,12 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	for i, node := range nodes {
 		t := out[i]
 		t.initialNode = node.initialNode
-		t.X = node.column
-		t.Color = colorGen.GetColor(node.colorIdx)
+		t.x = node.column
+		t.color = colorGen.GetColor(node.colorIdx)
 
 		// draw path arriving at node if the node is the first node of a new page and has children
 		if len(node.children) > 0 {
-			addLine(*node.idx-offset, node.column, node.column, TopHalfLine, t.Color)
+			addLine(*node.idx-offset, node.column, node.column, TopHalfLine, t.color)
 		}
 
 		for _, parent := range node.parents {
@@ -1060,18 +1060,18 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 		}
 	}
 
-	// Sort lines in each Tmp instance
+	// Sort lines in each row instance
 	isStraight := func(typ int) bool { return typ == BottomHalfLine || typ == TopHalfLine || typ == FullLine }
 	for i := range out {
 		sort.Slice(out[i].lines, func(j, k int) bool {
 			a, b := out[i].lines[j], out[i].lines[k]
-			if isStraight(a.Typ) {
+			if isStraight(a.typ) {
 				return true
 			}
-			if isStraight(b.Typ) {
+			if isStraight(b.typ) {
 				return false
 			}
-			return a.X1 < b.X1
+			return a.x1 < b.x1
 		})
 	}
 
