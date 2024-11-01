@@ -2462,3 +2462,10 @@ func testPoints(t *testing.T, expected, points []IPoint) {
 		}
 	}
 }
+
+func TestExpandPath(t *testing.T) {
+	path := &Path{Points: convertPoints([]*PointTest{{0, 0, 0}, {0, 3, 0}})}
+	out := expandPath(path)
+	expected := convertPoints([]*PointTest{{0, 0, 0}, {0, 1, 0}, {0, 2, 0}, {0, 3, 0}})
+	testPoints(t, expected, out.Points)
+}
