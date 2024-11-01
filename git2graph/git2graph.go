@@ -956,14 +956,11 @@ func (t TmpLine) MarshalJSON() ([]byte, error) {
 }
 
 const (
-	BottomHalfLine     = 0
-	MergeBackLine      = 1
-	ForkLine           = 2
-	AfterForkLine      = 3
-	AfterMergeBackLine = 4
-	MergeToLine        = 5
-	FullLine           = 6
-	TopHalfLine        = 7
+	BottomHalfLine = 0
+	TopHalfLine    = 1
+	FullLine       = 2
+	ForkLine       = 3
+	MergeBackLine  = 4
 )
 
 func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Tmp, error) {
@@ -996,20 +993,20 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 				p3 := path.Points[i]
 				if p3.getX() == p2.getX() && p3.getType() != MergeBack {
 					yOffset3 := p3.GetY() - offset
-					addLine(yOffset3, p3.getX(), p3.getX(), AfterForkLine, color)
+					addLine(yOffset3, p3.getX(), p3.getX(), TopHalfLine, color)
 				}
 			case p1.getType() == MergeBack:
 				addLine(yOffset1, p1.getX(), p2.getX(), MergeBackLine, color)
 				i++
 				if i < len(path.Points) {
-					addLine(yOffset2, p2.getX(), p2.getX(), AfterMergeBackLine, color)
+					addLine(yOffset2, p2.getX(), p2.getX(), BottomHalfLine, color)
 				}
 				if i == len(path.Points)-1 {
 					p2 = path.Points[i]
 					addLine(p2.GetY()-offset, p2.getX(), p2.getX(), TopHalfLine, color)
 				}
 			case p2.getType() == MergeTo:
-				addLine(yOffset1, p1.getX(), p2.getX(), MergeToLine, color)
+				addLine(yOffset1, p1.getX(), p2.getX(), ForkLine, color)
 			case i == 1:
 				if isPartialPath {
 					addLine(yOffset1, p1.getX(), p1.getX(), FullLine, color)
@@ -1061,10 +1058,10 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	for i := range out {
 		sort.Slice(out[i].lines, func(j, k int) bool {
 			a, b := out[i].lines[j], out[i].lines[k]
-			if a.Typ == 0 || a.Typ == 6 || a.Typ == 7 {
+			if a.Typ == BottomHalfLine || a.Typ == TopHalfLine || a.Typ == FullLine {
 				return true
 			}
-			if b.Typ == 0 || b.Typ == 6 || b.Typ == 7 {
+			if b.Typ == BottomHalfLine || b.Typ == TopHalfLine || b.Typ == FullLine {
 				return false
 			}
 			return a.X1 < b.X1
