@@ -18,6 +18,7 @@ func startAction(c *cli.Context) error {
 	fileFlag := c.String("file")
 	repoFlag := c.Bool("repo")
 	topoOrderFlag := c.Bool("topo-order")
+	dateOrderFlag := c.Bool("date-order")
 	git2graph.NoOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
 	seqIds := c.Bool("seq-ids")
@@ -25,7 +26,7 @@ func startAction(c *cli.Context) error {
 	setLogLevel(logLevel)
 
 	if repoFlag || repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag, limitFlag)
+		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag, dateOrderFlag, limitFlag)
 		if repoLinearFlag {
 			git2graph.SerializeOutput(&git2graph.Out{Nodes: nodes})
 			return err
