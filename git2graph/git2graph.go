@@ -979,8 +979,11 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 			out[yOffset].lines = append(out[yOffset].lines, TmpLine{x1, x2, lineType, color})
 		}
 	}
-	addLine1 := func(yOffset int, x, lineType int, color string) {
-		addLine(yOffset, x, x, lineType, color)
+	addLine1 := func(yOffset int, x1, x2 IPoint, lineType int, color string) {
+		addLine(yOffset, x1.getX(), x2.getX(), lineType, color)
+	}
+	addLine2 := func(yOffset int, x IPoint, lineType int, color string) {
+		addLine1(yOffset, x, x, lineType, color)
 	}
 
 	// Process paths and nodes
@@ -991,39 +994,39 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 
 			switch {
 			case p2.getType() == Fork:
-				addLine(yOffset1, p1.getX(), p2.getX(), ForkLine, color)
+				addLine1(yOffset1, p1, p2, ForkLine, color)
 				i++
 				p3 := path.Points[i]
 				if p3.getX() == p2.getX() && p3.getType() != MergeBack {
 					yOffset3 := p3.GetY() - offset
-					addLine1(yOffset3, p3.getX(), TopHalfLine, color)
+					addLine2(yOffset3, p3, TopHalfLine, color)
 				}
 			case p1.getType() == MergeBack:
-				addLine(yOffset1, p1.getX(), p2.getX(), MergeBackLine, color)
+				addLine1(yOffset1, p1, p2, MergeBackLine, color)
 				if i < len(path.Points)-1 {
-					addLine1(yOffset2, p2.getX(), BottomHalfLine, color)
+					addLine2(yOffset2, p2, BottomHalfLine, color)
 				}
 				i++
 				if i == len(path.Points)-1 {
 					p3 := path.Points[i]
-					addLine1(p3.GetY()-offset, p3.getX(), TopHalfLine, color)
+					addLine2(p3.GetY()-offset, p3, TopHalfLine, color)
 				}
 			case p2.getType() == MergeTo:
-				addLine(yOffset1, p1.getX(), p2.getX(), ForkLine, color)
+				addLine1(yOffset1, p1, p2, ForkLine, color)
 			case i == 1:
 				if isPartialPath {
-					addLine1(yOffset1, p1.getX(), FullLine, color)
+					addLine2(yOffset1, p1, FullLine, color)
 				} else {
-					addLine1(yOffset1, p1.getX(), BottomHalfLine, color)
+					addLine2(yOffset1, p1, BottomHalfLine, color)
 				}
 				if i == len(path.Points)-1 {
-					addLine1(yOffset2, p2.getX(), TopHalfLine, color)
+					addLine2(yOffset2, p2, TopHalfLine, color)
 				}
 			case i == len(path.Points)-1:
-				addLine1(yOffset1, p1.getX(), FullLine, color)
-				addLine1(yOffset2, p2.getX(), TopHalfLine, color)
+				addLine2(yOffset1, p1, FullLine, color)
+				addLine2(yOffset2, p2, TopHalfLine, color)
 			default:
-				addLine1(yOffset1, p1.getX(), FullLine, color)
+				addLine2(yOffset1, p1, FullLine, color)
 			}
 		}
 	}
