@@ -2464,13 +2464,23 @@ func testPoints(t *testing.T, expected, points []IPoint) {
 }
 
 func TestExpandPath(t *testing.T) {
-	path := &Path{Points: convertPoints([]*PointTest{{0, 0, 0}, {0, 3, 0}})}
-	out := expandPath(path)
-	expected := convertPoints([]*PointTest{{0, 0, 0}, {0, 1, 0}, {0, 2, 0}, {0, 3, 0}})
-	testPoints(t, expected, out.Points)
+	tests := []struct {
+		input    []*PointTest
+		expected []*PointTest
+	}{
+		{
+			input:    []*PointTest{{0, 0, 0}, {0, 3, 0}},
+			expected: []*PointTest{{0, 0, 0}, {0, 1, 0}, {0, 2, 0}, {0, 3, 0}},
+		},
+		{
+			input:    []*PointTest{{0, 0, 0}, {1, 0, 1}, {1, 3, 0}},
+			expected: []*PointTest{{0, 0, 0}, {1, 0, 1}, {1, 1, 0}, {1, 2, 0}, {1, 3, 0}},
+		},
+	}
 
-	path = &Path{Points: convertPoints([]*PointTest{{0, 0, 0}, {1, 0, 1}, {1, 3, 0}})}
-	out = expandPath(path)
-	expected = convertPoints([]*PointTest{{0, 0, 0}, {1, 0, 1}, {1, 1, 0}, {1, 2, 0}, {1, 3, 0}})
-	testPoints(t, expected, out.Points)
+	for _, tt := range tests {
+		path := &Path{Points: convertPoints(tt.input)}
+		out := expandPath(path)
+		testPoints(t, convertPoints(tt.expected), out.Points)
+	}
 }
