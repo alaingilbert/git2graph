@@ -1,5 +1,5 @@
-EXAMPLES_FILE=tools/renderer-rows/examples.js
-GITHUB_PAGES_FOLDER=tools/renderer-rows
+EXAMPLES_FILE=tools/renderer/examples.js
+GITHUB_PAGES_FOLDER=tools/renderer
 GITHUB_PAGES_BRANCH=gh-pages
 
 deploy:
