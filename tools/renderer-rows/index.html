@@ -7,6 +7,7 @@
     <script src="vendors/underscore.min.js"></script>
     <script src="vendors/jquery.min.js"></script>
     <script src="vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../renderer/examples.js"></script>
     <style>
         #json {
             height: 200px;
@@ -20,6 +21,12 @@
 <body>
 <div class="container">
     <h1>Tree renderer rows</h1>
+    <div class="form-group">
+        <label>Json:</label>
+        <select class="form-control" id="examples">
+            <option>Choose an example</option>
+        </select>
+    </div>
     <div id="json-group" class="form-group">
         <textarea id="json" class="form-control"></textarea>
     </div>
@@ -32,6 +39,20 @@
     </div>
 </div>
 <script>
+    _.each(examples_rows, function(content, fileName) {
+        $('#examples').append($('<option></option>').attr('value', fileName).text(fileName));
+    });
+
+    $('#examples').change(function() {
+        const val = $('#examples').val();
+        let text = '';
+        if (examples_rows[val]) {
+            text = JSON.stringify(JSON.parse(examples_rows[val]), null, 2);
+        }
+        $('#json').val(text);
+        render();
+    });
+
     const lineFunction = d3.svg.line()
         .x(function(d) { return d.x; })
         .y(function(d) { return d.y; })

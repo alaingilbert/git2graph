@@ -8,6 +8,11 @@ deploy:
 	for f in data/*.json; do \
 		c=`go run main.go -f $$f`; \
 		echo "examples['$$f'] = '$$c';" >> $(EXAMPLES_FILE); \
+	done; \
+	echo "var examples_rows = {}" >> $(EXAMPLES_FILE); \
+	for f in data/*.json; do \
+		c=`go run main.go -f $$f --rows`; \
+		echo "examples_rows['$$f'] = '$$c';" >> $(EXAMPLES_FILE); \
 	done
 
 github: deploy
