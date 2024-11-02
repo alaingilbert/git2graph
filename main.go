@@ -22,6 +22,7 @@ func startAction(c *cli.Context) error {
 	git2graph.NoOutput = c.Bool("no-output")
 	repoLinearFlag := c.Bool("repo-linear")
 	seqIds := c.Bool("seq-ids")
+	rowsFlag := c.Bool("rows")
 	logLevel := c.String("log")
 	setLogLevel(logLevel)
 
@@ -43,7 +44,12 @@ func startAction(c *cli.Context) error {
 		return err
 	}
 
-	out, err := git2graph.GetPaginated(nodes, fromFlag, limitFlag)
+	var out *git2graph.Out
+	if rowsFlag {
+		out, err = git2graph.GetPaginatedRows(nodes, fromFlag, limitFlag)
+	} else {
+		out, err = git2graph.GetPaginated(nodes, fromFlag, limitFlag)
+	}
 	if err != nil {
 		log.Error(err)
 		return err
@@ -96,6 +102,7 @@ func main() {
 		cli.BoolFlag{Name: "l, repo-linear", Usage: "Repository linear history"},
 		cli.BoolFlag{Name: "s, seq-ids", Usage: "Use sequential ids instead of sha for linear history"},
 		cli.BoolFlag{Name: "n, no-output", Usage: "No output"},
+		cli.BoolFlag{Name: "rows", Usage: "Rows graph"},
 		cli.StringFlag{Name: "from", Usage: "From"},
 		cli.IntFlag{Name: "limit", Usage: "Limit", Value: -1},
 		cli.BoolFlag{Name: "context", Usage: "Include context"},
