@@ -69,10 +69,12 @@ func main() {
     {"id": "3", "parents": []string{}},
   }
 
+  // Use this to render a whole graph in a single SVG
   out, err := git2graph.Get(in)
   fmt.Println(out, err)
 
-  out, err := git2graph.GetRows(in)
+  // Use this if you want to render each rows individually (for html table)
+  out, err = git2graph.GetRows(in)
   fmt.Println(out, err)
 }
 ```
