@@ -99,10 +99,6 @@ git2graph -j '...'
 go test ./...
 ```
 
-## TODO
-
-- Pagination
-
 ## How to contribute
 
 - Fork the repo
