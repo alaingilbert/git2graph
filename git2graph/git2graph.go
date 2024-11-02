@@ -44,18 +44,18 @@ type color struct {
 
 // DefaultColors Default colors
 var DefaultColors = []string{
-	"#0D55B4",
-	"#BB3C01",
-	"#F79413",
-	"#226A4B",
-	"#444199",
-	"#2B91AB",
-	"#1174FD",
-	"#F46835",
-	"#FAB118",
-	"#52B286",
-	"#6864C2",
-	"#37BADB",
+	"#005EBE",
+	"#CD3A00",
+	"#FF9B00",
+	"#007754",
+	"#5247A5",
+	"#009DB5",
+	"#007DFF",
+	"#FF6C3B",
+	"#FFB800",
+	"#3EBD90",
+	"#776CCB",
+	"#00C4E0",
 }
 
 type IColorGenerator interface {
