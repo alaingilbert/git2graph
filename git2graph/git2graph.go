@@ -868,6 +868,14 @@ func setUndefinedRows(followingNodesWithChildrenBeforeIdx *internalNodeSet, last
 	}
 }
 
+func Get(inputNodes []*Node) (*Out, error) {
+	return GetPaginated(inputNodes, "", -1)
+}
+
+func GetRows(inputNodes []*Node) (*Out, error) {
+	return GetPaginatedRows(inputNodes, "", -1)
+}
+
 // GetPaginated gets the necessary information to render the graph for the asked page
 func GetPaginated(inputNodes []*Node, from string, limit int) (*Out, error) {
 	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
