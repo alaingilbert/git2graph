@@ -1078,6 +1078,7 @@ func buildRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	return out[:len(nodes)], nil
 }
 
+// Take a path and make sure there is a point for every row of the path.
 func expandPath(path *Path) *Path {
 	np := &Path{colorIdx: path.colorIdx, Points: []IPoint{path.Points[0]}}
 	for i := 1; i < len(path.Points); i++ {
