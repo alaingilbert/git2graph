@@ -27,7 +27,17 @@ func startAction(c *cli.Context) error {
 	setLogLevel(logLevel)
 
 	if repoFlag || repoLinearFlag {
-		nodes, err = git2graph.GetInputNodesFromRepo("", seqIds, topoOrderFlag, dateOrderFlag, limitFlag)
+		order := git2graph.DefaultOrder
+		if topoOrderFlag {
+			order = git2graph.TopoOrder
+		} else if dateOrderFlag {
+			order = git2graph.DateOrder
+		}
+		if seqIds {
+			nodes, err = git2graph.GetInputNodesFromRepoSeq("", order, limitFlag)
+		} else {
+			nodes, err = git2graph.GetInputNodesFromRepo("", order, limitFlag)
+		}
 		if repoLinearFlag {
 			git2graph.SerializeOutput(&git2graph.Out{Nodes: nodes})
 			return err
