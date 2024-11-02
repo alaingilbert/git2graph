@@ -873,8 +873,8 @@ func GetPaginated(inputNodes []*Node, from string, limit int) (*Out, error) {
 	return buildTree(inputNodes, NewCycleColorGen(DefaultColors), from, limit, false)
 }
 
-func GetPaginated1(inputNodes []*Node, from string, limit int) (*Out, error) {
-	return buildTree1(inputNodes, NewCycleColorGen(DefaultColors), from, limit)
+func GetPaginatedRows(inputNodes []*Node, from string, limit int) (*Out, error) {
+	return buildTreeRows(inputNodes, NewCycleColorGen(DefaultColors), from, limit)
 }
 
 func buildTreeTest(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) ([]*Node, error) {
@@ -919,7 +919,7 @@ func buildTree(inputNodes []*Node, colorGen IColorGenerator, from string, limit 
 	}, nil
 }
 
-func buildTree1(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) (*Out, error) {
+func buildTreeRows(inputNodes []*Node, colorGen IColorGenerator, from string, limit int) (*Out, error) {
 	nodes, _ := buildRows(inputNodes, colorGen, from, limit)
 	finalStruct := make([]*Node, len(nodes))
 	for nodeIdx, node := range nodes {
