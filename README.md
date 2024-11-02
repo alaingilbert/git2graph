@@ -1,7 +1,8 @@
 ![Logo](img/logo.png)
 
-Given a list of commits and their parents, return a structure that tells you exactly how to draw the git graph.  
-The algorithm try to reproduce the "sourcetree" graph style.
+Open source implementation of the [sourcetree](https://www.sourcetreeapp.com/) graph algorithm.
+
+Given a list of commits and their parents, return a structure that tells you exactly how to draw the git graph.
 
 It takes a json:
 
@@ -69,6 +70,9 @@ func main() {
   }
 
   out, err := git2graph.Get(in)
+  fmt.Println(out, err)
+
+  out, err := git2graph.GetRows(in)
   fmt.Println(out, err)
 }
 ```
