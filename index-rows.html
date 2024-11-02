@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+    <title>Git2Graph Renderer Rows</title>
+    <link rel="stylesheet" href="vendors/bootstrap/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8" />
+    <script src="vendors/d3.min.js"></script>
+    <script src="vendors/underscore.min.js"></script>
+    <script src="vendors/jquery.min.js"></script>
+    <script src="vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="examples.js"></script>
+    <style>
+        #json {
+            height: 200px;
+        }
+        table tr:hover { background-color: #ddd; }
+        table td {
+            line-height: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tree renderer rows</h1>
+
+    <div class="form-group">
+        <ul>
+            <li><a href="/index.html">Single SVG renderer</a></li>
+            <li><a href="/index-rows.html">Table rows renderer</a></li>
+        </ul>
+    </div>
+
+    <div class="form-group">
+        <label>Json:</label>
+        <select class="form-control" id="examples">
+            <option>Choose an example</option>
+        </select>
+    </div>
+    <div id="json-group" class="form-group">
+        <textarea id="json" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-success" onclick="render()">Render</button>
+    </div>
+    <div id="tree-group" class="form-group">
+        <label>Result:</label>
+        <table id="table"><tbody></tbody></table>
+    </div>
+</div>
+<script>
+    _.each(examples_rows, function(content, fileName) {
+        $('#examples').append($('<option></option>').attr('value', fileName).text(fileName));
+    });
+
+    $('#examples').change(function() {
+        const val = $('#examples').val();
+        let text = '';
+        if (examples_rows[val]) {
+            text = JSON.stringify(JSON.parse(examples_rows[val]), null, 2);
+        }
+        $('#json').val(text);
+        render();
+    });
+
+    const lineFunction = d3.svg.line()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .interpolate("linear");
+
+    const renderRow = function(id, nodes) {
+        const tree = [nodes];
+        const xGap = 11;
+        const yGap = 26;
+        const gap = 2 / 5 * yGap;
+        const radius = 4;
+        const offset = 9;
+        const lineStrokeWidth = 2.3;
+
+        const svg = d3.select($(id)[0]);
+        svg.style('height', '26px');
+        svg.style('width', '100%');
+        const sg = svg.append('g'); // .attr('transform', 'translate(0, ' + radius + ')')
+
+        const commitGroup = sg.selectAll('commitGroup')
+            .data(tree)
+            .enter()
+            .append('g');
+
+        commitGroup.selectAll('lines')
+            .data(function(d) { return d[2]; })
+            .enter()
+            .append('path')
+            .attr('d', function(path) {
+                const [x1, x2, typ, _] = path;
+                let d = [];
+                if (typ === 0) {
+                    d.push({x: offset + x1 * xGap, y: 13});
+                    d.push({x: offset + x2 * xGap, y: 26});
+                } else if (typ === 1) {
+                    d.push({x: offset + x1 * xGap, y: 0});
+                    d.push({x: offset + x2 * xGap, y: 13});
+                } else if (typ === 2) {
+                    d.push({x: offset + x1 * xGap, y: 0});
+                    d.push({x: offset + x2 * xGap, y: 26});
+                } else if (typ === 3) { // Fork
+                    d.push({x: offset + x1 * xGap, y: 13});
+                    d.push({x: offset + x2 * xGap, y: 23});
+                    d.push({x: offset + x2 * xGap, y: 26});
+                } else if (typ === 4) { // Merge back
+                    d.push({x: offset + x1 * xGap, y: 0});
+                    d.push({x: offset + x1 * xGap, y: 3});
+                    d.push({x: offset + x2 * xGap, y: 13});
+                }
+                return lineFunction(d);
+            })
+            .attr('stroke-width', lineStrokeWidth)
+            .attr('fill', 'none')
+            .attr('stroke', function(path) { return path[3] || '#5aa1be'; });
+
+        sg.selectAll('commit')
+            .data(tree)
+            .enter()
+            .append('g')
+            .each(function(commit) {
+                d3.select(this)
+                    .append('circle')
+                    .attr('r', radius)
+                    .attr('fill', commit[1] || '#5aa1be')
+                    .attr('cx', commit[0] * xGap + offset)
+                    .attr('cy', yGap / 2)
+                    .on('mouseover', function() { d3.select(this).transition().duration(200).attr('r', radius * 1.5); })
+                    .on('mouseout',  function() { d3.select(this).transition().duration(200).attr('r', radius); });
+            });
+    };
+
+    function createRow(row) {
+        const table = document.querySelector("#table tbody");
+        const newRow = table.insertRow();
+        const hashCell = newRow.insertCell(0);
+        hashCell.textContent = row.id.substring(0, 10);
+        const nameCell = newRow.insertCell(1);
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("id", `tree_${row.id}`);
+        nameCell.appendChild(svg);
+        renderRow(`#tree_${row.id}`, row.g);
+    }
+    const render = function() {
+        const jsonText = $('#json').val();
+        let tree;
+        try {
+            tree = JSON.parse(jsonText);
+            $("#json-group").removeClass("has-error");
+        } catch(err) {
+            $("#json-group").addClass("has-error");
+        }
+        const table = document.querySelector("#table tbody");
+        while (table.rows.length > 0) {
+            table.deleteRow(0);
+        }
+        tree.forEach(createRow);
+    };
+</script>
+</body>
+</html>
