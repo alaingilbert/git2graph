@@ -1127,14 +1127,24 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
+type Order int
+
+const (
+	DefaultOrder Order = iota
+	DateOrder
+	TopoOrder
+)
+
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(dir string, seqIds bool, topoOrder, dateOrder bool, limit int) (nodes []*Node, err error) {
+func GetInputNodesFromRepo(dir string, seqIds bool, order Order, limit int) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s%n%d", "--date=local", "--branches", "--remotes", "--decorate"}
-	if topoOrder {
-		args = append(args, "--topo-order")
-	} else if dateOrder {
+	switch order {
+	case DateOrder:
 		args = append(args, "--date-order")
+	case TopoOrder:
+		args = append(args, "--topo-order")
+	case DefaultOrder:
 	}
 	if limit > 0 {
 		args = append(args, fmt.Sprintf("-%d", limit+2))
