@@ -1136,7 +1136,16 @@ const (
 )
 
 // GetInputNodesFromRepo creates an array of Node from a repository
-func GetInputNodesFromRepo(dir string, seqIds bool, order Order, limit int) (nodes []*Node, err error) {
+func GetInputNodesFromRepo(dir string, order Order, limit int) (nodes []*Node, err error) {
+	return getInputNodesFromRepo(dir, false, order, limit)
+}
+
+// GetInputNodesFromRepoSeq creates an array of Node from a repository. Replace sha by sequential IDs.
+func GetInputNodesFromRepoSeq(dir string, order Order, limit int) (nodes []*Node, err error) {
+	return getInputNodesFromRepo(dir, true, order, limit)
+}
+
+func getInputNodesFromRepo(dir string, seqIds bool, order Order, limit int) (nodes []*Node, err error) {
 	startOfCommit := "@@@@@@@@@@"
 	args := []string{"log", "--pretty=tformat:" + startOfCommit + "%n%H%n%aN%n%aE%n%at%n%ai%n%P%n%T%n%s%n%d", "--date=local", "--branches", "--remotes", "--decorate"}
 	switch order {
