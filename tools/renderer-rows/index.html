@@ -123,6 +123,10 @@
         } catch(err) {
             $("#json-group").addClass("has-error");
         }
+        const table = document.querySelector("#table tbody");
+        while (table.rows.length > 0) {
+            table.deleteRow(0);
+        }
         tree.forEach(createRow);
     };
 </script>
